@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="1280" height="640">
+  <title>Dandelion — social preview</title>
+
+  <!-- Cream background -->
+  <rect width="1280" height="640" fill="#F4EFE6"/>
+
+  <!-- Subtle copper accent stripe on the left edge -->
+  <rect x="0" y="0" width="6" height="640" fill="#C97B4E"/>
+
+  <!-- ============ MARK (left side, large) ============ -->
+  <!-- Canonical dandelion mark, rotated 35° around its centre, scaled up. -->
+  <g transform="translate(180 320) scale(2.6) translate(-60 -60)" color="#0F0F12">
+    <g transform="rotate(35 60 60)">
+      <g stroke="currentColor" stroke-width="5" stroke-linecap="round">
+        <line x1="32" y1="30" x2="60" y2="90"/>
+        <line x1="60" y1="30" x2="60" y2="90"/>
+        <line x1="88" y1="30" x2="60" y2="90"/>
+      </g>
+      <!-- Three fork-source nodes -->
+      <circle cx="32" cy="30" r="9" fill="currentColor"/>
+      <circle cx="60" cy="30" r="9" fill="currentColor"/>
+      <circle cx="88" cy="30" r="9" fill="currentColor"/>
+      <!-- Diamond merge node -->
+      <g transform="translate(60 90) rotate(45)">
+        <rect x="-11" y="-11" width="22" height="22" fill="#C97B4E"/>
+      </g>
+    </g>
+  </g>
+
+  <!-- ============ WORDMARK + TAGLINE (right side) ============ -->
+  <g font-family="Inter, -apple-system, 'Segoe UI', system-ui, sans-serif">
+    <!-- Wordmark -->
+    <text x="440" y="280"
+          font-size="128"
+          font-weight="500"
+          letter-spacing="-4"
+          fill="#0F0F12">Dandelion</text>
+
+    <!-- Copper divider -->
+    <rect x="442" y="312" width="64" height="3" fill="#C97B4E"/>
+
+    <!-- Tagline -->
+    <text x="440" y="376"
+          font-size="34"
+          font-weight="400"
+          fill="#2A2A2E">Fork a question. Weave the answers.</text>
+
+    <!-- Subtitle -->
+    <text x="440" y="430"
+          font-size="22"
+          font-weight="400"
+          fill="#5C5F66">Local-first parallel side-threads with app-owned merge routing.</text>
+
+    <!-- Route chips -->
+    <g font-size="16" font-weight="500" font-family="'JetBrains Mono', ui-monospace, monospace">
+      <!-- additional_context — teal -->
+      <g transform="translate(440 484)">
+        <rect width="186" height="32" rx="6" fill="#3A7A7A"/>
+        <text x="93" y="22" text-anchor="middle" fill="#F4EFE6">additional_context</text>
+      </g>
+      <!-- soft_disagreement — copper -->
+      <g transform="translate(640 484)">
+        <rect width="186" height="32" rx="6" fill="#C97B4E"/>
+        <text x="93" y="22" text-anchor="middle" fill="#F4EFE6">soft_disagreement</text>
+      </g>
+      <!-- material_conflict — dark copper -->
+      <g transform="translate(840 484)">
+        <rect width="178" height="32" rx="6" fill="#8A4F22"/>
+        <text x="89" y="22" text-anchor="middle" fill="#F4EFE6">material_conflict</text>
+      </g>
+    </g>
+
+    <!-- Footer URL -->
+    <text x="440" y="572"
+          font-size="18"
+          font-family="'JetBrains Mono', ui-monospace, monospace"
+          fill="#5C5F66">github.com/FrankBu0616/Dandelion</text>
+  </g>
+</svg>
