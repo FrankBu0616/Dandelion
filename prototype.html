@@ -200,6 +200,14 @@
     max-width: none;
     padding: 32px 32px 72px;
   }
+  body.is-empty #main-column {
+    overflow-y: hidden;
+  }
+  body.is-empty #main-inner {
+    height: calc(100% - 98px);
+    padding-top: 0;
+    padding-bottom: 0;
+  }
 
   /* ============ MESSAGES (main column) ============ */
   .msg { margin: 18px 0; display: flex; flex-direction: column; }
@@ -657,10 +665,11 @@
 
   /* ============ EMPTY STATE ============ */
   .empty-state {
-    min-height: calc(100vh - 196px);
+    height: 100%;
+    min-height: 0;
     display: grid;
     place-items: center;
-    padding: 42px 20px 74px;
+    padding: 0 20px;
     margin: 0 auto;
     color: var(--muted);
   }
@@ -703,11 +712,15 @@
   .idle-seed-core {
     fill: rgba(201, 123, 78, 0.72);
   }
+  .idle-floating-seed-anchor {
+    transform-box: fill-box;
+  }
   .idle-floating-seed {
     animation: floatingSeed 7.5s ease-in-out infinite;
   }
-  .idle-floating-seed:nth-of-type(2) { animation-delay: -1.8s; }
-  .idle-floating-seed:nth-of-type(3) { animation-delay: -3.7s; }
+  .idle-floating-seed-anchor:nth-of-type(2) .idle-floating-seed { animation-delay: -1.8s; }
+  .idle-floating-seed-anchor:nth-of-type(3) .idle-floating-seed { animation-delay: -3.7s; }
+  .idle-floating-seed-anchor:nth-of-type(4) .idle-floating-seed { animation-delay: -5.1s; }
   @keyframes idleSway {
     0%, 100% { transform: rotate(-1.2deg) translateX(-2px); }
     50% { transform: rotate(1.6deg) translateX(2px); }
@@ -1119,6 +1132,7 @@ const metaModel = $("#meta-model");
    ============================================================ */
 function renderMain() {
   mainInner.innerHTML = "";
+  document.body.classList.toggle("is-empty", state.mainConv.length === 0);
   if (state.mainConv.length === 0) {
     renderEmpty();
     return;
@@ -1211,26 +1225,32 @@ function renderEmpty() {
           `</g>` +
         `</g>` +
       `</g>` +
-      `<g class="idle-floating-seed" transform="translate(259 98) rotate(24)">` +
-        `<line class="idle-seed-line" x1="0" y1="18" x2="0" y2="0"/>` +
-        `<line class="idle-seed-puff" x1="-8" y1="-6" x2="0" y2="0"/>` +
-        `<line class="idle-seed-puff" x1="0" y1="-10" x2="0" y2="0"/>` +
-        `<line class="idle-seed-puff" x1="8" y1="-6" x2="0" y2="0"/>` +
-        `<circle class="idle-seed-core" cx="0" cy="20" r="3.3"/>` +
+      `<g class="idle-floating-seed-anchor" transform="translate(82 86) rotate(-28)">` +
+        `<g class="idle-floating-seed">` +
+          `<line class="idle-seed-line" x1="0" y1="18" x2="0" y2="0"/>` +
+          `<line class="idle-seed-puff" x1="-8" y1="-6" x2="0" y2="0"/>` +
+          `<line class="idle-seed-puff" x1="0" y1="-10" x2="0" y2="0"/>` +
+          `<line class="idle-seed-puff" x1="8" y1="-6" x2="0" y2="0"/>` +
+          `<circle class="idle-seed-core" cx="0" cy="20" r="3.3"/>` +
+        `</g>` +
       `</g>` +
-      `<g class="idle-floating-seed" transform="translate(288 151) rotate(38)">` +
-        `<line class="idle-seed-line" x1="0" y1="18" x2="0" y2="0"/>` +
-        `<line class="idle-seed-puff" x1="-7" y1="-5" x2="0" y2="0"/>` +
-        `<line class="idle-seed-puff" x1="0" y1="-9" x2="0" y2="0"/>` +
-        `<line class="idle-seed-puff" x1="7" y1="-5" x2="0" y2="0"/>` +
-        `<circle class="idle-seed-core" cx="0" cy="20" r="3"/>` +
+      `<g class="idle-floating-seed-anchor" transform="translate(304 72) rotate(28)">` +
+        `<g class="idle-floating-seed">` +
+          `<line class="idle-seed-line" x1="0" y1="18" x2="0" y2="0"/>` +
+          `<line class="idle-seed-puff" x1="-7" y1="-5" x2="0" y2="0"/>` +
+          `<line class="idle-seed-puff" x1="0" y1="-9" x2="0" y2="0"/>` +
+          `<line class="idle-seed-puff" x1="7" y1="-5" x2="0" y2="0"/>` +
+          `<circle class="idle-seed-core" cx="0" cy="20" r="3"/>` +
+        `</g>` +
       `</g>` +
-      `<g class="idle-floating-seed" transform="translate(238 58) rotate(12)">` +
-        `<line class="idle-seed-line" x1="0" y1="16" x2="0" y2="0"/>` +
-        `<line class="idle-seed-puff" x1="-6" y1="-5" x2="0" y2="0"/>` +
-        `<line class="idle-seed-puff" x1="0" y1="-8" x2="0" y2="0"/>` +
-        `<line class="idle-seed-puff" x1="6" y1="-5" x2="0" y2="0"/>` +
-        `<circle class="idle-seed-core" cx="0" cy="18" r="2.8"/>` +
+      `<g class="idle-floating-seed-anchor" transform="translate(318 218) rotate(54)">` +
+        `<g class="idle-floating-seed">` +
+          `<line class="idle-seed-line" x1="0" y1="16" x2="0" y2="0"/>` +
+          `<line class="idle-seed-puff" x1="-6" y1="-5" x2="0" y2="0"/>` +
+          `<line class="idle-seed-puff" x1="0" y1="-8" x2="0" y2="0"/>` +
+          `<line class="idle-seed-puff" x1="6" y1="-5" x2="0" y2="0"/>` +
+          `<circle class="idle-seed-core" cx="0" cy="18" r="2.8"/>` +
+        `</g>` +
       `</g>` +
     `</svg>`;
   mainInner.appendChild(el);

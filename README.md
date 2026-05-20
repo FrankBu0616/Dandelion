@@ -1,10 +1,35 @@
-# Dandelion
+<div align="center">
 
-A local-first desktop app concept where you take one question, spin up parallel side threads, then weave selected threads back into the main conversation. If the side threads add compatible context, the main thread continues with that context. If they materially conflict, Dandelion asks which stance should become the path forward.
+<img src="brand/wordmark_lockup_horizontal.svg" alt="Dandelion" width="420" />
+
+**Fork a question. Weave the answers.**
+
+A local-first desktop concept for parallel side-threads that merge cleanly — or surface the conflict when they don't.
+
+[![License: MIT](https://img.shields.io/badge/license-MIT-0F0F12.svg)](./LICENSE)
+[![Node](https://img.shields.io/badge/node-%E2%89%A520-C97B4E.svg)](https://nodejs.org/)
+[![Status](https://img.shields.io/badge/status-pre--alpha-3A7A7A.svg)](#status)
+[![Tests](https://img.shields.io/badge/tests-node%20--test-3A7A7A.svg)](./tests)
+
+</div>
+
+---
+
+## What it is
+
+Take one question. Spin up parallel side threads. Weave the ones you want back into the main conversation.
+
+- If the side threads add **compatible context**, the main thread continues with that context.
+- If they have **different emphasis**, Dandelion folds them into one recommendation.
+- If they **materially conflict**, Dandelion asks which stance should become the path forward — instead of letting the model hedge a forced synthesis.
+
+The important product decision: **merge routing belongs to the app, not to the model's final answer prompt.**
 
 ## Status
 
-Pre-alpha. The design is locked enough to test the core interaction.
+<img src="brand/logos/dandelion.svg" alt="" width="18" align="left" hspace="6" />
+
+**Pre-alpha.** The design is locked enough to test the core interaction.
 
 Current working prototype:
 
@@ -64,10 +89,14 @@ The prototype supports:
 - Side-thread chat via local Ollama.
 - Multiple side threads generating while other strands remain editable.
 - Weaving selected strands back into the main conversation.
-- App-owned merge routing:
-  - `additional_context`: compatible information; continue naturally.
-  - `soft_disagreement`: different emphasis; integrate into one recommendation.
-  - `material_conflict`: incompatible next steps; ask the user to choose.
+- App-owned merge routing across three routes:
+
+| Route | When it fires | What Dandelion does |
+|---|---|---|
+| ![additional_context](https://img.shields.io/badge/additional__context-3A7A7A?style=flat-square) | Strands add compatible information | Continues the main thread with expanded context |
+| ![soft_disagreement](https://img.shields.io/badge/soft__disagreement-C97B4E?style=flat-square) | Strands differ in emphasis | Folds them into one integrated recommendation |
+| ![material_conflict](https://img.shields.io/badge/material__conflict-8A4F22?style=flat-square) | Strands propose incompatible next steps | Renders a choice prompt — never forces a synthesis |
+
 - Conflict-choice UI rendered by the app, not improvised by the model.
 
 Material conflicts do not call Ollama for a forced synthesis. Dandelion renders a choice prompt and waits for the user to select the path forward.
@@ -205,6 +234,22 @@ The intended production stack remains:
 
 The current prototype deliberately avoids Electron and persistence so the interaction can be validated first.
 
+## Brand
+
+The mark is a DAG — three fork sources converging to a diamond merge node, rotated 35° so it reads as a windborne seed-head rather than an upright trident. The diamond visually distinguishes the *merge primitive* from the fork sources. See [`brand/brand_kit.md`](./brand/brand_kit.md) for the full kit, palette, and lockups.
+
+<p align="center">
+  <img src="brand/logos/dandelion.svg" alt="" width="56" />
+  &nbsp;&nbsp;&nbsp;
+  <img src="brand/logos/dandelion_outlined.svg" alt="" width="56" />
+  &nbsp;&nbsp;&nbsp;
+  <img src="brand/logos/dandelion_app_icon.svg" alt="" width="56" />
+</p>
+
 ## License
 
 MIT. See [LICENSE](./LICENSE).
+
+<div align="center">
+<sub>Built local-first. No hosted backend, no telemetry, no account.</sub>
+</div>
