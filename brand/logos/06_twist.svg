@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" color="#0F0F12">
+  <title>Dandelion — Twist mark</title>
+  <g fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round">
+    <path d="M 38 14 C 38 32 82 32 82 60 C 82 88 38 88 38 106"/>
+    <path d="M 82 14 C 82 32 38 32 38 60 C 38 88 82 88 82 106"/>
+  </g>
+</svg>

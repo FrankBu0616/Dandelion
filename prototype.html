@@ -1,0 +1,1859 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dandelion — prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light;
+    /* Dandelion — Direction A "Warm anchor" palette */
+    --bg: #F4EFE6;                                     /* Cream — page bg */
+    --surface: #FFFFFF;                                /* White — cards */
+    --surface-soft: #ECE6DB;                           /* Soft cream — alt surface */
+    --strand-bg: #F1EBDD;                              /* Slight tint — strand bg */
+    --border: rgba(15, 15, 18, 0.10);                  /* Hairline */
+    --border-strong: rgba(15, 15, 18, 0.18);           /* Stronger hairline */
+    --text: #0F0F12;                                   /* Ink */
+    --text-soft: #2A2A2E;                              /* Ink — softened */
+    --muted: #5C5F66;                                  /* Slate */
+    --accent: #C97B4E;                                 /* Copper — primary accent */
+    --accent-hover: #B16A3D;                           /* Copper darker (hover) */
+    --accent-soft: #F4E4D0;                            /* Copper tint (soft bg) */
+    --user-bg: #ECE6DB;                                /* User message bg */
+    --weave-bg: #F4E4D0;                               /* Copper tint — merge highlight */
+    --weave-border: #E0C098;                           /* Mid copper border */
+    --weave-text: #8A4F22;                             /* Dark copper text on weave */
+    --strand-divider: rgba(15, 15, 18, 0.18);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow: hidden;
+  }
+  button { font: inherit; color: inherit; }
+
+  /* ============ TOP BAR ============ */
+  .top-bar {
+    position: fixed; top: 0; left: 0; right: 0;
+    height: 52px;
+    display: flex; align-items: center;
+    padding: 0 18px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(244, 239, 230, 0.92);
+    backdrop-filter: blur(8px);
+    z-index: 30;
+    font-size: 14px;
+  }
+  .top-bar .brand {
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    font-size: 14px;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .top-bar .brand-mark {
+    width: 18px; height: 18px;
+    color: var(--text);
+  }
+  .top-bar .context-chip {
+    margin-left: 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    color: var(--text-soft);
+    max-width: 420px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    display: none;
+  }
+  .top-bar .context-chip.visible { display: inline-block; }
+  .top-bar .context-chip .label {
+    color: var(--muted);
+    margin-right: 6px;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .top-bar .actions {
+    margin-left: auto;
+    display: flex; gap: 8px; align-items: center;
+  }
+  .top-bar .strand-count {
+    font-size: 11px;
+    color: var(--muted);
+    margin-right: 4px;
+  }
+
+  /* model picker chip */
+  .model-picker {
+    position: relative;
+    display: none;
+  }
+  .model-picker .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px;
+    padding: 5px 10px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--text-soft);
+  }
+  .model-picker .chip:hover { background: var(--surface-soft); }
+  .model-picker .chip .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #16a34a;
+  }
+  .model-picker .chip .dot.local { background: #f59e0b; }
+  .model-picker-menu {
+    position: absolute;
+    top: calc(100% + 6px); right: 0;
+    width: 280px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    padding: 6px;
+    z-index: 40;
+    display: none;
+  }
+  .model-picker-menu.open { display: block; }
+  .model-group {
+    padding: 8px 10px 4px;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .model-option {
+    padding: 7px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex; align-items: center; gap: 9px;
+    font-size: 13px;
+  }
+  .model-option:hover { background: var(--surface-soft); }
+  .model-option.selected { background: var(--accent-soft); color: var(--accent); }
+  .model-option .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--border-strong);
+    flex-shrink: 0;
+  }
+  .model-option.selected .dot { background: var(--accent); }
+  .model-option .secondary {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .top-bar .new-btn {
+    font-size: 12px;
+    padding: 5px 12px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .top-bar .new-btn:hover { background: var(--surface-soft); }
+
+  /* ============ WORKSPACE ============ */
+  #workspace {
+    position: fixed; inset: 52px 0 0 0;
+    display: flex;
+  }
+  /* main column — always present */
+  #main-column {
+    flex: 1 1 100%;
+    min-width: 0;
+    overflow-y: auto;
+    position: relative;
+    transition: flex-basis 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  /* right column — strands */
+  #strand-column {
+    flex: 0 0 0%;
+    min-width: 0;
+    overflow: hidden;
+    background: var(--strand-bg);
+    border-left: 1px solid var(--strand-divider);
+    display: flex; flex-direction: column;
+    transition: flex-basis 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  body.has-strands #main-column { flex: 1 1 50%; }
+  body.has-strands #strand-column { flex: 1 1 50%; }
+
+  /* main column inner */
+  #main-inner {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 32px 24px 72px;
+    transition: max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  body.has-strands #main-inner {
+    max-width: none;
+    padding: 32px 32px 72px;
+  }
+
+  /* ============ MESSAGES (main column) ============ */
+  .msg { margin: 18px 0; display: flex; flex-direction: column; }
+  .msg-user { align-items: flex-end; }
+  .msg-user .bubble {
+    background: var(--user-bg);
+    padding: 10px 14px;
+    border-radius: 16px 16px 4px 16px;
+    max-width: 80%;
+    font-size: 14px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .msg-assistant { align-items: flex-start; position: relative; }
+  .msg-branch-btn {
+    position: absolute; top: 0; right: 0;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.15s;
+    display: inline-flex; align-items: center; gap: 4px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 6px;
+    padding: 3px 9px;
+    font-size: 11px; font-family: inherit;
+    color: var(--muted); cursor: pointer;
+    white-space: nowrap;
+  }
+  .msg-assistant:hover .msg-branch-btn { opacity: 1; pointer-events: auto; }
+  .msg-branch-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+  .msg-assistant .body {
+    font-size: 14.5px;
+    line-height: 1.65;
+    color: var(--text);
+    max-width: 100%;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .msg-assistant .body .cursor,
+  .strand-message .cursor {
+    display: inline-block;
+    width: 6px; height: 13px;
+    background: var(--accent);
+    vertical-align: -2px;
+    margin-left: 2px;
+    animation: blink 1s steps(2, start) infinite;
+  }
+  @keyframes blink { to { visibility: hidden; } }
+  .msg-meta {
+    font-size: 11px;
+    color: var(--muted);
+    margin: 2px 4px;
+    letter-spacing: 0.02em;
+  }
+
+  /* ============ WEAVE MARKER (in main column after weaving) ============ */
+  /* ============ WEAVE MARKER — floating seeds ============ */
+  /* ============ WEAVE MARKER — dandelion seeds (floats in right margin) ============ */
+  .weave-marker {
+    position: relative;
+    height: 0;
+    margin: 0;
+    overflow: visible;
+  }
+  .weave-marker-label {
+    position: absolute;
+    right: 6px;
+    top: 4px;
+    font-size: 10.5px; color: var(--muted);
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(244, 239, 230, 0.7);
+    backdrop-filter: blur(4px);
+    padding: 2px 8px;
+    border-radius: 999px;
+    z-index: 3;
+    pointer-events: none;
+  }
+  .weave-route-badge {
+    font-size: 10px; color: var(--weave-text);
+    background: var(--accent-soft);
+    border: 1px solid rgba(138,79,34,0.2);
+    border-radius: 999px; padding: 1px 7px;
+  }
+  .weave-dandelion {
+    position: absolute;
+    right: -210px;   /* sit in the right gutter outside main content */
+    top: -90px;
+    display: block;
+    overflow: visible;
+    z-index: 2;
+    pointer-events: none;
+  }
+  /* when the seed tray is open the gutter disappears, so float at the inside-right edge instead */
+  body.has-strands .weave-dandelion {
+    right: 4px;
+  }
+  .weave-dandelion .dan-seed { pointer-events: auto; }
+  @keyframes seedFloat {
+    0%   { transform: translate(0, 0); }
+    50%  { transform: translate(2px, -3px); }
+    100% { transform: translate(4px, -7px); }
+  }
+  .dan-seed {
+    cursor: pointer;
+    animation: seedFloat 3s ease-in-out infinite alternate;
+  }
+  .dan-seed:nth-child(2) { animation-duration: 2.9s; animation-delay: 0s;   }
+  .dan-seed:nth-child(3) { animation-duration: 3.5s; animation-delay: 0.7s; }
+  .dan-seed:nth-child(4) { animation-duration: 2.7s; animation-delay: 1.3s; }
+  .dan-seed:nth-child(5) { animation-duration: 3.2s; animation-delay: 0.4s; }
+  .dan-puff { transition: fill 0.15s; }
+  .dan-seed:hover .dan-puff  { fill: var(--accent-soft); }
+  .dan-seed:hover .dan-label { fill: var(--accent); }
+  .dan-seed:hover .dan-stem  { stroke: var(--accent); opacity: 1; }
+  .conflict-choice {
+    margin: 18px 0;
+    border: 1px solid var(--weave-border);
+    background: var(--surface);
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .conflict-choice-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .conflict-choice-body {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.55;
+    margin-bottom: 12px;
+  }
+  .conflict-choice-options {
+    display: grid;
+    gap: 8px;
+  }
+  .conflict-choice-options button {
+    width: 100%;
+    text-align: left;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 7px;
+    padding: 9px 10px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .conflict-choice-options button:hover {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .conflict-choice-options button[disabled] {
+    cursor: default;
+    color: var(--muted);
+    background: var(--surface-soft);
+    border-color: var(--border);
+  }
+
+  /* ============ COMPOSER (main) ============ */
+  .main-composer {
+    position: sticky;
+    bottom: 0;
+    background: linear-gradient(to top, var(--bg) 65%, rgba(250,250,249,0));
+    padding: 18px 24px 22px;
+    z-index: 10;
+    pointer-events: none;
+    margin-top: auto;
+  }
+  .main-composer-inner {
+    max-width: 760px;
+    margin: 0 auto;
+    pointer-events: auto;
+    transition: max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  body.has-strands .main-composer-inner { max-width: none; padding: 0 8px; }
+  .composer-box {
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: 14px;
+    padding: 10px 12px;
+    display: flex; align-items: flex-end; gap: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .composer-box:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+  }
+  .composer-box textarea {
+    flex: 1;
+    border: 0;
+    background: transparent;
+    font: inherit; font-size: 14.5px; line-height: 1.55;
+    resize: none; outline: none; color: var(--text);
+    min-height: 24px; max-height: 160px;
+    padding: 6px 4px;
+  }
+  .strand-btn,
+  .send-btn {
+    border: 0; cursor: pointer; flex-shrink: 0;
+    border-radius: 8px;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .strand-btn {
+    height: 32px;
+    padding: 0 12px;
+    gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .strand-btn:hover {
+    background: var(--accent-soft);
+  }
+  .strand-btn svg { color: var(--accent); }
+  .send-btn {
+    width: 32px; height: 32px;
+    background: var(--accent);
+    color: white;
+  }
+  .send-btn:hover { background: var(--accent-hover); }
+  .send-btn:disabled { background: var(--border-strong); cursor: not-allowed; }
+  .composer-meta {
+    display: none;
+    text-align: center;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+  .composer-meta .accent { color: var(--accent); font-weight: 500; }
+
+  /* ============ STRAND COLUMN ============ */
+  .strand-column-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--strand-divider);
+    background: var(--surface);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .strand-column-title { font-size: 13px; font-weight: 600; letter-spacing: -0.01em; }
+  .strand-column-subtitle { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .tray-add-btn {
+    margin-left: auto;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 12px; font-family: inherit;
+    color: var(--accent);
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .tray-add-btn:hover { background: var(--accent-soft); border-color: var(--accent); }
+  .strand-column-body {
+    flex: 1; overflow-y: auto;
+    padding: 14px 16px 14px;
+  }
+  .strand-column-footer {
+    padding: 12px 16px;
+    border-top: 1px solid var(--strand-divider);
+    background: var(--surface);
+  }
+  .weave-btn {
+    width: 100%;
+    padding: 10px 14px;
+    background: var(--accent);
+    color: white;
+    border: 0; border-radius: 8px;
+    font-size: 13.5px; font-weight: 500;
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .weave-btn:hover { background: var(--accent-hover); }
+  .weave-btn:disabled { background: var(--border-strong); cursor: not-allowed; color: white; }
+  .weave-hint {
+    text-align: center;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+
+  /* ============ SEED TRAY + FOCUS BLOOM ============ */
+  .seed-tray {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .seed {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 10px;
+    display: grid;
+    grid-template-columns: auto 1fr auto auto auto;
+    gap: 8px;
+    align-items: center;
+    min-height: 52px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  }
+  .seed:hover { border-color: var(--border-strong); }
+  .seed.running {
+    border-color: var(--accent-soft);
+  }
+  .seed.focused {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+  }
+  .seed.selected {
+    box-shadow: inset 3px 0 0 var(--accent);
+  }
+  .seed-status-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #16a34a;
+  }
+  .seed.running .seed-status-dot {
+    background: var(--accent);
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.35; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.35); }
+  }
+  .seed-main { min-width: 0; }
+  .seed-title {
+    font-size: 12px;
+    color: var(--text);
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .seed-preview {
+    color: var(--muted);
+    font-size: 11.5px;
+    line-height: 1.35;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .seed-check input {
+    margin: 0;
+    accent-color: var(--accent);
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+  }
+  .seed-weave-btn {
+    border: 1px solid var(--accent);
+    background: transparent;
+    color: var(--accent);
+    border-radius: 5px;
+    padding: 2px 8px;
+    font-size: 11px; font-family: inherit;
+    cursor: pointer; white-space: nowrap;
+  }
+  .seed-weave-btn:hover { background: var(--accent-soft); }
+  .seed-weave-btn[hidden] { visibility: hidden; pointer-events: none; }
+  .seed-close {
+    border: 0; background: transparent;
+    color: var(--muted); cursor: pointer;
+    font-size: 14px; padding: 2px 5px;
+    border-radius: 4px;
+  }
+  .seed-close:hover { background: var(--surface-soft); color: var(--text); }
+  .focus-bloom {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    min-height: 310px;
+    display: grid;
+    grid-template-rows: auto minmax(160px, 1fr) auto;
+  }
+  .focus-bloom-header {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-soft);
+  }
+  .focus-bloom-title {
+    font-size: 12px;
+    color: var(--text);
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .focus-bloom-subtitle {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .strand-messages {
+    padding: 10px 12px;
+    min-height: 160px;
+    max-height: 360px;
+    overflow-y: auto;
+  }
+  .strand-message {
+    margin-bottom: 10px;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  .strand-message:last-child { margin-bottom: 0; }
+  .strand-message.user {
+    text-align: right;
+  }
+  .strand-message.user .bubble {
+    display: inline-block;
+    background: var(--user-bg);
+    padding: 6px 10px;
+    border-radius: 12px 12px 3px 12px;
+    max-width: 90%;
+    text-align: left;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .strand-message.assistant .body {
+    color: var(--text-soft);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  .strand-empty {
+    padding: 14px 12px;
+    font-size: 12.5px;
+    color: var(--muted);
+    text-align: center;
+    font-style: italic;
+  }
+
+  .strand-composer {
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    padding: 8px 10px;
+    display: flex; gap: 6px; align-items: flex-end;
+  }
+  .strand-composer textarea {
+    flex: 1; border: 0; background: transparent;
+    font: inherit; font-size: 13px; line-height: 1.5;
+    resize: none; outline: none; color: var(--text);
+    min-height: 22px; max-height: 100px;
+    padding: 4px 2px;
+  }
+  .strand-composer button {
+    border: 0; background: var(--accent); color: white;
+    width: 26px; height: 26px;
+    border-radius: 6px;
+    cursor: pointer; flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .strand-composer button:hover { background: var(--accent-hover); }
+  .strand-composer button:disabled { background: var(--border-strong); cursor: not-allowed; }
+
+  /* ============ EMPTY STATE ============ */
+  .empty-state {
+    min-height: calc(100vh - 196px);
+    display: grid;
+    place-items: center;
+    padding: 42px 20px 74px;
+    margin: 0 auto;
+    color: var(--muted);
+  }
+  .dandelion-idle {
+    width: min(360px, 74vw);
+    height: auto;
+    overflow: visible;
+  }
+  .idle-dandelion {
+    transform-origin: 50% 92%;
+    animation: idleSway 5.8s ease-in-out infinite;
+  }
+  .idle-stem {
+    fill: none;
+    stroke: #6F8B55;
+    stroke-width: 5;
+    stroke-linecap: round;
+  }
+  .idle-leaf {
+    fill: #89A66B;
+    opacity: 0.72;
+    transform-origin: 50% 86%;
+    animation: leafSway 5.8s ease-in-out infinite;
+  }
+  .idle-head {
+    transform-origin: 50% 31%;
+    animation: headBreathe 4.6s ease-in-out infinite;
+  }
+  .idle-seed-line {
+    stroke: rgba(92, 95, 102, 0.58);
+    stroke-width: 1.15;
+    stroke-linecap: round;
+  }
+  .idle-seed-puff {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.94);
+    stroke-width: 1.65;
+    stroke-linecap: round;
+  }
+  .idle-seed-core {
+    fill: rgba(201, 123, 78, 0.72);
+  }
+  .idle-floating-seed {
+    animation: floatingSeed 7.5s ease-in-out infinite;
+  }
+  .idle-floating-seed:nth-of-type(2) { animation-delay: -1.8s; }
+  .idle-floating-seed:nth-of-type(3) { animation-delay: -3.7s; }
+  @keyframes idleSway {
+    0%, 100% { transform: rotate(-1.2deg) translateX(-2px); }
+    50% { transform: rotate(1.6deg) translateX(2px); }
+  }
+  @keyframes leafSway {
+    0%, 100% { transform: rotate(1deg); }
+    50% { transform: rotate(-2deg); }
+  }
+  @keyframes headBreathe {
+    0%, 100% { transform: scale(0.985); opacity: 0.96; }
+    50% { transform: scale(1.018); opacity: 1; }
+  }
+  @keyframes floatingSeed {
+    0%, 100% { transform: translate(0, 0) rotate(-4deg); opacity: 0.46; }
+    50% { transform: translate(12px, -12px) rotate(5deg); opacity: 0.82; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .idle-dandelion,
+    .idle-leaf,
+    .idle-head,
+    .idle-floating-seed {
+      animation: none;
+    }
+  }
+
+</style>
+</head>
+<body>
+
+  <!-- ============ TOP BAR ============ -->
+  <div class="top-bar">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 120 120" fill="none">
+        <!-- Dandelion mark — DAG rotated 35°. See /brand/logos/dandelion.svg -->
+        <g transform="rotate(35 60 60)">
+          <g stroke="currentColor" stroke-width="7" stroke-linecap="round">
+            <line x1="32" y1="30" x2="60" y2="90"/>
+            <line x1="60" y1="30" x2="60" y2="90"/>
+            <line x1="88" y1="30" x2="60" y2="90"/>
+          </g>
+          <g fill="currentColor">
+            <circle cx="32" cy="30" r="10"/>
+            <circle cx="60" cy="30" r="10"/>
+            <circle cx="88" cy="30" r="10"/>
+            <rect x="49" y="79" width="22" height="22" transform="rotate(45 60 90)"/>
+          </g>
+        </g>
+      </svg>
+      dandelion
+    </div>
+    <div class="context-chip" id="context-chip">
+      <span class="label">Context</span><span id="context-text"></span>
+    </div>
+    <div class="actions">
+      <span class="strand-count" id="strand-count"></span>
+      <div class="model-picker" id="model-picker">
+        <button class="chip" id="model-chip">
+          <span class="dot" id="model-dot"></span>
+          <span id="model-name">qwen2.5:3b</span>
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+            <path d="M2 4 L5 7 L8 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="model-picker-menu" id="model-menu">
+          <div class="model-group">
+            <span style="width:7px;height:7px;border-radius:50%;background:#16a34a;display:inline-block"></span>
+            Cloud
+          </div>
+          <div class="model-option" data-model="cloud:claude-sonnet-4-6" data-label="Claude Sonnet 4.6" data-kind="cloud">
+            <span class="dot"></span>
+            <span>Claude Sonnet 4.6</span>
+            <span class="secondary">Anthropic</span>
+          </div>
+          <div class="model-option" data-model="cloud:gpt-5" data-label="GPT-5" data-kind="cloud">
+            <span class="dot"></span>
+            <span>GPT-5</span>
+            <span class="secondary">OpenAI</span>
+          </div>
+          <div class="model-option" data-model="cloud:gemini-2-5-pro" data-label="Gemini 2.5 Pro" data-kind="cloud">
+            <span class="dot"></span>
+            <span>Gemini 2.5 Pro</span>
+            <span class="secondary">Google</span>
+          </div>
+          <div class="model-group">
+            <span style="width:7px;height:7px;border-radius:50%;background:#f59e0b;display:inline-block"></span>
+            Local
+          </div>
+          <div class="model-option" data-model="local:qwen-2-5-3b" data-label="qwen2.5:3b" data-kind="local">
+            <span class="dot"></span>
+            <span>qwen2.5:3b</span>
+            <span class="secondary">Ollama</span>
+          </div>
+          <div class="model-option" data-model="local:llama-3-1-70b" data-label="llama3.1:70b" data-kind="local">
+            <span class="dot"></span>
+            <span>llama3.1:70b</span>
+            <span class="secondary">Ollama</span>
+          </div>
+          <div class="model-option" data-model="local:qwen-2-5-32b" data-label="qwen2.5:32b" data-kind="local">
+            <span class="dot"></span>
+            <span>qwen2.5:32b</span>
+            <span class="secondary">Ollama</span>
+          </div>
+          <div class="model-option" data-model="local:lmstudio-mistral" data-label="mistral-medium-3" data-kind="local">
+            <span class="dot"></span>
+            <span>mistral-medium-3</span>
+            <span class="secondary">LM Studio</span>
+          </div>
+        </div>
+      </div>
+      <button class="new-btn" id="reset-btn">New session</button>
+    </div>
+  </div>
+
+  <!-- ============ WORKSPACE ============ -->
+  <div id="workspace">
+
+    <div id="main-column">
+      <div id="main-inner"></div>
+
+      <div class="main-composer">
+        <div class="main-composer-inner">
+          <div class="composer-box">
+            <textarea id="composer-input" placeholder="Ask anything…" rows="1"></textarea>
+
+            <button class="strand-btn" id="strand-btn" title="Open a strand — parallel inquiry that shares this context">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                <!-- two strands diverging from a common base -->
+                <path d="M8 13 Q 8 8, 4 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                <path d="M8 13 Q 8 8, 12 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+              <span>Strand</span>
+            </button>
+
+            <button class="send-btn" id="composer-send" title="Send (↵)">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                <path d="M2 8 L14 8 M9 3 L14 8 L9 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="strand-column" aria-hidden="true">
+      <div class="strand-column-header">
+        <div>
+          <div class="strand-column-title">Seed tray</div>
+          <div class="strand-column-subtitle" id="strand-column-subtitle">—</div>
+        </div>
+        <button class="tray-add-btn" id="tray-add-btn">+ Seed</button>
+      </div>
+      <div class="strand-column-body" id="strand-column-body"></div>
+      <div class="strand-column-footer">
+        <button class="weave-btn" id="weave-btn" disabled>Weave selected</button>
+        <div class="weave-hint" id="weave-hint">Select completed seeds to weave.</div>
+      </div>
+    </div>
+
+  </div>
+
+<script type="module">
+import { classifyWovenStrands, routeLabel } from "./scripts/merge-router.mjs";
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const state = {
+  parentContext: null,
+  mainConv: [],       // user/assistant/weave-marker items
+  strands: [],        // {id, title, turns, composerDraft, status, selected}
+  activeStrandId: null,
+  nextId: 1,
+  postWeaveArmed: false,
+  currentModel: { id: "local:qwen-2-5-3b", label: "qwen2.5:3b", kind: "local" },
+};
+function makeId() { return "n" + (state.nextId++); }
+
+/* ============================================================
+   SCRIPTED CONTENT
+   ============================================================ */
+const STARTERS = [
+  {
+    label: "📝 Reviewing a paper",
+    kind: "primary",
+    text: "I'm reviewing a paper for a workshop. The paper is about gated VLM inference for robot engagement decisions — it proposes a two-stage pipeline where lightweight perceptual detectors trigger video-VLM queries at socially salient moments. I'll ask you about specific parts.",
+    contextLabel: "Reviewing: VLM robot engagement paper",
+    response:
+      "Got it — I'll keep that framing. Reviewing a two-stage VLM pipeline paper. " +
+      "Drop in whichever sections, formulas, or claims you want to dig into. " +
+      "If you want to multi-task — for example, ask me about a formula here while I unpack a different section in parallel — " +
+      "use the Strand button to open a parallel inquiry. It shares this paper-review context, so I won't need to be re-briefed.",
+  },
+  {
+    label: "🧪 Debugging a system",
+    kind: "normal",
+    text: "I'm debugging a production system. We have a latency spike that started two days ago, only affects users in EU regions, no obvious change in deploys. I'll be exploring different hypotheses in parallel.",
+    contextLabel: "Debugging: EU latency spike",
+    response:
+      "Understood — EU-only latency regression with no recent deploys is one of the harder shapes to diagnose. " +
+      "Common candidates: CDN/edge issues, third-party dependency degradation, traffic shifts, silent infra changes by your cloud provider. " +
+      "Use the Strand button to open parallel inquiries for each hypothesis — they'll share this incident framing.",
+  },
+  {
+    label: "📚 Researching a topic",
+    kind: "normal",
+    text: "I'm researching the history of branching interfaces in LLM chat tools. I want to understand who shipped what and when, and which design choices have proven durable.",
+    contextLabel: "Researching: LLM branching UX history",
+    response:
+      "Got it — the space splits roughly into pre-2024 Loom-style multiverse interfaces for creative writing, " +
+      "2024–2025 hosted tools (ChatGPT, Claude, TypingMind, LMCanvas), and 2025–2026 open-source desktop tools. " +
+      "Use the Strand button to spawn parallel inquiries for specific tools or design patterns — they'll share this research context.",
+  },
+];
+
+function generateReply(prompt) {
+  const lower = prompt.toLowerCase();
+  if (/formula|equation|math|derivation|theorem|proof|lemma/.test(lower)) {
+    return {
+      text:
+        "Looking at the formula in context: the core move is using a discriminative posterior estimate directly rather than going through a generative observation model. " +
+        "It's a reasonable shortcut for VLM outputs since you can't easily get a calibrated likelihood from them anyway, but it does break the POMDP belief-update guarantees the standard formulation gives you. " +
+        "Worth raising in the review: do the authors justify this approximation, or is it convenient? " +
+        "Not rejection-worthy but a thing they should add to the limitations.",
+      duration: 4200,
+    };
+  }
+  if (/baseline|comparison|sota|state of the art/.test(lower)) {
+    return {
+      text:
+        "Their baselines are sequence models (GRU and similar) trained on the same data — a fair single-axis comparison since they hold data fixed. " +
+        "The choice does sidestep a stronger baseline: a single-call VLM with no ensemble or saliency anchoring. That's the bar most readers will hold them to. " +
+        "If they only beat the sequence models but not the single-call VLM, the contribution is much weaker. Check the table carefully for that row.",
+      duration: 4600,
+    };
+  }
+  if (/section\s*\d|that part|other part|the part about|second half|first half|section 5|section 4/.test(lower)) {
+    return {
+      text:
+        "That section is where they describe the saliency-anchored self-critique pipeline. " +
+        "K independent VLM samples produce behavior logs and intent estimates; a synthesis prompt extracts disputed claims; a verifier re-examines them — but instead of re-attaching raw video, the verifier sees pose-derived keyframes plus an external gaze label. " +
+        "Worth scrutinizing whether the keyframe selection biases the verifier toward agreeing with the most-frequent sample. " +
+        "If it does, the method is partly an ensembling trick dressed up as grounding.",
+      duration: 5200,
+    };
+  }
+  if (/method|approach|pipeline|architecture/.test(lower)) {
+    return {
+      text:
+        "The two-stage framing is the core methodological contribution: stage one uses cheap perceptual detectors (gaze shifts, proxemic entries) to decide *when* to invoke a VLM, and stage two runs the VLM only at those triggered moments. " +
+        "Sensible for cost and latency on edge hardware, and inherits a clean detection/interpretation separation that maps to standard HRI literature. " +
+        "Weakness: stage-one false negatives mean the system can miss socially salient moments that don't trigger detectors, and the paper doesn't measure that directly.",
+      duration: 5400,
+    };
+  }
+  if (/experiment|result|table|figure/.test(lower)) {
+    return {
+      text:
+        "The headline result is saliency-anchored self-critique outperforming vanilla self-consistency and self-critique on behavior-log accuracy. " +
+        "The effect size is moderate (a few points), the comparison is on a small held-out set, and there are no confidence intervals reported. I'd be careful about claiming the improvement is robust. " +
+        "Ask the authors for repeated-trial numbers. The qualitative examples in the appendix are more convincing than the headline table.",
+      duration: 4400,
+    };
+  }
+  if (/limitation|weakness|flaw|missing/.test(lower)) {
+    return {
+      text:
+        "Main limitations I'd flag: (1) the held-out set is small enough that headline gains may not be statistically meaningful; " +
+        "(2) the gaze classifier is trained on deployment data, making the pipeline less zero-shot than the abstract suggests; " +
+        "(3) the saliency signals are tuned for trash-disposal gestures, so the generalization claim to broader social cues is unsupported by the experiments shown.",
+      duration: 5000,
+    };
+  }
+  if (/novelty|contribution|original|new/.test(lower)) {
+    return {
+      text:
+        "The genuine novelty is the saliency-anchored verification step — using pose-derived keyframes plus an external gaze label as evidence for the second-pass VLM call. " +
+        "Two-stage gating (perceptual detectors trigger VLM) is not new; what's new is grounding the verification step in physically meaningful saliency rather than re-attaching full video. " +
+        "Whether the community considers it novel enough depends on framing: \"socially-grounded VLM verification\" is defensible; \"general engagement-decision pipeline\" makes the prior art look thicker.",
+      duration: 5400,
+    };
+  }
+  if (/cdn|edge|cloudflare|fastly|cache/.test(lower)) {
+    return {
+      text:
+        "EU-only latency with no app changes is a classic CDN-edge issue. Three checks: " +
+        "(1) edge-provider EU PoP health — sometimes degradations don't hit the public status page for hours; " +
+        "(2) origin-shield routing — sometimes a regional shield flips and EU traffic takes a long path; " +
+        "(3) compare cache hit rates per region for affected paths. A hit-rate drop in EU only is diagnostic.",
+      duration: 4800,
+    };
+  }
+  if (/database|db|query|postgres|mysql|index/.test(lower)) {
+    return {
+      text:
+        "If only EU traffic is slow, the database is unlikely to be the primary cause unless you have regional replicas in worse shape. " +
+        "Worth checking: do EU-served requests route to a different read replica than non-EU? If yes, check that replica's lag, IOPS, and recent autovacuum. " +
+        "A silent replica promotion or vacuum storm could spike latency on one region without affecting others.",
+      duration: 4400,
+    };
+  }
+  if (/dependency|third.party|api|external/.test(lower)) {
+    return {
+      text:
+        "Third-party services degrading in only one region is more common than people realize. " +
+        "Check every external API your EU-region pods call: payments, auth, geolocation, ad networks. " +
+        "Cross-reference each provider's status page for the last 48 hours, and look at p99 latency to each external endpoint from EU vs non-EU regions. " +
+        "If even one external dep is 200ms slower from EU and you call it on the hot path, that's your spike.",
+      duration: 4400,
+    };
+  }
+  if (/chatgpt|openai/.test(lower)) {
+    return {
+      text:
+        "ChatGPT shipped native branching in September 2025 as a \"Branch in new chat\" hover affordance, plus an implicit branch on message edit reachable via inline arrows. " +
+        "Before that, branching existed only as a hidden side effect of editing. " +
+        "ChatGPT's branching is not visualized as a tree — you navigate via arrows on the edited message, similar to Claude.ai.",
+      duration: 4200,
+    };
+  }
+  if (/claude|anthropic/.test(lower)) {
+    return {
+      text:
+        "Claude.ai supports message branching only as a side effect of editing — there's no first-class fork action, no tree view, no canvas. " +
+        "Branches are reachable via < > arrows on the edited message. " +
+        "As of May 2026, Anthropic has not announced any branching-as-a-first-class-feature work publicly.",
+      duration: 3800,
+    };
+  }
+  if (/lmcanvas|canvas/.test(lower)) {
+    return {
+      text:
+        "LMCanvas is the closest existing canvas-native branching tool. 300+ models via OpenRouter, branches as nodes on an infinite canvas, and a merge primitive — " +
+        "but the merge is text concatenation, not context pooling. The model handling the post-merge turn sees the merged transcripts as raw appended text rather than as structurally-marked parallel branches, which limits how well it can integrate them.",
+      duration: 4600,
+    };
+  }
+  return {
+    text:
+      "Here's how I'd think about that: the strongest framing depends on which constraint is binding for you. " +
+      "If you give me a couple more sentences on the specific angle you care about, I can give a more targeted take. " +
+      "If you want to multi-task on this, the Strand button opens a parallel inquiry that shares this context — useful when you have two independent questions you don't want to interleave.",
+    duration: 3600,
+  };
+}
+
+function generatePostWeaveReply(prompt, wovenStrands) {
+  const route = wovenStrands.route || classifyWovenStrands(wovenStrands);
+  if (route.kind === "soft_disagreement") {
+    return {
+      text:
+        "Build a clean, local prototype with enough fidelity to test the side-thread status, selection, and post-weave moment. " +
+        "That gives you the speed of a rough harness while still testing the feel of the workflow. Keep it to one page, use in-memory state, and make the weave result visible before you touch Electron.",
+      duration: 5200,
+    };
+  }
+  const topics = wovenStrands.map(t => t.title).join(" and ");
+  return {
+    text:
+      "Start with the concrete next step from the woven context: build the smallest working slice that exercises the thing you just explored. " +
+      "For these strands, that means using " + (topics || "the selected material") + " as updated context, then continuing without recapping each strand. " +
+      "If the next task is implementation, make the data shape explicit first, then wire the visible interaction around it.",
+    duration: 5400,
+  };
+}
+
+async function callOllamaChat(prompt, system) {
+  const response = await fetch("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      prompt,
+      context: state.parentContext,
+      system,
+    }),
+  });
+  if (!response.ok) throw new Error(await response.text());
+  return response.json();
+}
+
+// classifyWovenStrands and routeLabel are imported from ./scripts/merge-router.mjs
+// at the top of this module. They are the canonical merge-router heuristic,
+// shared with the CLI harness and tests.
+
+/* ============================================================
+   DOM
+   ============================================================ */
+const $ = (s) => document.querySelector(s);
+const mainColumn = $("#main-column");
+const mainInner = $("#main-inner");
+const strandColumn = $("#strand-column");
+const strandColumnBody = $("#strand-column-body");
+const strandColumnSubtitle = $("#strand-column-subtitle");
+const weaveBtn = $("#weave-btn");
+const weaveHint = $("#weave-hint");
+const composerInput = $("#composer-input");
+const composerSend = $("#composer-send");
+const strandBtn = $("#strand-btn");
+const strandCountEl = $("#strand-count");
+const contextChip = $("#context-chip");
+const contextText = $("#context-text");
+const modelChip = $("#model-chip");
+const modelMenu = $("#model-menu");
+const modelName = $("#model-name");
+const modelDot = $("#model-dot");
+const metaModel = $("#meta-model");
+
+/* ============================================================
+   RENDER — main column
+   ============================================================ */
+function renderMain() {
+  mainInner.innerHTML = "";
+  if (state.mainConv.length === 0) {
+    renderEmpty();
+    return;
+  }
+  state.mainConv.forEach((item) => {
+    if (item.kind === "user") {
+      const el = document.createElement("div");
+      el.className = "msg msg-user";
+      el.innerHTML = `<div class="bubble"></div>`;
+      el.querySelector(".bubble").textContent = item.text;
+      mainInner.appendChild(el);
+    } else if (item.kind === "assistant") {
+      const el = document.createElement("div");
+      el.className = "msg msg-assistant";
+      const bodyHtml = escapeHtml(item.text) + (item.status === "streaming" ? '<span class="cursor"></span>' : "");
+      const branchBtn = item.status !== "streaming"
+        ? `<button class="msg-branch-btn" data-branch-msg="${item.id}">` +
+            `<svg width="11" height="11" viewBox="0 0 16 16" fill="none">` +
+              `<path d="M8 13 Q8 8 4 3M8 13 Q8 8 12 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>` +
+            `</svg> Branch` +
+          `</button>`
+        : "";
+      el.innerHTML =
+        `<div class="msg-meta">${escapeHtml(item.modelLabel || state.currentModel.label)}</div>` +
+        `<div class="body">${bodyHtml}</div>` +
+        branchBtn;
+      el.querySelector(`[data-branch-msg="${item.id}"]`)?.addEventListener("click", () => openStrandFromMessage(item));
+      mainInner.appendChild(el);
+    } else if (item.kind === "weave-marker") {
+      const el = document.createElement("div");
+      el.className = "weave-marker";
+      const n = item.strands.length;
+      const routeBadge = item.route ? routeLabel(item.route.kind) : "";
+      el.innerHTML =
+        `<div class="weave-marker-label">` +
+          `<span>woven${n > 1 ? ` · ${n} seeds` : ""}</span>` +
+          (routeBadge ? `<span class="weave-route-badge">${escapeHtml(routeBadge)}</span>` : "") +
+        `</div>` +
+        renderDandelionSVG(item.strands);
+      el.querySelectorAll(".dan-seed").forEach((seedEl, i) => {
+        seedEl.addEventListener("click", () => reopenWovenSeed(item.strands[i]));
+      });
+      mainInner.appendChild(el);
+    } else if (item.kind === "conflict-choice") {
+      const el = document.createElement("div");
+      el.className = "conflict-choice";
+      el.innerHTML =
+        `<div class="conflict-choice-title">These strands conflict in a way that changes what should happen next.</div>` +
+        `<div class="conflict-choice-body">${escapeHtml(item.summary)}</div>` +
+        `<div class="conflict-choice-options">` +
+          item.choices.map((choice, i) =>
+            `<button data-conflict-choice="${item.id}" data-choice-index="${i}" ${item.resolved ? "disabled" : ""}>${i + 1}. ${escapeHtml(choice)}</button>`
+          ).join("") +
+        `</div>`;
+      el.querySelectorAll("button[data-conflict-choice]").forEach(btn => {
+        btn.addEventListener("click", () => resolveConflictChoice(item.id, parseInt(btn.dataset.choiceIndex, 10)));
+      });
+      mainInner.appendChild(el);
+    }
+  });
+  scrollToBottom(mainColumn);
+}
+
+function renderEmpty() {
+  const el = document.createElement("div");
+  el.className = "empty-state";
+  el.innerHTML =
+    `<svg class="dandelion-idle" viewBox="0 0 360 360" role="img" aria-label="A single dandelion waving in the breeze">` +
+      `<g class="idle-dandelion">` +
+        `<path class="idle-stem" d="M180 326 C178 278 176 224 181 169"/>` +
+        `<path class="idle-leaf" d="M176 284 C137 266 118 234 111 197 C145 210 170 236 176 284Z"/>` +
+        `<path class="idle-leaf" d="M183 292 C215 265 235 235 244 201 C214 212 190 244 183 292Z"/>` +
+        `<g class="idle-head">` +
+          `<g transform="translate(181 138)">` +
+            `${Array.from({ length: 28 }, (_, i) => {
+              const angle = i * 12.857;
+              const length = i % 4 === 0 ? 58 : i % 3 === 0 ? 51 : 45;
+              const core = i % 5 === 0 ? 4.2 : 3.2;
+              return `<g transform="rotate(${angle})">` +
+                `<line class="idle-seed-line" x1="0" y1="-8" x2="0" y2="-${length}"/>` +
+                `<g transform="translate(0 -${length})">` +
+                  `<line class="idle-seed-puff" x1="-7" y1="-5" x2="0" y2="0"/>` +
+                  `<line class="idle-seed-puff" x1="0" y1="-8" x2="0" y2="0"/>` +
+                  `<line class="idle-seed-puff" x1="7" y1="-5" x2="0" y2="0"/>` +
+                  `<circle class="idle-seed-core" cx="0" cy="2" r="${core}"/>` +
+                `</g>` +
+              `</g>`;
+            }).join("")}` +
+            `<circle cx="0" cy="0" r="8" fill="#B98445" opacity="0.88"/>` +
+          `</g>` +
+        `</g>` +
+      `</g>` +
+      `<g class="idle-floating-seed" transform="translate(259 98) rotate(24)">` +
+        `<line class="idle-seed-line" x1="0" y1="18" x2="0" y2="0"/>` +
+        `<line class="idle-seed-puff" x1="-8" y1="-6" x2="0" y2="0"/>` +
+        `<line class="idle-seed-puff" x1="0" y1="-10" x2="0" y2="0"/>` +
+        `<line class="idle-seed-puff" x1="8" y1="-6" x2="0" y2="0"/>` +
+        `<circle class="idle-seed-core" cx="0" cy="20" r="3.3"/>` +
+      `</g>` +
+      `<g class="idle-floating-seed" transform="translate(288 151) rotate(38)">` +
+        `<line class="idle-seed-line" x1="0" y1="18" x2="0" y2="0"/>` +
+        `<line class="idle-seed-puff" x1="-7" y1="-5" x2="0" y2="0"/>` +
+        `<line class="idle-seed-puff" x1="0" y1="-9" x2="0" y2="0"/>` +
+        `<line class="idle-seed-puff" x1="7" y1="-5" x2="0" y2="0"/>` +
+        `<circle class="idle-seed-core" cx="0" cy="20" r="3"/>` +
+      `</g>` +
+      `<g class="idle-floating-seed" transform="translate(238 58) rotate(12)">` +
+        `<line class="idle-seed-line" x1="0" y1="16" x2="0" y2="0"/>` +
+        `<line class="idle-seed-puff" x1="-6" y1="-5" x2="0" y2="0"/>` +
+        `<line class="idle-seed-puff" x1="0" y1="-8" x2="0" y2="0"/>` +
+        `<line class="idle-seed-puff" x1="6" y1="-5" x2="0" y2="0"/>` +
+        `<circle class="idle-seed-core" cx="0" cy="18" r="2.8"/>` +
+      `</g>` +
+    `</svg>`;
+  mainInner.appendChild(el);
+}
+
+function scrollToBottom(el) {
+  requestAnimationFrame(() => {
+    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+  });
+}
+function escapeHtml(s) {
+  if (s == null) return "";
+  return String(s).replace(/[&<>"]/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;" }[c]));
+}
+
+/* ============================================================
+   RENDER — strand column
+   ============================================================ */
+function renderStrands() {
+  const activeEl = document.activeElement;
+  const activeDraftId = activeEl && activeEl.dataset ? activeEl.dataset.strandDraft : null;
+  const activeSelection = activeDraftId ? {
+    start: activeEl.selectionStart,
+    end: activeEl.selectionEnd,
+    value: activeEl.value,
+  } : null;
+  if (activeDraftId && activeSelection) {
+    const activeStrand = state.strands.find(s => s.id === activeDraftId);
+    if (activeStrand) activeStrand.composerDraft = activeSelection.value;
+  }
+
+  // toggle has-strands on body
+  if (state.strands.length > 0) {
+    document.body.classList.add("has-strands");
+    strandColumn.setAttribute("aria-hidden", "false");
+  } else {
+    document.body.classList.remove("has-strands");
+    strandColumn.setAttribute("aria-hidden", "true");
+  }
+
+  strandColumnBody.innerHTML = "";
+
+  if (state.strands.length === 0) {
+    strandColumnBody.innerHTML = `<div class="strand-empty" style="margin-top:24px">No strands open.</div>`;
+  } else {
+    if (!state.activeStrandId || !state.strands.some(s => s.id === state.activeStrandId)) {
+      state.activeStrandId = state.strands[0].id;
+    }
+    const tray = document.createElement("div");
+    tray.className = "seed-tray";
+    state.strands.forEach((st, i) => {
+      const seed = document.createElement("div");
+      seed.className = "seed " + st.status;
+      if (st.selected) seed.classList.add("selected");
+      if (st.id === state.activeStrandId) seed.classList.add("focused");
+      const title = st.title || ("Seed " + (i + 1));
+      const preview = seedPreview(st);
+      const disableMergeChk = st.status === "running" || st.turns.length === 0;
+      const canWeave = st.status === "idle" && st.turns.length > 0;
+      seed.innerHTML =
+        `<span class="seed-status-dot"></span>` +
+        `<div class="seed-main">` +
+          `<div class="seed-title">${escapeHtml(title)}</div>` +
+          `<div class="seed-preview">${escapeHtml(preview)}</div>` +
+        `</div>` +
+        `<button class="seed-weave-btn" data-seed-weave="${st.id}" ${canWeave ? "" : "hidden"}>Weave</button>` +
+        `<label class="seed-check" title="Include in weave"><input type="checkbox" data-strand-merge="${st.id}" ${st.selected ? "checked" : ""} ${disableMergeChk ? "disabled" : ""}></label>` +
+        `<button class="seed-close" data-strand-close="${st.id}" title="Close seed">✕</button>`;
+      seed.addEventListener("click", () => {
+        state.activeStrandId = st.id;
+        renderStrands();
+      });
+      seed.querySelector(`input[data-strand-merge="${st.id}"]`).addEventListener("click", e => e.stopPropagation());
+      seed.querySelector(`input[data-strand-merge="${st.id}"]`).addEventListener("change", (e) => {
+        st.selected = e.target.checked;
+        renderStrands();
+        updateWeaveButton();
+      });
+      seed.querySelector(`[data-seed-weave="${st.id}"]`)?.addEventListener("click", (e) => {
+        e.stopPropagation();
+        onWeaveOne(st.id);
+      });
+      seed.querySelector(`button[data-strand-close="${st.id}"]`).addEventListener("click", (e) => {
+        e.stopPropagation();
+        closeStrand(st.id);
+      });
+      tray.appendChild(seed);
+    });
+    strandColumnBody.appendChild(tray);
+
+    const focused = state.strands.find(s => s.id === state.activeStrandId);
+    if (focused) {
+      const bloom = document.createElement("div");
+      bloom.className = "focus-bloom";
+      const title = focused.title || "Untitled seed";
+      const messagesHtml = renderStrandMessages(focused);
+      bloom.innerHTML =
+        `<div class="focus-bloom-header">` +
+          `<div class="focus-bloom-title">${escapeHtml(title)}</div>` +
+          `<div class="focus-bloom-subtitle">${focused.status === "running" ? "growing now" : "ready"} · ${focused.turns.length} turn${focused.turns.length === 1 ? "" : "s"}</div>` +
+        `</div>` +
+        `<div class="strand-messages" data-strand-msgs="${focused.id}">${messagesHtml}</div>` +
+        `<div class="strand-composer">` +
+          `<textarea data-strand-draft="${focused.id}" placeholder="Ask in this seed…" rows="1">${escapeHtml(focused.composerDraft || "")}</textarea>` +
+          `<button data-strand-send="${focused.id}" ${(!focused.composerDraft || !focused.composerDraft.trim() || focused.status === "running") ? "disabled" : ""}>` +
+            `<svg width="12" height="12" viewBox="0 0 16 16" fill="none">` +
+              `<path d="M2 8 L14 8 M9 3 L14 8 L9 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>` +
+            `</svg>` +
+          `</button>` +
+        `</div>`;
+      strandColumnBody.appendChild(bloom);
+      wireFocusedSeedComposer(bloom, focused);
+      const msgs = bloom.querySelector(`[data-strand-msgs="${focused.id}"]`);
+      if (msgs) requestAnimationFrame(() => { msgs.scrollTop = msgs.scrollHeight; });
+    }
+  }
+
+  if (activeDraftId && activeSelection) {
+    requestAnimationFrame(() => {
+      const restored = document.querySelector(`textarea[data-strand-draft="${activeDraftId}"]`);
+      if (!restored) return;
+      restored.focus();
+      const pos = Math.min(activeSelection.start ?? restored.value.length, restored.value.length);
+      const end = Math.min(activeSelection.end ?? pos, restored.value.length);
+      restored.setSelectionRange(pos, end);
+    });
+  }
+
+  const running = state.strands.filter(s => s.status === "running").length;
+  const total = state.strands.length;
+  if (total === 0) {
+    strandColumnSubtitle.textContent = "—";
+  } else if (running > 0) {
+    strandColumnSubtitle.textContent = `${total} open · ${running} running`;
+  } else {
+    strandColumnSubtitle.textContent = `${total} open · all idle`;
+  }
+  strandCountEl.textContent = total > 0 ? `${total} strand${total === 1 ? "" : "s"}` : "";
+  updateWeaveButton();
+}
+
+function seedPreview(st) {
+  if (st.status === "running") return "growing...";
+  const last = [...st.turns].reverse().find(t => t.asst || t.user);
+  if (!last) return "empty seed";
+  return (last.asst || last.user || "").replace(/\s+/g, " ").slice(0, 96);
+}
+
+function renderStrandMessages(st) {
+  if (st.turns.length === 0) {
+    return `<div class="strand-empty">Ask a question that shares the session's context…</div>`;
+  }
+  return st.turns.map(turn => {
+    let html = "";
+    if (turn.user) {
+      html += `<div class="strand-message user"><div class="bubble">${escapeHtml(turn.user)}</div></div>`;
+    }
+    if (turn.asst !== undefined) {
+      const cursor = turn.status === "streaming" ? '<span class="cursor"></span>' : "";
+      html += `<div class="strand-message assistant"><div class="body" data-strand-turn="${turn.id || ""}">${escapeHtml(turn.asst)}${cursor}</div></div>`;
+    }
+    return html;
+  }).join("");
+}
+
+function wireFocusedSeedComposer(container, st) {
+  const ta = container.querySelector(`textarea[data-strand-draft="${st.id}"]`);
+  ta.addEventListener("input", (e) => {
+    st.composerDraft = e.target.value;
+    autoSizeTextarea(e.target, 100);
+    const sb = container.querySelector(`button[data-strand-send="${st.id}"]`);
+    sb.disabled = !st.composerDraft.trim() || st.status === "running";
+  });
+  ta.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendInStrand(st.id);
+    }
+  });
+  autoSizeTextarea(ta, 100);
+
+  const sb = container.querySelector(`button[data-strand-send="${st.id}"]`);
+  sb.addEventListener("click", (e) => {
+    e.stopPropagation();
+    sendInStrand(st.id);
+  });
+}
+
+function updateWeaveButton() {
+  const eligible = state.strands.filter(s => s.selected && s.status === "idle" && s.turns.length > 0);
+  const running = state.strands.filter(s => s.status === "running").length;
+  if (state.strands.length === 0) {
+    weaveBtn.disabled = true;
+    weaveBtn.textContent = "Weave selected";
+    weaveHint.textContent = "Open a strand to start.";
+  } else if (running > 0) {
+    weaveBtn.disabled = true;
+    weaveBtn.textContent = "Weave selected";
+    weaveHint.textContent = "Wait for strands to finish, then pick which to weave.";
+  } else if (eligible.length === 0) {
+    weaveBtn.disabled = true;
+    weaveBtn.textContent = "Weave selected";
+    weaveHint.textContent = "Select at least one strand to weave.";
+  } else {
+    weaveBtn.disabled = false;
+    weaveBtn.textContent = `Weave ${eligible.length} seed${eligible.length === 1 ? "" : "s"}`;
+    weaveHint.textContent = "Selected seeds join the main context.";
+  }
+}
+
+function autoSizeTextarea(el, max) {
+  el.style.height = "auto";
+  el.style.height = Math.min(max, el.scrollHeight) + "px";
+}
+
+/* ============================================================
+   ACTIONS
+   ============================================================ */
+function startWithStarter(starter) {
+  state.parentContext = starter.contextLabel;
+  contextChip.classList.add("visible");
+  contextText.textContent = starter.contextLabel;
+  state.mainConv.push({ kind: "user", text: starter.text });
+  const id = makeId();
+  const item = { kind: "assistant", id, text: "", status: "streaming" };
+  state.mainConv.push(item);
+  renderMain();
+  streamInto(item, starter.response, 3000, () => composerInput.focus());
+}
+
+async function onSend() {
+  const text = composerInput.value.trim();
+  if (!text) return;
+  composerInput.value = "";
+  autoSizeTextarea(composerInput, 160);
+
+  state.mainConv.push({ kind: "user", text });
+  const id = makeId();
+  const item = { kind: "assistant", id, text: "", status: "streaming" };
+  state.mainConv.push(item);
+  renderMain();
+
+  if (state.postWeaveArmed) {
+    state.postWeaveArmed = false;
+    const lastFold = [...state.mainConv].reverse().find(x => x.kind === "weave-marker");
+    if (!state.parentContext) {
+      contextChip.classList.add("visible");
+      state.parentContext = text.length > 60 ? text.slice(0, 60) + "…" : text;
+      contextText.textContent = state.parentContext;
+    }
+    await streamPostWeaveFromOllama(item, text, lastFold);
+    return;
+  } else {
+    if (!state.parentContext) {
+      contextChip.classList.add("visible");
+      state.parentContext = text.length > 60 ? text.slice(0, 60) + "…" : text;
+      contextText.textContent = state.parentContext;
+    }
+
+    await streamMainFromOllama(item, text);
+  }
+}
+
+async function streamMainFromOllama(item, prompt) {
+  try {
+    item.modelLabel = "Ollama qwen2.5:3b";
+    item.text = "Thinking with local Ollama…";
+    renderMain();
+    const data = await callOllamaChat(
+      prompt,
+      "You are Dandelion, a concise assistant inside a local prototype. Answer directly and naturally.",
+    );
+    item.modelLabel = data.model ? `Ollama ${data.model}` : "Ollama";
+    streamInto(item, data.answer || "", Math.max(2200, Math.min(6800, (data.answer || "").length * 22)));
+  } catch (error) {
+    item.modelLabel = "Scripted fallback";
+    const reply = generateReply(prompt);
+    streamInto(item, reply.text + "\n\n(Local Ollama was unavailable, so this used the scripted fallback.)", reply.duration);
+  }
+}
+
+async function streamPostWeaveFromOllama(item, followUp, lastFold) {
+  try {
+    item.modelLabel = "Ollama qwen2.5:3b";
+    item.text = "Thinking with local Ollama…";
+    renderMain();
+    const response = await fetch("/api/continue", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        parentContext: state.parentContext,
+        mainConversation: state.mainConv.filter(x => x.id !== item.id),
+        wovenStrands: lastFold ? lastFold.strands : [],
+        route: lastFold ? { classification: lastFold.route.kind } : { classification: "additional_context" },
+        followUp,
+      }),
+    });
+    if (!response.ok) throw new Error(await response.text());
+    const data = await response.json();
+    item.modelLabel = data.model ? `Ollama ${data.model}` : "Ollama";
+    streamInto(item, data.answer || "", Math.max(2200, Math.min(6800, (data.answer || "").length * 22)));
+  } catch (error) {
+    item.modelLabel = "Scripted fallback";
+    const woven = lastFold ? Object.assign([...lastFold.strands], { route: lastFold.route }) : [];
+    const reply = generatePostWeaveReply(followUp, woven);
+    streamInto(item, reply.text + "\n\n(Local Ollama was unavailable, so this used the scripted fallback.)", reply.duration);
+  }
+}
+
+function streamInto(item, fullText, durationMs, onDone) {
+  const start = performance.now();
+  const len = fullText.length;
+  function tick(now) {
+    const t = Math.min(1, (now - start) / durationMs);
+    const chars = Math.floor(t * len);
+    item.text = fullText.slice(0, chars);
+    renderMain();
+    if (t < 1) requestAnimationFrame(tick);
+    else { item.status = "complete"; renderMain(); if (onDone) onDone(); }
+  }
+  requestAnimationFrame(tick);
+}
+
+function onOpenStrand() {
+  const draft = composerInput.value.trim();
+  composerInput.value = "";
+  autoSizeTextarea(composerInput, 160);
+
+  const id = makeId();
+  const st = {
+    id,
+    title: "",
+    turns: [],
+    composerDraft: draft,
+    status: "idle",
+    selected: true,
+  };
+  state.strands.push(st);
+  state.activeStrandId = id;
+  renderStrands();
+
+  setTimeout(() => {
+    const ta = document.querySelector(`textarea[data-strand-draft="${id}"]`);
+    if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }
+  }, 80);
+}
+
+async function sendInStrand(stId) {
+  const st = state.strands.find(s => s.id === stId);
+  if (!st || !st.composerDraft || !st.composerDraft.trim()) return;
+  if (st.status === "running") return;
+
+  const userText = st.composerDraft.trim();
+  st.composerDraft = "";
+  const draftEl = document.querySelector(`textarea[data-strand-draft="${stId}"]`);
+  if (draftEl) draftEl.value = "";
+  if (!st.title) st.title = userText.length > 40 ? userText.slice(0, 40) + "…" : userText;
+  const turn = { id: makeId(), user: userText, asst: "", status: "streaming" };
+  st.turns.push(turn);
+  st.status = "running";
+  renderStrands();
+
+  await streamStrandFromOllama(st, turn, userText);
+}
+
+async function streamStrandFromOllama(st, turn, prompt) {
+  try {
+    turn.asst = "Thinking with local Ollama…";
+    renderStrands();
+    const data = await callOllamaChat(
+      prompt,
+      "You are Dandelion running a side-thread investigation. Be specific, concise, and useful.",
+    );
+    streamIntoStrand(st, turn, data.answer || "", Math.max(2200, Math.min(6800, (data.answer || "").length * 22)));
+  } catch (error) {
+    const reply = generateReply(prompt);
+    streamIntoStrand(st, turn, reply.text + "\n\n(Local Ollama was unavailable, so this used the scripted fallback.)", reply.duration);
+  }
+}
+
+function streamIntoStrand(st, turn, fullText, durationMs) {
+  const start = performance.now();
+  const len = fullText.length;
+  function tick(now) {
+    const t = Math.min(1, (now - start) / durationMs);
+    const chars = Math.floor(t * len);
+    turn.asst = fullText.slice(0, chars);
+    const body = document.querySelector(`[data-strand-turn="${turn.id}"]`);
+    if (body) {
+      body.innerHTML = escapeHtml(turn.asst) + (t < 1 ? '<span class="cursor"></span>' : "");
+      const msgs = document.querySelector(`[data-strand-msgs="${st.id}"]`);
+      if (msgs) msgs.scrollTop = msgs.scrollHeight;
+    }
+    if (t < 1) {
+      requestAnimationFrame(tick);
+    } else {
+      turn.status = "complete";
+      st.status = "idle";
+      renderStrands();
+    }
+  }
+  requestAnimationFrame(tick);
+}
+
+function onWeave() {
+  const woven = state.strands.filter(s => s.selected && s.status === "idle" && s.turns.length > 0);
+  if (woven.length === 0) return;
+  const wovenPayload = woven.map(s => ({
+    title: s.title,
+    turns: s.turns.map(t => ({ user: t.user, asst: t.asst })),
+    _wovenKey: s.id,
+  }));
+  const route = classifyWovenStrands(wovenPayload);
+
+  state.mainConv.push({
+    kind: "weave-marker",
+    id: makeId(),
+    route,
+    strands: wovenPayload,
+  });
+
+  if (route.kind === "material_conflict") {
+    state.mainConv.push({
+      kind: "conflict-choice",
+      id: makeId(),
+      summary: route.summary,
+      choices: route.choices,
+      resolved: false,
+    });
+    state.postWeaveArmed = false;
+  } else {
+    state.postWeaveArmed = true;
+  }
+
+  const wovenIds = new Set(woven.map(s => s.id));
+  state.strands = state.strands.filter(s => !wovenIds.has(s.id));
+
+  renderStrands();
+  renderMain();
+
+  composerInput.placeholder = route.kind === "material_conflict" ? "Choose a path above to continue…" : "Continue from the woven context…";
+  setTimeout(() => composerInput.focus(), 350);
+}
+
+function resolveConflictChoice(choiceId, choiceIndex) {
+  const choiceItem = state.mainConv.find(item => item.kind === "conflict-choice" && item.id === choiceId);
+  if (!choiceItem || choiceItem.resolved) return;
+  const choice = choiceItem.choices[choiceIndex];
+  choiceItem.resolved = true;
+  choiceItem.selected = choiceIndex;
+
+  state.mainConv.push({ kind: "user", text: choice });
+  const item = { kind: "assistant", id: makeId(), text: "", status: "streaming" };
+  state.mainConv.push(item);
+  composerInput.placeholder = "Continue from the chosen path…";
+  renderMain();
+  streamInto(item, "Got it. I'll carry that path forward as the main-thread context from here. The other stance remains visible in the weave fold, but I won't use it as the active direction unless you ask to revisit it.", 3600);
+}
+
+function closeStrand(stId) {
+  state.strands = state.strands.filter(s => s.id !== stId);
+  if (state.activeStrandId === stId) {
+    state.activeStrandId = state.strands[0] ? state.strands[0].id : null;
+  }
+  renderStrands();
+}
+
+function newSession() {
+  state.mainConv = [];
+  state.strands = [];
+  state.activeStrandId = null;
+  state.parentContext = null;
+  state.postWeaveArmed = false;
+  state.nextId = 1;
+  composerInput.value = "";
+  composerInput.placeholder = "Ask anything…";
+  autoSizeTextarea(composerInput, 160);
+  contextChip.classList.remove("visible");
+  contextText.textContent = "";
+  renderMain();
+  renderStrands();
+  setTimeout(() => composerInput.focus(), 100);
+}
+
+function openStrandFromMessage(item) {
+  const id = makeId();
+  const st = {
+    id,
+    title: "",
+    contextHint: item.text.slice(0, 60) + (item.text.length > 60 ? "…" : ""),
+    turns: [],
+    composerDraft: "",
+    status: "idle",
+    selected: true,
+  };
+  state.strands.push(st);
+  state.activeStrandId = id;
+  renderStrands();
+  setTimeout(() => {
+    const ta = document.querySelector(`textarea[data-strand-draft="${id}"]`);
+    if (ta) ta.focus();
+  }, 80);
+}
+
+function onWeaveOne(stId) {
+  const st = state.strands.find(s => s.id === stId);
+  if (!st || st.status === "running" || st.turns.length === 0) return;
+  const wovenPayload = [{ title: st.title, turns: st.turns.map(t => ({ user: t.user, asst: t.asst })), _wovenKey: st.id }];
+  const route = classifyWovenStrands(wovenPayload);
+  state.mainConv.push({ kind: "weave-marker", id: makeId(), route, strands: wovenPayload });
+  if (route.kind === "material_conflict") {
+    state.mainConv.push({ kind: "conflict-choice", id: makeId(), summary: route.summary, choices: route.choices, resolved: false });
+    state.postWeaveArmed = false;
+  } else {
+    state.postWeaveArmed = true;
+  }
+  state.strands = state.strands.filter(s => s.id !== stId);
+  renderStrands();
+  renderMain();
+  composerInput.placeholder = route.kind === "material_conflict" ? "Choose a path above to continue…" : "Continue from the woven context…";
+  setTimeout(() => composerInput.focus(), 350);
+}
+
+function renderDandelionSVG(strands) {
+  // Anchor sits at the bottom-left of the SVG; all stems lean to the upper-right.
+  const cx = 16, cy = 104, stemLen = 70;
+  const n = strands.length;
+  const angleMin = 20, angleMax = 78;   // degrees from vertical, all positive = leaning right
+  const angles = n === 1 ? [(angleMin + angleMax) / 2] :
+    Array.from({ length: n }, (_, i) => angleMin + (angleMax - angleMin) * i / (n - 1));
+  const seeds = strands.map((t, i) => {
+    const θ = angles[i] * Math.PI / 180;
+    const tx = +(cx + stemLen * Math.sin(θ)).toFixed(1);
+    const ty = +(cy - stemLen * Math.cos(θ)).toFixed(1);
+    const lx = +(cx + (stemLen + 12) * Math.sin(θ)).toFixed(1);
+    const ly = +(cy - (stemLen + 12) * Math.cos(θ)).toFixed(1);
+    const title = (t.title || ("Seed " + (i + 1))).slice(0, 18);
+    return `<g class="dan-seed" data-seed-i="${i}">` +
+      `<line class="dan-stem" x1="${cx}" y1="${cy}" x2="${tx}" y2="${ty}" stroke="#C4B5A0" stroke-width="1" stroke-linecap="round" opacity="0.7"/>` +
+      `<circle class="dan-puff" cx="${tx}" cy="${ty}" r="5" fill="white" stroke="var(--accent)" stroke-width="1.5"/>` +
+      `<text class="dan-label" x="${lx}" y="${ly}" text-anchor="start" dominant-baseline="middle" ` +
+        `font-size="10" fill="#5C5F66" font-family="Inter,sans-serif" font-weight="500">${escapeHtml(title)}</text>` +
+    `</g>`;
+  }).join("");
+  return `<svg class="weave-dandelion" width="220" height="110" style="overflow:visible">` +
+    `<circle cx="${cx}" cy="${cy}" r="3" fill="var(--accent)" opacity="0.55"/>` +
+    seeds +
+  `</svg>`;
+}
+
+function reopenWovenSeed(strandData) {
+  const existing = state.strands.find(s => s._wovenKey === strandData._wovenKey);
+  if (existing) {
+    state.activeStrandId = existing.id;
+    renderStrands();
+    return;
+  }
+  const id = makeId();
+  const st = {
+    id,
+    title: strandData.title || "Woven seed",
+    turns: strandData.turns.map(t => ({ id: makeId(), user: t.user, asst: t.asst, status: "complete" })),
+    composerDraft: "",
+    status: "idle",
+    selected: false,
+    _wovenKey: strandData._wovenKey,
+  };
+  state.strands.push(st);
+  state.activeStrandId = id;
+  renderStrands();
+}
+
+/* ============================================================
+   MODEL PICKER
+   ============================================================ */
+function selectModel(id, label, kind) {
+  state.currentModel = { id, label, kind };
+  modelName.textContent = label;
+  modelDot.className = "dot" + (kind === "local" ? " local" : "");
+  if (metaModel) metaModel.textContent = label;
+  // mark selected option
+  document.querySelectorAll(".model-option").forEach(opt => {
+    opt.classList.toggle("selected", opt.dataset.model === id);
+  });
+}
+function openModelMenu(open) {
+  modelMenu.classList.toggle("open", open);
+}
+
+modelChip.addEventListener("click", (e) => {
+  e.stopPropagation();
+  openModelMenu(!modelMenu.classList.contains("open"));
+});
+document.querySelectorAll(".model-option").forEach(opt => {
+  opt.addEventListener("click", (e) => {
+    e.stopPropagation();
+    selectModel(opt.dataset.model, opt.dataset.label, opt.dataset.kind);
+    openModelMenu(false);
+  });
+});
+document.addEventListener("click", (e) => {
+  if (!e.target.closest(".model-picker")) openModelMenu(false);
+});
+
+/* ============================================================
+   WIRING
+   ============================================================ */
+composerInput.addEventListener("input", () => autoSizeTextarea(composerInput, 160));
+composerInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    onSend();
+  }
+});
+composerSend.addEventListener("click", onSend);
+strandBtn.addEventListener("click", onOpenStrand);
+weaveBtn.addEventListener("click", onWeave);
+$("#reset-btn").addEventListener("click", newSession);
+$("#tray-add-btn").addEventListener("click", onOpenStrand);
+
+// init model selection visually
+selectModel(state.currentModel.id, state.currentModel.label, state.currentModel.kind);
+newSession();
+</script>
+</body>
+</html>

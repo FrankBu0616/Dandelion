@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dandelion — Brand Kit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0F0F12;
+    --cream: #F4EFE6;
+    --copper: #C97B4E;
+    --teal: #3A7A7A;
+    --slate: #5C5F66;
+    --white: #FFFFFF;
+    --hairline: rgba(15, 15, 18, 0.12);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--cream); color: var(--ink); font-family: 'Inter', -apple-system, system-ui, sans-serif; font-weight: 400; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  .container { max-width: 980px; margin: 0 auto; padding: 56px 48px 120px; }
+  .topbar { display: flex; justify-content: space-between; align-items: baseline; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--slate); letter-spacing: 0.5px; text-transform: uppercase; padding-bottom: 80px; }
+
+  .hero { display: flex; flex-direction: column; align-items: center; gap: 28px; padding: 40px 0 96px; }
+  .hero svg.lockup { width: 240px; height: 240px; }
+  .hero .tagline { font-size: 20px; color: var(--slate); text-align: center; font-weight: 400; line-height: 1.5; }
+  .hero .tagline strong { color: var(--ink); font-weight: 500; display: block; margin-top: 6px; max-width: 520px; }
+
+  section { padding: 64px 0; border-top: 0.5px solid var(--hairline); }
+  h2 { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 400; color: var(--slate); letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 32px; }
+
+  .marks-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .mark-card { display: flex; flex-direction: column; align-items: center; padding: 32px 12px 20px; background: var(--white); border: 0.5px solid var(--hairline); border-radius: 12px; color: var(--ink); }
+  .mark-card svg { width: 88px; height: 88px; margin-bottom: 16px; }
+  .mark-card .label { font-size: 13px; color: var(--ink); font-weight: 500; }
+  .mark-card .filename { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--slate); margin-top: 6px; text-align: center; word-break: break-all; }
+
+  .palette-row { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+  .palette-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+  .palette-meta { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--slate); margin-bottom: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .swatches { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .swatch { aspect-ratio: 1.4 / 1; display: flex; flex-direction: column; justify-content: flex-end; padding: 12px; border-radius: 8px; border: 0.5px solid transparent; }
+  .swatch .sname { font-size: 12px; font-weight: 500; }
+  .swatch .shex { font-family: 'JetBrains Mono', monospace; font-size: 10px; opacity: 0.7; margin-top: 2px; }
+
+  .type-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .type-card { padding: 36px 32px; background: var(--white); border: 0.5px solid var(--hairline); border-radius: 12px; }
+  .type-name { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--slate); letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 18px; }
+  .type-sample-large { font-family: 'Inter', sans-serif; font-size: 64px; font-weight: 500; letter-spacing: -1px; line-height: 1; margin-bottom: 24px; color: var(--ink); }
+  .type-sample-mono { font-family: 'JetBrains Mono', monospace; font-size: 40px; font-weight: 400; line-height: 1; margin-bottom: 24px; color: var(--ink); letter-spacing: -1px; }
+  .type-meta { font-size: 13px; color: var(--slate); line-height: 1.6; }
+  .type-meta strong { font-weight: 500; color: var(--ink); }
+  .type-meta code { font-family: 'JetBrains Mono', monospace; font-size: 12px; background: var(--cream); padding: 2px 6px; border-radius: 4px; }
+
+  .lockup-stack { display: flex; flex-direction: column; gap: 16px; }
+  .lockup-card { padding: 40px 36px; background: var(--white); border: 0.5px solid var(--hairline); border-radius: 12px; display: flex; align-items: center; justify-content: space-between; gap: 48px; }
+  .lockup-svg { color: var(--ink); flex: 0 0 auto; }
+  .lockup-meta { font-size: 13px; color: var(--slate); text-align: right; flex: 1; }
+  .lockup-meta strong { display: block; color: var(--ink); font-weight: 500; margin-bottom: 4px; }
+  .lockup-meta code { font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+
+  footer { padding-top: 64px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--slate); letter-spacing: 0.5px; text-align: center; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="topbar">
+    <span>Dandelion · brand kit</span>
+    <span>v0 · 2026.05</span>
+  </div>
+
+  <div class="hero">
+    <svg class="lockup" viewBox="0 0 320 280" style="color: var(--ink);">
+      <g transform="translate(100,20)">
+        <g transform="rotate(35 60 60)">
+          <g stroke="currentColor" stroke-width="5" stroke-linecap="round">
+            <line x1="32" y1="30" x2="60" y2="90"/>
+            <line x1="60" y1="30" x2="60" y2="90"/>
+            <line x1="88" y1="30" x2="60" y2="90"/>
+          </g>
+          <g fill="currentColor">
+            <circle cx="32" cy="30" r="8"/>
+            <circle cx="60" cy="30" r="8"/>
+            <circle cx="88" cy="30" r="8"/>
+            <rect x="51" y="81" width="18" height="18" transform="rotate(45 60 90)"/>
+          </g>
+        </g>
+      </g>
+      <text x="160" y="232" text-anchor="middle" font-family="Inter, sans-serif" font-size="64" font-weight="500" letter-spacing="-1" fill="currentColor">dandelion</text>
+    </svg>
+    <div class="tagline">Fork. Run. Merge. Continue.<strong>Parallel exploration with LLMs, structured as a unit of work.</strong></div>
+  </div>
+
+  <section>
+    <h2>Logo — Dandelion mark</h2>
+    <div class="marks-grid">
+      <div class="mark-card">
+        <svg viewBox="0 0 120 120" style="color: var(--ink);">
+          <g transform="rotate(35 60 60)">
+            <g stroke="currentColor" stroke-width="5" stroke-linecap="round">
+              <line x1="32" y1="30" x2="60" y2="90"/>
+              <line x1="60" y1="30" x2="60" y2="90"/>
+              <line x1="88" y1="30" x2="60" y2="90"/>
+            </g>
+            <g fill="currentColor">
+              <circle cx="32" cy="30" r="8"/>
+              <circle cx="60" cy="30" r="8"/>
+              <circle cx="88" cy="30" r="8"/>
+              <rect x="51" y="81" width="18" height="18" transform="rotate(45 60 90)"/>
+            </g>
+          </g>
+        </svg>
+        <div class="label">Canonical</div>
+        <div class="filename">dandelion.svg</div>
+      </div>
+      <div class="mark-card">
+        <svg viewBox="0 0 120 120" style="color: var(--ink);">
+          <defs>
+            <mask id="m1">
+              <rect width="120" height="120" fill="white"/>
+              <g transform="rotate(35 60 60)" fill="black" stroke="black" stroke-width="3.5" stroke-linecap="round">
+                <line x1="42" y1="42" x2="60" y2="80"/>
+                <line x1="60" y1="42" x2="60" y2="80"/>
+                <line x1="78" y1="42" x2="60" y2="80"/>
+                <circle cx="42" cy="42" r="5.5"/>
+                <circle cx="60" cy="42" r="5.5"/>
+                <circle cx="78" cy="42" r="5.5"/>
+                <rect x="53" y="73" width="14" height="14" transform="rotate(45 60 80)"/>
+              </g>
+            </mask>
+          </defs>
+          <rect x="14" y="14" width="92" height="92" rx="22" fill="currentColor" mask="url(#m1)"/>
+        </svg>
+        <div class="label">App icon</div>
+        <div class="filename">dandelion_app_icon.svg</div>
+      </div>
+      <div class="mark-card">
+        <svg viewBox="0 0 120 120" style="color: var(--ink);">
+          <g transform="rotate(35 60 60)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="3.5">
+            <line x1="34.5" y1="36" x2="57" y2="83"/>
+            <line x1="60" y1="37" x2="60" y2="83"/>
+            <line x1="85.5" y1="36" x2="63" y2="83"/>
+            <circle cx="32" cy="30" r="7"/>
+            <circle cx="60" cy="30" r="7"/>
+            <circle cx="88" cy="30" r="7"/>
+            <rect x="52" y="82" width="16" height="16" transform="rotate(45 60 90)"/>
+          </g>
+        </svg>
+        <div class="label">Outlined</div>
+        <div class="filename">dandelion_outlined.svg</div>
+      </div>
+      <div class="mark-card" style="background: var(--ink); border-color: var(--ink);">
+        <svg viewBox="0 0 120 120" style="color: var(--cream);">
+          <g transform="rotate(35 60 60)">
+            <g stroke="currentColor" stroke-width="5" stroke-linecap="round">
+              <line x1="32" y1="30" x2="60" y2="90"/>
+              <line x1="60" y1="30" x2="60" y2="90"/>
+              <line x1="88" y1="30" x2="60" y2="90"/>
+            </g>
+            <g fill="currentColor">
+              <circle cx="32" cy="30" r="8"/>
+              <circle cx="60" cy="30" r="8"/>
+              <circle cx="88" cy="30" r="8"/>
+              <rect x="51" y="81" width="18" height="18" transform="rotate(45 60 90)"/>
+            </g>
+          </g>
+        </svg>
+        <div class="label" style="color: var(--cream);">On dark</div>
+        <div class="filename" style="color: rgba(244, 239, 230, 0.55);">set color: cream</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Color — palettes</h2>
+    <div class="palette-row">
+      <div>
+        <div class="palette-title">Direction A — Warm anchor</div>
+        <div class="palette-meta">Recommended</div>
+        <div class="swatches">
+          <div class="swatch" style="background: #0F0F12; color: #F4EFE6;"><div class="sname">Ink</div><div class="shex">#0F0F12</div></div>
+          <div class="swatch" style="background: #F4EFE6; color: #0F0F12; border-color: var(--hairline);"><div class="sname">Cream</div><div class="shex">#F4EFE6</div></div>
+          <div class="swatch" style="background: #C97B4E; color: #FFFFFF;"><div class="sname">Copper</div><div class="shex">#C97B4E</div></div>
+          <div class="swatch" style="background: #3A7A7A; color: #FFFFFF;"><div class="sname">Teal</div><div class="shex">#3A7A7A</div></div>
+          <div class="swatch" style="background: #5C5F66; color: #FFFFFF;"><div class="sname">Slate</div><div class="shex">#5C5F66</div></div>
+          <div class="swatch" style="background: #FFFFFF; color: #0F0F12; border-color: var(--hairline);"><div class="sname">White</div><div class="shex">#FFFFFF</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="palette-title">Direction B — Cool modern</div>
+        <div class="palette-meta">Reserve</div>
+        <div class="swatches">
+          <div class="swatch" style="background: #0A0A0F; color: #F4F4F8;"><div class="sname">Ink</div><div class="shex">#0A0A0F</div></div>
+          <div class="swatch" style="background: #F4F4F8; color: #0A0A0F; border-color: var(--hairline);"><div class="sname">Pale</div><div class="shex">#F4F4F8</div></div>
+          <div class="swatch" style="background: #6E5CFF; color: #FFFFFF;"><div class="sname">Violet</div><div class="shex">#6E5CFF</div></div>
+          <div class="swatch" style="background: #E8A87C; color: #0A0A0F;"><div class="sname">Amber</div><div class="shex">#E8A87C</div></div>
+          <div class="swatch" style="background: #6A6E78; color: #FFFFFF;"><div class="sname">Slate</div><div class="shex">#6A6E78</div></div>
+          <div class="swatch" style="background: #FFFFFF; color: #0A0A0F; border-color: var(--hairline);"><div class="sname">White</div><div class="shex">#FFFFFF</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Typography</h2>
+    <div class="type-row">
+      <div class="type-card">
+        <div class="type-name">UI sans</div>
+        <div class="type-sample-large">dandelion</div>
+        <div class="type-meta"><strong>Inter</strong> — 500 weight, letter-spacing −1. Variable, free, excellent at all sizes. <code>font-family: Inter</code></div>
+      </div>
+      <div class="type-card">
+        <div class="type-name">Monospace</div>
+        <div class="type-sample-mono">node_a42f</div>
+        <div class="type-meta"><strong>JetBrains Mono</strong> — 400 weight. For node IDs, code, canvas labels. <code>font-family: 'JetBrains Mono'</code></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Wordmark — lockups</h2>
+    <div class="lockup-stack">
+      <div class="lockup-card">
+        <div class="lockup-svg">
+          <svg width="280" viewBox="0 0 620 120" style="color: var(--ink);">
+            <g transform="rotate(35 60 60)">
+              <g stroke="currentColor" stroke-width="5" stroke-linecap="round">
+                <line x1="32" y1="30" x2="60" y2="90"/>
+                <line x1="60" y1="30" x2="60" y2="90"/>
+                <line x1="88" y1="30" x2="60" y2="90"/>
+              </g>
+              <g fill="currentColor">
+                <circle cx="32" cy="30" r="8"/>
+                <circle cx="60" cy="30" r="8"/>
+                <circle cx="88" cy="30" r="8"/>
+                <rect x="51" y="81" width="18" height="18" transform="rotate(45 60 90)"/>
+              </g>
+            </g>
+            <text x="148" y="82" font-family="Inter, sans-serif" font-size="84" font-weight="500" letter-spacing="-1" fill="currentColor">dandelion</text>
+          </svg>
+        </div>
+        <div class="lockup-meta"><strong>Horizontal lockup</strong><code>wordmark_lockup_horizontal.svg</code><br>Use: README header, website nav</div>
+      </div>
+      <div class="lockup-card">
+        <div class="lockup-svg">
+          <svg width="180" viewBox="0 0 320 280" style="color: var(--ink);">
+            <g transform="translate(100,20)">
+              <g transform="rotate(35 60 60)">
+                <g stroke="currentColor" stroke-width="5" stroke-linecap="round">
+                  <line x1="32" y1="30" x2="60" y2="90"/>
+                  <line x1="60" y1="30" x2="60" y2="90"/>
+                  <line x1="88" y1="30" x2="60" y2="90"/>
+                </g>
+                <g fill="currentColor">
+                  <circle cx="32" cy="30" r="8"/>
+                  <circle cx="60" cy="30" r="8"/>
+                  <circle cx="88" cy="30" r="8"/>
+                  <rect x="51" y="81" width="18" height="18" transform="rotate(45 60 90)"/>
+                </g>
+              </g>
+            </g>
+            <text x="160" y="232" text-anchor="middle" font-family="Inter, sans-serif" font-size="64" font-weight="500" letter-spacing="-1" fill="currentColor">dandelion</text>
+          </svg>
+        </div>
+        <div class="lockup-meta"><strong>Stacked lockup</strong><code>wordmark_lockup_stacked.svg</code><br>Use: app splash, social card, avatars</div>
+      </div>
+      <div class="lockup-card">
+        <div class="lockup-svg">
+          <svg width="200" viewBox="0 0 540 100" style="color: var(--ink);">
+            <text x="0" y="72" font-family="Inter, sans-serif" font-size="84" font-weight="500" letter-spacing="-1" fill="currentColor">dandelion</text>
+          </svg>
+        </div>
+        <div class="lockup-meta"><strong>Plain wordmark</strong><code>wordmark_plain.svg</code><br>Use: prose mentions, footer</div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Dandelion · brand kit v0 · dandelion mark · files in /brand/
+  </footer>
+</div>
+</body>
+</html>

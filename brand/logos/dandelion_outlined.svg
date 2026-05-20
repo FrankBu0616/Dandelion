@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" color="#0F0F12">
+  <title>Dandelion — outlined variant</title>
+  <g transform="rotate(35 60 60)" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="3.5">
+    <line x1="34.5" y1="36" x2="57" y2="83"/>
+    <line x1="60" y1="37" x2="60" y2="83"/>
+    <line x1="85.5" y1="36" x2="63" y2="83"/>
+    <circle cx="32" cy="30" r="7"/>
+    <circle cx="60" cy="30" r="7"/>
+    <circle cx="88" cy="30" r="7"/>
+    <rect x="52" y="82" width="16" height="16" transform="rotate(45 60 90)"/>
+  </g>
+</svg>

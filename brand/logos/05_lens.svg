@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" color="#0F0F12">
+  <title>Dandelion — Fork-merge lens</title>
+  <g fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round">
+    <path d="M 14 60 L 32 60"/>
+    <path d="M 32 60 C 52 60 52 30 70 30 L 80 30 C 100 30 100 60 106 60"/>
+    <path d="M 32 60 L 106 60"/>
+    <path d="M 32 60 C 52 60 52 90 70 90 L 80 90 C 100 90 100 60 106 60"/>
+  </g>
+</svg>

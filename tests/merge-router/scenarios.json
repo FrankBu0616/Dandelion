@@ -1,0 +1,55 @@
+[
+  {
+    "id": "additional_context",
+    "expected_route": "additional_context",
+    "description": "Compatible strands add implementation details.",
+    "strands": [
+      {
+        "title": "Data model",
+        "claim": "Use sessions, side-thread records, and merge records."
+      },
+      {
+        "title": "UI flow",
+        "claim": "Use root input, side-thread prompts, Run, and Weave controls."
+      },
+      {
+        "title": "Evaluation",
+        "claim": "Test compatible context, soft disagreement, and material conflict."
+      }
+    ]
+  },
+  {
+    "id": "soft_disagreement",
+    "expected_route": "soft_disagreement",
+    "description": "Strands differ in emphasis but combine into one next action.",
+    "strands": [
+      {
+        "title": "Speed first",
+        "claim": "Build the fastest rough prototype to validate the merge workflow."
+      },
+      {
+        "title": "Fidelity matters",
+        "claim": "Make the prototype clean enough to test whether the workflow feels good."
+      }
+    ]
+  },
+  {
+    "id": "material_conflict",
+    "expected_route": "material_conflict",
+    "description": "Strands recommend incompatible provider strategies.",
+    "strands": [
+      {
+        "title": "Multi-provider",
+        "claim": "Support OpenAI, Anthropic, Gemini, and Ollama from day one."
+      },
+      {
+        "title": "Single provider",
+        "claim": "Support one provider first, then add the rest later."
+      }
+    ],
+    "expected_choices": [
+      "Proceed with multi-provider support from day one.",
+      "Proceed with one provider first, then add others later."
+    ]
+  }
+]

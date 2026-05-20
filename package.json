@@ -1,0 +1,16 @@
+{
+  "name": "dandelion",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Local-first desktop app concept where a question spins up parallel side threads and weaves selected ones back into the main conversation.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node scripts/router-prototype-server.mjs",
+    "test": "node --test 'tests/**/*.test.mjs'",
+    "harness": "node scripts/merge-harness.mjs"
+  }
+}
