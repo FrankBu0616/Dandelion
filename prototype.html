@@ -14,7 +14,7 @@
     --bg: #F4EFE6;                                     /* Cream — page bg */
     --surface: #FFFFFF;                                /* White — cards */
     --surface-soft: #ECE6DB;                           /* Soft cream — alt surface */
-    --strand-bg: #F1EBDD;                              /* Slight tint — strand bg */
+    --plant-bg: #F1EBDD;                              /* Slight tint — plant bg */
     --border: rgba(15, 15, 18, 0.10);                  /* Hairline */
     --border-strong: rgba(15, 15, 18, 0.18);           /* Stronger hairline */
     --text: #0F0F12;                                   /* Ink */
@@ -27,7 +27,7 @@
     --weave-bg: #F4E4D0;                               /* Copper tint — merge highlight */
     --weave-border: #E0C098;                           /* Mid copper border */
     --weave-text: #8A4F22;                             /* Dark copper text on weave */
-    --strand-divider: rgba(15, 15, 18, 0.18);
+    --plant-divider: rgba(15, 15, 18, 0.18);
   }
   * { box-sizing: border-box; }
   html, body { height: 100%; margin: 0; }
@@ -85,7 +85,7 @@
     margin-left: auto;
     display: flex; gap: 8px; align-items: center;
   }
-  .top-bar .strand-count {
+  .top-bar .plant-count {
     font-size: 11px;
     color: var(--muted);
     margin-right: 4px;
@@ -176,18 +176,18 @@
     position: relative;
     transition: flex-basis 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  /* right column — strands */
-  #strand-column {
+  /* right column — plants */
+  #plant-column {
     flex: 0 0 0%;
     min-width: 0;
     overflow: hidden;
-    background: var(--strand-bg);
-    border-left: 1px solid var(--strand-divider);
+    background: var(--plant-bg);
+    border-left: 1px solid var(--plant-divider);
     display: flex; flex-direction: column;
     transition: flex-basis 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  body.has-strands #main-column { flex: 1 1 50%; }
-  body.has-strands #strand-column { flex: 1 1 50%; }
+  body.has-plants #main-column { flex: 1 1 50%; }
+  body.has-plants #plant-column { flex: 1 1 50%; }
 
   /* main column inner */
   #main-inner {
@@ -196,7 +196,7 @@
     padding: 32px 24px 72px;
     transition: max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  body.has-strands #main-inner {
+  body.has-plants #main-inner {
     max-width: none;
     padding: 32px 32px 72px;
   }
@@ -247,7 +247,7 @@
     word-wrap: break-word;
   }
   .msg-assistant .body .cursor,
-  .strand-message .cursor {
+  .plant-message .cursor {
     display: inline-block;
     width: 6px; height: 13px;
     background: var(--accent);
@@ -301,7 +301,7 @@
     pointer-events: none;
   }
   /* when the seed tray is open the gutter disappears, so float at the inside-right edge instead */
-  body.has-strands .weave-dandelion {
+  body.has-plants .weave-dandelion {
     right: 4px;
   }
   .weave-dandelion .dan-seed { pointer-events: auto; }
@@ -382,7 +382,7 @@
     pointer-events: auto;
     transition: max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  body.has-strands .main-composer-inner { max-width: none; padding: 0 8px; }
+  body.has-plants .main-composer-inner { max-width: none; padding: 0 8px; }
   .composer-box {
     background: var(--surface);
     border: 1px solid var(--border-strong);
@@ -405,13 +405,13 @@
     min-height: 24px; max-height: 160px;
     padding: 6px 4px;
   }
-  .strand-btn,
+  .plant-btn,
   .send-btn {
     border: 0; cursor: pointer; flex-shrink: 0;
     border-radius: 8px;
     display: inline-flex; align-items: center; justify-content: center;
   }
-  .strand-btn {
+  .plant-btn {
     height: 32px;
     padding: 0 12px;
     gap: 6px;
@@ -421,10 +421,10 @@
     font-size: 13px;
     font-weight: 500;
   }
-  .strand-btn:hover {
+  .plant-btn:hover {
     background: var(--accent-soft);
   }
-  .strand-btn svg { color: var(--accent); }
+  .plant-btn svg { color: var(--accent); }
   .send-btn {
     width: 32px; height: 32px;
     background: var(--accent);
@@ -441,42 +441,63 @@
   }
   .composer-meta .accent { color: var(--accent); font-weight: 500; }
 
-  /* ============ STRAND COLUMN ============ */
-  .strand-column-header {
-    padding: 14px 18px;
-    border-bottom: 1px solid var(--strand-divider);
-    background: var(--surface);
+  /* ============ PLANT COLUMN ============ */
+  .plant-column-header {
+    padding: 16px 18px 10px;
+    border-bottom: 0;
+    background: transparent;
     display: flex; align-items: center; gap: 10px;
   }
-  .strand-column-title { font-size: 13px; font-weight: 600; letter-spacing: -0.01em; }
-  .strand-column-subtitle { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .plant-column-title { font-size: 14px; font-weight: 600; letter-spacing: 0; }
+  .plant-column-subtitle { font-size: 11px; color: var(--muted); margin-top: 2px; }
   .tray-add-btn {
     margin-left: auto;
     border: 1px solid var(--border);
     background: var(--surface);
-    border-radius: 6px;
-    padding: 4px 10px;
+    border-radius: 999px;
+    width: 28px;
+    height: 28px;
+    padding: 0;
     font-size: 12px; font-family: inherit;
     color: var(--accent);
     cursor: pointer;
-    display: inline-flex; align-items: center; gap: 4px;
+    display: inline-flex; align-items: center; justify-content: center;
   }
   .tray-add-btn:hover { background: var(--accent-soft); border-color: var(--accent); }
-  .strand-column-body {
-    flex: 1; overflow-y: auto;
-    padding: 14px 16px 14px;
+  .tray-close-btn {
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    border-radius: 999px;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
-  .strand-column-footer {
-    padding: 12px 16px;
-    border-top: 1px solid var(--strand-divider);
-    background: var(--surface);
+  .tray-close-btn:hover {
+    background: rgba(15, 15, 18, 0.06);
+    color: var(--text);
+  }
+  .plant-column-body {
+    flex: 1; overflow-y: auto;
+    padding: 0 18px 16px;
+  }
+  .plant-column-footer {
+    padding: 12px 18px 16px;
+    border-top: 0;
+    background: linear-gradient(to top, rgba(241,235,221,0.98) 70%, rgba(241,235,221,0));
   }
   .weave-btn {
     width: 100%;
     padding: 10px 14px;
     background: var(--accent);
     color: white;
-    border: 0; border-radius: 8px;
+    border: 0; border-radius: 999px;
     font-size: 13.5px; font-weight: 500;
     cursor: pointer;
     display: inline-flex; align-items: center; justify-content: center; gap: 8px;
@@ -492,49 +513,69 @@
 
   /* ============ SEED TRAY + FOCUS BLOOM ============ */
   .seed-tray {
+    position: relative;
     display: grid;
-    gap: 8px;
-    margin-bottom: 14px;
+    gap: 0;
+    margin: 0 0 18px;
+    padding: 4px 0 4px 0;
+  }
+  .seed-tray::before {
+    content: "";
+    position: absolute;
+    left: 16px;
+    top: 14px;
+    bottom: 14px;
+    width: 1px;
+    background: linear-gradient(to bottom, rgba(111,139,85,0), rgba(111,139,85,0.34) 15%, rgba(111,139,85,0.34) 85%, rgba(111,139,85,0));
   }
   .seed {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 9px 10px;
+    position: relative;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    padding: 8px 0 8px 0;
     display: grid;
-    grid-template-columns: auto 1fr auto auto auto;
+    grid-template-columns: 34px minmax(0, 1fr) auto;
     gap: 8px;
     align-items: center;
-    min-height: 52px;
+    min-height: 54px;
     cursor: pointer;
-    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+    transition: transform 0.15s;
   }
-  .seed:hover { border-color: var(--border-strong); }
-  .seed.running {
-    border-color: var(--accent-soft);
-  }
+  .seed:hover { transform: translateX(2px); }
   .seed.focused {
-    background: var(--accent-soft);
-    border-color: var(--accent);
-  }
-  .seed.selected {
-    box-shadow: inset 3px 0 0 var(--accent);
+    transform: translateX(3px);
   }
   .seed-status-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: #16a34a;
+    width: 13px; height: 13px; border-radius: 50%;
+    background: #8EAA6D;
+    justify-self: center;
+    z-index: 1;
+    box-shadow: 0 0 0 6px var(--plant-bg);
+    transition: width 0.15s, height 0.15s, background 0.15s, box-shadow 0.15s;
   }
   .seed.running .seed-status-dot {
     background: var(--accent);
     animation: pulse 1.4s ease-in-out infinite;
   }
+  .seed.empty .seed-status-dot {
+    background: transparent;
+    border: 1px solid rgba(111,139,85,0.5);
+  }
+  .seed.focused .seed-status-dot {
+    width: 18px;
+    height: 18px;
+    background: var(--accent);
+    box-shadow: 0 0 0 6px var(--plant-bg), 0 0 0 9px rgba(201,123,78,0.14);
+  }
+  .seed.selected:not(.focused) .seed-status-dot { background: var(--accent); }
   @keyframes pulse {
     0%, 100% { opacity: 0.35; transform: scale(1); }
     50% { opacity: 1; transform: scale(1.35); }
   }
   .seed-main { min-width: 0; }
   .seed-title {
-    font-size: 12px;
+    font-size: 13px;
     color: var(--text);
     font-weight: 600;
     overflow: hidden;
@@ -549,47 +590,109 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .seed-check input {
-    margin: 0;
-    accent-color: var(--accent);
-    width: 15px;
-    height: 15px;
+  .seed-check {
+    width: 24px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
   }
+  .seed-check input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .seed-check-mark {
+    width: 16px;
+    height: 16px;
+    border: 1px solid rgba(201, 123, 78, 0.48);
+    border-radius: 50%;
+    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: transparent;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+  }
+  .seed-check input:checked + .seed-check-mark {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+  .seed-check input:disabled + .seed-check-mark {
+    opacity: 0.36;
+    cursor: not-allowed;
+  }
   .seed-weave-btn {
-    border: 1px solid var(--accent);
+    display: none;
+  }
+  .seed-add-row,
+  .plant-empty-action {
+    width: 100%;
+    border: 0;
     background: transparent;
     color: var(--accent);
-    border-radius: 5px;
-    padding: 2px 8px;
-    font-size: 11px; font-family: inherit;
-    cursor: pointer; white-space: nowrap;
+    border-radius: 0;
+    cursor: pointer;
+    font: inherit;
+    display: grid;
+    grid-template-columns: 34px 1fr;
+    align-items: center;
+    gap: 8px;
+    text-align: left;
+    transition: transform 0.15s, color 0.15s;
   }
-  .seed-weave-btn:hover { background: var(--accent-soft); }
-  .seed-weave-btn[hidden] { visibility: hidden; pointer-events: none; }
-  .seed-close {
-    border: 0; background: transparent;
-    color: var(--muted); cursor: pointer;
-    font-size: 14px; padding: 2px 5px;
-    border-radius: 4px;
+  .seed-add-row {
+    position: relative;
+    min-height: 44px;
+    margin: 2px 0 0;
+    font-size: 12.5px;
   }
-  .seed-close:hover { background: var(--surface-soft); color: var(--text); }
+  .plant-empty-action {
+    min-height: 170px;
+    margin-top: 24px;
+    font-size: 13px;
+    justify-content: start;
+  }
+  .seed-add-row:hover,
+  .plant-empty-action:hover {
+    transform: translateX(2px);
+  }
+  .seed-add-icon {
+    position: relative;
+    z-index: 1;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1px solid rgba(201,123,78,0.72);
+    background: var(--plant-bg);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+  .plant-empty-action .seed-add-icon {
+    width: 30px;
+    height: 30px;
+    justify-self: center;
+  }
   .focus-bloom {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    overflow: hidden;
-    min-height: 310px;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    overflow: visible;
+    min-height: 300px;
     display: grid;
     grid-template-rows: auto minmax(160px, 1fr) auto;
   }
   .focus-bloom-header {
-    padding: 10px 12px;
-    border-bottom: 1px solid var(--border);
-    background: var(--surface-soft);
+    padding: 4px 0 12px 34px;
+    border-bottom: 1px solid rgba(15, 15, 18, 0.09);
+    background: transparent;
   }
   .focus-bloom-title {
-    font-size: 12px;
+    font-size: 13px;
     color: var(--text);
     font-weight: 600;
     overflow: hidden;
@@ -601,22 +704,22 @@
     color: var(--muted);
     margin-top: 2px;
   }
-  .strand-messages {
-    padding: 10px 12px;
+  .plant-messages {
+    padding: 14px 0 12px 34px;
     min-height: 160px;
     max-height: 360px;
     overflow-y: auto;
   }
-  .strand-message {
+  .plant-message {
     margin-bottom: 10px;
     font-size: 13px;
     line-height: 1.55;
   }
-  .strand-message:last-child { margin-bottom: 0; }
-  .strand-message.user {
+  .plant-message:last-child { margin-bottom: 0; }
+  .plant-message.user {
     text-align: right;
   }
-  .strand-message.user .bubble {
+  .plant-message.user .bubble {
     display: inline-block;
     background: var(--user-bg);
     padding: 6px 10px;
@@ -626,13 +729,13 @@
     white-space: pre-wrap;
     word-wrap: break-word;
   }
-  .strand-message.assistant .body {
+  .plant-message.assistant .body {
     color: var(--text-soft);
     white-space: pre-wrap;
     word-wrap: break-word;
   }
 
-  .strand-empty {
+  .plant-empty {
     padding: 14px 12px;
     font-size: 12.5px;
     color: var(--muted);
@@ -640,28 +743,31 @@
     font-style: italic;
   }
 
-  .strand-composer {
-    border-top: 1px solid var(--border);
-    background: var(--surface);
-    padding: 8px 10px;
+  .plant-composer {
+    border-top: 1px solid rgba(15, 15, 18, 0.09);
+    background: transparent;
+    padding: 10px 0 0 34px;
     display: flex; gap: 6px; align-items: flex-end;
   }
-  .strand-composer textarea {
-    flex: 1; border: 0; background: transparent;
+  .plant-composer textarea {
+    flex: 1;
+    border: 1px solid rgba(15, 15, 18, 0.12);
+    border-radius: 999px;
+    background: rgba(255,255,255,0.54);
     font: inherit; font-size: 13px; line-height: 1.5;
     resize: none; outline: none; color: var(--text);
     min-height: 22px; max-height: 100px;
-    padding: 4px 2px;
+    padding: 8px 12px;
   }
-  .strand-composer button {
+  .plant-composer button {
     border: 0; background: var(--accent); color: white;
-    width: 26px; height: 26px;
-    border-radius: 6px;
+    width: 32px; height: 32px;
+    border-radius: 50%;
     cursor: pointer; flex-shrink: 0;
     display: inline-flex; align-items: center; justify-content: center;
   }
-  .strand-composer button:hover { background: var(--accent-hover); }
-  .strand-composer button:disabled { background: var(--border-strong); cursor: not-allowed; }
+  .plant-composer button:hover { background: var(--accent-hover); }
+  .plant-composer button:disabled { background: var(--border-strong); cursor: not-allowed; }
 
   /* ============ EMPTY STATE ============ */
   .empty-state {
@@ -775,7 +881,7 @@
       <span class="label">Context</span><span id="context-text"></span>
     </div>
     <div class="actions">
-      <span class="strand-count" id="strand-count"></span>
+      <span class="plant-count" id="plant-count"></span>
       <div class="model-picker" id="model-picker">
         <button class="chip" id="model-chip">
           <span class="dot" id="model-dot"></span>
@@ -845,13 +951,13 @@
           <div class="composer-box">
             <textarea id="composer-input" placeholder="Ask anything…" rows="1"></textarea>
 
-            <button class="strand-btn" id="strand-btn" title="Open a strand — parallel inquiry that shares this context">
+            <button class="plant-btn" id="plant-btn" title="Plant a side seed that shares this context" aria-label="Plant a side seed">
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                <!-- two strands diverging from a common base -->
+                <!-- two plants diverging from a common base -->
                 <path d="M8 13 Q 8 8, 4 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
                 <path d="M8 13 Q 8 8, 12 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
               </svg>
-              <span>Strand</span>
+              <span>Plant</span>
             </button>
 
             <button class="send-btn" id="composer-send" title="Send (↵)">
@@ -864,16 +970,17 @@
       </div>
     </div>
 
-    <div id="strand-column" aria-hidden="true">
-      <div class="strand-column-header">
+    <div id="plant-column" aria-hidden="true">
+      <div class="plant-column-header">
         <div>
-          <div class="strand-column-title">Seed tray</div>
-          <div class="strand-column-subtitle" id="strand-column-subtitle">—</div>
+          <div class="plant-column-title">Seeds</div>
+          <div class="plant-column-subtitle" id="plant-column-subtitle">—</div>
         </div>
-        <button class="tray-add-btn" id="tray-add-btn">+ Seed</button>
+        <button class="tray-add-btn" id="tray-add-btn" title="New seed" aria-label="New seed">+</button>
+        <button class="tray-close-btn" id="tray-close-btn" title="Close seeds" aria-label="Close seeds">×</button>
       </div>
-      <div class="strand-column-body" id="strand-column-body"></div>
-      <div class="strand-column-footer">
+      <div class="plant-column-body" id="plant-column-body"></div>
+      <div class="plant-column-footer">
         <button class="weave-btn" id="weave-btn" disabled>Weave selected</button>
         <div class="weave-hint" id="weave-hint">Select completed seeds to weave.</div>
       </div>
@@ -882,7 +989,7 @@
   </div>
 
 <script type="module">
-import { classifyWovenStrands, routeLabel } from "./scripts/merge-router.mjs";
+import { classifyWovenPlants, routeLabel } from "./scripts/merge-router.mjs";
 
 /* ============================================================
    STATE
@@ -890,13 +997,101 @@ import { classifyWovenStrands, routeLabel } from "./scripts/merge-router.mjs";
 const state = {
   parentContext: null,
   mainConv: [],       // user/assistant/weave-marker items
-  strands: [],        // {id, title, turns, composerDraft, status, selected}
-  activeStrandId: null,
+  plants: [],        // {id, title, turns, composerDraft, status, selected}
+  activePlantId: null,
   nextId: 1,
   postWeaveArmed: false,
   currentModel: { id: "local:qwen-2-5-3b", label: "qwen2.5:3b", kind: "local" },
+  // Shadow DAG — Phase 1. Mirror of mainConv/plants/weaves as a node/edge graph.
+  // No reads yet; this is being populated so Phase 2 (walkContext) can verify
+  // against the existing parentContext, and Phase 3 can cut over reads.
+  // Shape matches docs/data_model.md: chat nodes (one parent, prompt+response)
+  // and merge nodes (many parents, structural pooling).
+  graph: {
+    nodes: new Map(),  // id -> node
+    edges: [],         // {from, to, kind}
+    rootId: null,
+    mainLeafId: null,  // current main-thread tip; new main turns attach here
+  },
 };
 function makeId() { return "n" + (state.nextId++); }
+
+/* ============================================================
+   SHADOW GRAPH (Phase 1 — write-only)
+   ============================================================ */
+const graph = {
+  reset() {
+    state.graph.nodes.clear();
+    state.graph.edges = [];
+    state.graph.rootId = null;
+    state.graph.mainLeafId = null;
+  },
+  // Add a chat node (prompt + response, one parent).
+  // thread: "main" or "plant". plantId optional, set when thread === "plant".
+  addChat({ id, thread, plantId = null, prompt, response = "", parent, modelLabel = null }) {
+    const node = { id, kind: "chat", thread, plantId, prompt, response, parent, modelLabel };
+    state.graph.nodes.set(id, node);
+    if (parent) state.graph.edges.push({ from: parent, to: id, kind: "next" });
+    if (!state.graph.rootId) state.graph.rootId = id;
+    if (thread === "main") state.graph.mainLeafId = id;
+    return node;
+  },
+  // Add a plant container node. Forks off main-thread leaf at creation time.
+  addPlant({ id, title, parent }) {
+    const node = { id, kind: "plant", title, parent };
+    state.graph.nodes.set(id, node);
+    if (parent) state.graph.edges.push({ from: parent, to: id, kind: "fork" });
+    return node;
+  },
+  // Add a merge node. parents = last chat node of each woven plant.
+  // Becomes the new main-thread leaf.
+  addMerge({ id, parents, route }) {
+    const node = { id, kind: "merge", parents: [...parents], route };
+    state.graph.nodes.set(id, node);
+    for (const p of parents) state.graph.edges.push({ from: p, to: id, kind: "merged-into" });
+    state.graph.mainLeafId = id;
+    return node;
+  },
+  // Update a streaming response after it finishes.
+  setResponse(id, response) {
+    const n = state.graph.nodes.get(id);
+    if (n && n.kind === "chat") n.response = response;
+  },
+  // Update a plant title once the user's first turn names it.
+  setPlantTitle(id, title) {
+    const n = state.graph.nodes.get(id);
+    if (n && n.kind === "plant") n.title = title;
+  },
+  // Return the id of the most recent chat/merge node attached to a plant.
+  // Used to find merge-parents (the tip of each woven plant).
+  plantTip(plantId) {
+    let tip = plantId;
+    for (const n of state.graph.nodes.values()) {
+      if (n.kind === "chat" && n.plantId === plantId && n.parent === tip) {
+        tip = n.id;
+      }
+    }
+    // Simple walk: follow "next" edges from plant container forward.
+    // The loop above is O(n²) worst case but n is tiny for a prototype.
+    return tip;
+  },
+  toJSON() {
+    return {
+      rootId: state.graph.rootId,
+      mainLeafId: state.graph.mainLeafId,
+      nodes: [...state.graph.nodes.values()],
+      edges: state.graph.edges,
+    };
+  },
+};
+// Dev helper: inspect the graph from DevTools.
+if (typeof window !== "undefined") {
+  window.__dumpGraph = () => {
+    const json = graph.toJSON();
+    console.log("[Dandelion graph]", json);
+    return json;
+  };
+}
 
 /* ============================================================
    SCRIPTED CONTENT
@@ -911,7 +1106,7 @@ const STARTERS = [
       "Got it — I'll keep that framing. Reviewing a two-stage VLM pipeline paper. " +
       "Drop in whichever sections, formulas, or claims you want to dig into. " +
       "If you want to multi-task — for example, ask me about a formula here while I unpack a different section in parallel — " +
-      "use the Strand button to open a parallel inquiry. It shares this paper-review context, so I won't need to be re-briefed.",
+      "use the Plant button to open a parallel inquiry. It shares this paper-review context, so I won't need to be re-briefed.",
   },
   {
     label: "🧪 Debugging a system",
@@ -921,7 +1116,7 @@ const STARTERS = [
     response:
       "Understood — EU-only latency regression with no recent deploys is one of the harder shapes to diagnose. " +
       "Common candidates: CDN/edge issues, third-party dependency degradation, traffic shifts, silent infra changes by your cloud provider. " +
-      "Use the Strand button to open parallel inquiries for each hypothesis — they'll share this incident framing.",
+      "Use the Plant button to open parallel inquiries for each hypothesis — they'll share this incident framing.",
   },
   {
     label: "📚 Researching a topic",
@@ -931,7 +1126,7 @@ const STARTERS = [
     response:
       "Got it — the space splits roughly into pre-2024 Loom-style multiverse interfaces for creative writing, " +
       "2024–2025 hosted tools (ChatGPT, Claude, TypingMind, LMCanvas), and 2025–2026 open-source desktop tools. " +
-      "Use the Strand button to spawn parallel inquiries for specific tools or design patterns — they'll share this research context.",
+      "Use the Plant button to spawn parallel inquiries for specific tools or design patterns — they'll share this research context.",
   },
 ];
 
@@ -1061,26 +1256,26 @@ function generateReply(prompt) {
     text:
       "Here's how I'd think about that: the strongest framing depends on which constraint is binding for you. " +
       "If you give me a couple more sentences on the specific angle you care about, I can give a more targeted take. " +
-      "If you want to multi-task on this, the Strand button opens a parallel inquiry that shares this context — useful when you have two independent questions you don't want to interleave.",
+      "If you want to multi-task on this, the Plant button opens a parallel inquiry that shares this context — useful when you have two independent questions you don't want to interleave.",
     duration: 3600,
   };
 }
 
-function generatePostWeaveReply(prompt, wovenStrands) {
-  const route = wovenStrands.route || classifyWovenStrands(wovenStrands);
+function generatePostWeaveReply(prompt, wovenPlants) {
+  const route = wovenPlants.route || classifyWovenPlants(wovenPlants);
   if (route.kind === "soft_disagreement") {
     return {
       text:
-        "Build a clean, local prototype with enough fidelity to test the side-thread status, selection, and post-weave moment. " +
+        "Build a clean, local prototype with enough fidelity to test the plant status, selection, and post-weave moment. " +
         "That gives you the speed of a rough harness while still testing the feel of the workflow. Keep it to one page, use in-memory state, and make the weave result visible before you touch Electron.",
       duration: 5200,
     };
   }
-  const topics = wovenStrands.map(t => t.title).join(" and ");
+  const topics = wovenPlants.map(t => t.title).join(" and ");
   return {
     text:
       "Start with the concrete next step from the woven context: build the smallest working slice that exercises the thing you just explored. " +
-      "For these strands, that means using " + (topics || "the selected material") + " as updated context, then continuing without recapping each strand. " +
+      "For these plants, that means using " + (topics || "the selected material") + " as updated context, then continuing without recapping each plant. " +
       "If the next task is implementation, make the data shape explicit first, then wire the visible interaction around it.",
     duration: 5400,
   };
@@ -1100,7 +1295,7 @@ async function callOllamaChat(prompt, system) {
   return response.json();
 }
 
-// classifyWovenStrands and routeLabel are imported from ./scripts/merge-router.mjs
+// classifyWovenPlants and routeLabel are imported from ./scripts/merge-router.mjs
 // at the top of this module. They are the canonical merge-router heuristic,
 // shared with the CLI harness and tests.
 
@@ -1110,15 +1305,15 @@ async function callOllamaChat(prompt, system) {
 const $ = (s) => document.querySelector(s);
 const mainColumn = $("#main-column");
 const mainInner = $("#main-inner");
-const strandColumn = $("#strand-column");
-const strandColumnBody = $("#strand-column-body");
-const strandColumnSubtitle = $("#strand-column-subtitle");
+const plantColumn = $("#plant-column");
+const plantColumnBody = $("#plant-column-body");
+const plantColumnSubtitle = $("#plant-column-subtitle");
 const weaveBtn = $("#weave-btn");
 const weaveHint = $("#weave-hint");
 const composerInput = $("#composer-input");
 const composerSend = $("#composer-send");
-const strandBtn = $("#strand-btn");
-const strandCountEl = $("#strand-count");
+const plantBtn = $("#plant-btn");
+const plantCountEl = $("#plant-count");
 const contextChip = $("#context-chip");
 const contextText = $("#context-text");
 const modelChip = $("#model-chip");
@@ -1159,28 +1354,28 @@ function renderMain() {
         `<div class="msg-meta">${escapeHtml(item.modelLabel || state.currentModel.label)}</div>` +
         `<div class="body">${bodyHtml}</div>` +
         branchBtn;
-      el.querySelector(`[data-branch-msg="${item.id}"]`)?.addEventListener("click", () => openStrandFromMessage(item));
+      el.querySelector(`[data-branch-msg="${item.id}"]`)?.addEventListener("click", () => openPlantFromMessage(item));
       mainInner.appendChild(el);
     } else if (item.kind === "weave-marker") {
       const el = document.createElement("div");
       el.className = "weave-marker";
-      const n = item.strands.length;
+      const n = item.plants.length;
       const routeBadge = item.route ? routeLabel(item.route.kind) : "";
       el.innerHTML =
         `<div class="weave-marker-label">` +
           `<span>woven${n > 1 ? ` · ${n} seeds` : ""}</span>` +
           (routeBadge ? `<span class="weave-route-badge">${escapeHtml(routeBadge)}</span>` : "") +
         `</div>` +
-        renderDandelionSVG(item.strands);
+        renderDandelionSVG(item.plants);
       el.querySelectorAll(".dan-seed").forEach((seedEl, i) => {
-        seedEl.addEventListener("click", () => reopenWovenSeed(item.strands[i]));
+        seedEl.addEventListener("click", () => reopenWovenSeed(item.plants[i]));
       });
       mainInner.appendChild(el);
     } else if (item.kind === "conflict-choice") {
       const el = document.createElement("div");
       el.className = "conflict-choice";
       el.innerHTML =
-        `<div class="conflict-choice-title">These strands conflict in a way that changes what should happen next.</div>` +
+        `<div class="conflict-choice-title">These plants conflict in a way that changes what should happen next.</div>` +
         `<div class="conflict-choice-body">${escapeHtml(item.summary)}</div>` +
         `<div class="conflict-choice-options">` +
           item.choices.map((choice, i) =>
@@ -1267,45 +1462,53 @@ function escapeHtml(s) {
 }
 
 /* ============================================================
-   RENDER — strand column
+   RENDER — plant column
    ============================================================ */
-function renderStrands() {
+function renderPlants() {
   const activeEl = document.activeElement;
-  const activeDraftId = activeEl && activeEl.dataset ? activeEl.dataset.strandDraft : null;
+  const activeDraftId = activeEl && activeEl.dataset ? activeEl.dataset.plantDraft : null;
   const activeSelection = activeDraftId ? {
     start: activeEl.selectionStart,
     end: activeEl.selectionEnd,
     value: activeEl.value,
   } : null;
   if (activeDraftId && activeSelection) {
-    const activeStrand = state.strands.find(s => s.id === activeDraftId);
-    if (activeStrand) activeStrand.composerDraft = activeSelection.value;
+    const activePlant = state.plants.find(s => s.id === activeDraftId);
+    if (activePlant) activePlant.composerDraft = activeSelection.value;
   }
 
-  // toggle has-strands on body
-  if (state.strands.length > 0) {
-    document.body.classList.add("has-strands");
-    strandColumn.setAttribute("aria-hidden", "false");
+  // toggle has-plants on body
+  if (state.plants.length > 0) {
+    document.body.classList.add("has-plants");
+    plantColumn.setAttribute("aria-hidden", "false");
   } else {
-    document.body.classList.remove("has-strands");
-    strandColumn.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("has-plants");
+    plantColumn.setAttribute("aria-hidden", "true");
   }
 
-  strandColumnBody.innerHTML = "";
+  plantColumnBody.innerHTML = "";
 
-  if (state.strands.length === 0) {
-    strandColumnBody.innerHTML = `<div class="strand-empty" style="margin-top:24px">No strands open.</div>`;
+  if (state.plants.length === 0) {
+    const emptySeed = document.createElement("button");
+    emptySeed.className = "plant-empty-action";
+    emptySeed.type = "button";
+    emptySeed.innerHTML =
+      `<span class="seed-add-icon">+</span>` +
+      `<span>New seed</span>`;
+    emptySeed.addEventListener("click", onOpenPlant);
+    plantColumnBody.appendChild(emptySeed);
   } else {
-    if (!state.activeStrandId || !state.strands.some(s => s.id === state.activeStrandId)) {
-      state.activeStrandId = state.strands[0].id;
+    if (!state.activePlantId || !state.plants.some(s => s.id === state.activePlantId)) {
+      state.activePlantId = state.plants[0].id;
     }
     const tray = document.createElement("div");
     tray.className = "seed-tray";
-    state.strands.forEach((st, i) => {
+    state.plants.forEach((st, i) => {
       const seed = document.createElement("div");
       seed.className = "seed " + st.status;
+      if (st.turns.length === 0) seed.classList.add("empty");
       if (st.selected) seed.classList.add("selected");
-      if (st.id === state.activeStrandId) seed.classList.add("focused");
+      if (st.id === state.activePlantId) seed.classList.add("focused");
       const title = st.title || ("Seed " + (i + 1));
       const preview = seedPreview(st);
       const disableMergeChk = st.status === "running" || st.turns.length === 0;
@@ -1317,60 +1520,69 @@ function renderStrands() {
           `<div class="seed-preview">${escapeHtml(preview)}</div>` +
         `</div>` +
         `<button class="seed-weave-btn" data-seed-weave="${st.id}" ${canWeave ? "" : "hidden"}>Weave</button>` +
-        `<label class="seed-check" title="Include in weave"><input type="checkbox" data-strand-merge="${st.id}" ${st.selected ? "checked" : ""} ${disableMergeChk ? "disabled" : ""}></label>` +
-        `<button class="seed-close" data-strand-close="${st.id}" title="Close seed">✕</button>`;
+        `<label class="seed-check" title="Include in weave">` +
+          `<input type="checkbox" data-plant-merge="${st.id}" ${st.selected ? "checked" : ""} ${disableMergeChk ? "disabled" : ""}>` +
+          `<span class="seed-check-mark">✓</span>` +
+        `</label>`;
       seed.addEventListener("click", () => {
-        state.activeStrandId = st.id;
-        renderStrands();
+        state.activePlantId = st.id;
+        renderPlants();
       });
-      seed.querySelector(`input[data-strand-merge="${st.id}"]`).addEventListener("click", e => e.stopPropagation());
-      seed.querySelector(`input[data-strand-merge="${st.id}"]`).addEventListener("change", (e) => {
+      seed.querySelector(`input[data-plant-merge="${st.id}"]`).addEventListener("click", e => e.stopPropagation());
+      seed.querySelector(`input[data-plant-merge="${st.id}"]`).addEventListener("change", (e) => {
         st.selected = e.target.checked;
-        renderStrands();
+        renderPlants();
         updateWeaveButton();
       });
       seed.querySelector(`[data-seed-weave="${st.id}"]`)?.addEventListener("click", (e) => {
         e.stopPropagation();
         onWeaveOne(st.id);
       });
-      seed.querySelector(`button[data-strand-close="${st.id}"]`).addEventListener("click", (e) => {
-        e.stopPropagation();
-        closeStrand(st.id);
-      });
       tray.appendChild(seed);
     });
-    strandColumnBody.appendChild(tray);
+    const addRow = document.createElement("button");
+    addRow.className = "seed-add-row";
+    addRow.type = "button";
+    addRow.innerHTML =
+      `<span class="seed-add-icon">+</span>` +
+      `<span>Plant another seed</span>`;
+    addRow.addEventListener("click", onOpenPlant);
+    tray.appendChild(addRow);
+    plantColumnBody.appendChild(tray);
 
-    const focused = state.strands.find(s => s.id === state.activeStrandId);
+    const focused = state.plants.find(s => s.id === state.activePlantId);
     if (focused) {
       const bloom = document.createElement("div");
       bloom.className = "focus-bloom";
       const title = focused.title || "Untitled seed";
-      const messagesHtml = renderStrandMessages(focused);
+      const messagesHtml = renderPlantMessages(focused);
+      const headerHtml = focused.turns.length > 0
+        ? `<div class="focus-bloom-header">` +
+            `<div class="focus-bloom-title">${escapeHtml(title)}</div>` +
+            `<div class="focus-bloom-subtitle">${focused.status === "running" ? "growing" : "ready to weave"}</div>` +
+          `</div>`
+        : "";
       bloom.innerHTML =
-        `<div class="focus-bloom-header">` +
-          `<div class="focus-bloom-title">${escapeHtml(title)}</div>` +
-          `<div class="focus-bloom-subtitle">${focused.status === "running" ? "growing now" : "ready"} · ${focused.turns.length} turn${focused.turns.length === 1 ? "" : "s"}</div>` +
-        `</div>` +
-        `<div class="strand-messages" data-strand-msgs="${focused.id}">${messagesHtml}</div>` +
-        `<div class="strand-composer">` +
-          `<textarea data-strand-draft="${focused.id}" placeholder="Ask in this seed…" rows="1">${escapeHtml(focused.composerDraft || "")}</textarea>` +
-          `<button data-strand-send="${focused.id}" ${(!focused.composerDraft || !focused.composerDraft.trim() || focused.status === "running") ? "disabled" : ""}>` +
+        headerHtml +
+        `<div class="plant-messages" data-plant-msgs="${focused.id}">${messagesHtml}</div>` +
+        `<div class="plant-composer">` +
+          `<textarea data-plant-draft="${focused.id}" placeholder="Ask in this seed…" rows="1">${escapeHtml(focused.composerDraft || "")}</textarea>` +
+          `<button data-plant-send="${focused.id}" ${(!focused.composerDraft || !focused.composerDraft.trim() || focused.status === "running") ? "disabled" : ""}>` +
             `<svg width="12" height="12" viewBox="0 0 16 16" fill="none">` +
               `<path d="M2 8 L14 8 M9 3 L14 8 L9 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>` +
             `</svg>` +
           `</button>` +
         `</div>`;
-      strandColumnBody.appendChild(bloom);
+      plantColumnBody.appendChild(bloom);
       wireFocusedSeedComposer(bloom, focused);
-      const msgs = bloom.querySelector(`[data-strand-msgs="${focused.id}"]`);
+      const msgs = bloom.querySelector(`[data-plant-msgs="${focused.id}"]`);
       if (msgs) requestAnimationFrame(() => { msgs.scrollTop = msgs.scrollHeight; });
     }
   }
 
   if (activeDraftId && activeSelection) {
     requestAnimationFrame(() => {
-      const restored = document.querySelector(`textarea[data-strand-draft="${activeDraftId}"]`);
+      const restored = document.querySelector(`textarea[data-plant-draft="${activeDraftId}"]`);
       if (!restored) return;
       restored.focus();
       const pos = Math.min(activeSelection.start ?? restored.value.length, restored.value.length);
@@ -1379,16 +1591,16 @@ function renderStrands() {
     });
   }
 
-  const running = state.strands.filter(s => s.status === "running").length;
-  const total = state.strands.length;
+  const running = state.plants.filter(s => s.status === "running").length;
+  const total = state.plants.length;
   if (total === 0) {
-    strandColumnSubtitle.textContent = "—";
+    plantColumnSubtitle.textContent = "plant a side thought";
   } else if (running > 0) {
-    strandColumnSubtitle.textContent = `${total} open · ${running} running`;
+    plantColumnSubtitle.textContent = `${running} growing`;
   } else {
-    strandColumnSubtitle.textContent = `${total} open · all idle`;
+    plantColumnSubtitle.textContent = `${total} planted`;
   }
-  strandCountEl.textContent = total > 0 ? `${total} strand${total === 1 ? "" : "s"}` : "";
+  plantCountEl.textContent = total > 0 ? `${total} plant${total === 1 ? "" : "s"}` : "";
   updateWeaveButton();
 }
 
@@ -1399,65 +1611,65 @@ function seedPreview(st) {
   return (last.asst || last.user || "").replace(/\s+/g, " ").slice(0, 96);
 }
 
-function renderStrandMessages(st) {
+function renderPlantMessages(st) {
   if (st.turns.length === 0) {
-    return `<div class="strand-empty">Ask a question that shares the session's context…</div>`;
+    return `<div class="plant-empty">Ask a question that shares the session's context…</div>`;
   }
   return st.turns.map(turn => {
     let html = "";
     if (turn.user) {
-      html += `<div class="strand-message user"><div class="bubble">${escapeHtml(turn.user)}</div></div>`;
+      html += `<div class="plant-message user"><div class="bubble">${escapeHtml(turn.user)}</div></div>`;
     }
     if (turn.asst !== undefined) {
       const cursor = turn.status === "streaming" ? '<span class="cursor"></span>' : "";
-      html += `<div class="strand-message assistant"><div class="body" data-strand-turn="${turn.id || ""}">${escapeHtml(turn.asst)}${cursor}</div></div>`;
+      html += `<div class="plant-message assistant"><div class="body" data-plant-turn="${turn.id || ""}">${escapeHtml(turn.asst)}${cursor}</div></div>`;
     }
     return html;
   }).join("");
 }
 
 function wireFocusedSeedComposer(container, st) {
-  const ta = container.querySelector(`textarea[data-strand-draft="${st.id}"]`);
+  const ta = container.querySelector(`textarea[data-plant-draft="${st.id}"]`);
   ta.addEventListener("input", (e) => {
     st.composerDraft = e.target.value;
     autoSizeTextarea(e.target, 100);
-    const sb = container.querySelector(`button[data-strand-send="${st.id}"]`);
+    const sb = container.querySelector(`button[data-plant-send="${st.id}"]`);
     sb.disabled = !st.composerDraft.trim() || st.status === "running";
   });
   ta.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      sendInStrand(st.id);
+      sendInPlant(st.id);
     }
   });
   autoSizeTextarea(ta, 100);
 
-  const sb = container.querySelector(`button[data-strand-send="${st.id}"]`);
+  const sb = container.querySelector(`button[data-plant-send="${st.id}"]`);
   sb.addEventListener("click", (e) => {
     e.stopPropagation();
-    sendInStrand(st.id);
+    sendInPlant(st.id);
   });
 }
 
 function updateWeaveButton() {
-  const eligible = state.strands.filter(s => s.selected && s.status === "idle" && s.turns.length > 0);
-  const running = state.strands.filter(s => s.status === "running").length;
-  if (state.strands.length === 0) {
+  const eligible = state.plants.filter(s => s.selected && s.status === "idle" && s.turns.length > 0);
+  const running = state.plants.filter(s => s.status === "running").length;
+  if (state.plants.length === 0) {
     weaveBtn.disabled = true;
     weaveBtn.textContent = "Weave selected";
-    weaveHint.textContent = "Open a strand to start.";
+    weaveHint.textContent = "Plant a seed to start.";
   } else if (running > 0) {
     weaveBtn.disabled = true;
     weaveBtn.textContent = "Weave selected";
-    weaveHint.textContent = "Wait for strands to finish, then pick which to weave.";
+    weaveHint.textContent = "Let growing seeds finish first.";
   } else if (eligible.length === 0) {
     weaveBtn.disabled = true;
     weaveBtn.textContent = "Weave selected";
-    weaveHint.textContent = "Select at least one strand to weave.";
+    weaveHint.textContent = "Pick a grown seed to weave.";
   } else {
     weaveBtn.disabled = false;
     weaveBtn.textContent = `Weave ${eligible.length} seed${eligible.length === 1 ? "" : "s"}`;
-    weaveHint.textContent = "Selected seeds join the main context.";
+    weaveHint.textContent = "Selected seeds join the main thread.";
   }
 }
 
@@ -1477,6 +1689,8 @@ function startWithStarter(starter) {
   const id = makeId();
   const item = { kind: "assistant", id, text: "", status: "streaming" };
   state.mainConv.push(item);
+  // graph: root chat node
+  graph.addChat({ id, thread: "main", prompt: starter.text, parent: state.graph.mainLeafId });
   renderMain();
   streamInto(item, starter.response, 3000, () => composerInput.focus());
 }
@@ -1491,6 +1705,8 @@ async function onSend() {
   const id = makeId();
   const item = { kind: "assistant", id, text: "", status: "streaming" };
   state.mainConv.push(item);
+  // graph: main-thread chat node attached to current leaf (which may be a merge node)
+  graph.addChat({ id, thread: "main", prompt: text, parent: state.graph.mainLeafId });
   renderMain();
 
   if (state.postWeaveArmed) {
@@ -1543,7 +1759,7 @@ async function streamPostWeaveFromOllama(item, followUp, lastFold) {
       body: JSON.stringify({
         parentContext: state.parentContext,
         mainConversation: state.mainConv.filter(x => x.id !== item.id),
-        wovenStrands: lastFold ? lastFold.strands : [],
+        wovenPlants: lastFold ? lastFold.plants : [],
         route: lastFold ? { classification: lastFold.route.kind } : { classification: "additional_context" },
         followUp,
       }),
@@ -1554,7 +1770,7 @@ async function streamPostWeaveFromOllama(item, followUp, lastFold) {
     streamInto(item, data.answer || "", Math.max(2200, Math.min(6800, (data.answer || "").length * 22)));
   } catch (error) {
     item.modelLabel = "Scripted fallback";
-    const woven = lastFold ? Object.assign([...lastFold.strands], { route: lastFold.route }) : [];
+    const woven = lastFold ? Object.assign([...lastFold.plants], { route: lastFold.route }) : [];
     const reply = generatePostWeaveReply(followUp, woven);
     streamInto(item, reply.text + "\n\n(Local Ollama was unavailable, so this used the scripted fallback.)", reply.duration);
   }
@@ -1569,12 +1785,18 @@ function streamInto(item, fullText, durationMs, onDone) {
     item.text = fullText.slice(0, chars);
     renderMain();
     if (t < 1) requestAnimationFrame(tick);
-    else { item.status = "complete"; renderMain(); if (onDone) onDone(); }
+    else {
+      item.status = "complete";
+      // graph: persist finalized response
+      graph.setResponse(item.id, fullText);
+      renderMain();
+      if (onDone) onDone();
+    }
   }
   requestAnimationFrame(tick);
 }
 
-function onOpenStrand() {
+function onOpenPlant() {
   const draft = composerInput.value.trim();
   composerInput.value = "";
   autoSizeTextarea(composerInput, 160);
@@ -1586,62 +1808,72 @@ function onOpenStrand() {
     turns: [],
     composerDraft: draft,
     status: "idle",
-    selected: true,
+    selected: false,
   };
-  state.strands.push(st);
-  state.activeStrandId = id;
-  renderStrands();
+  state.plants.push(st);
+  state.activePlantId = id;
+  // graph: plant container forks off current main-thread leaf
+  graph.addPlant({ id, title: "", parent: state.graph.mainLeafId });
+  renderPlants();
 
   setTimeout(() => {
-    const ta = document.querySelector(`textarea[data-strand-draft="${id}"]`);
+    const ta = document.querySelector(`textarea[data-plant-draft="${id}"]`);
     if (ta) { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }
   }, 80);
 }
 
-async function sendInStrand(stId) {
-  const st = state.strands.find(s => s.id === stId);
+async function sendInPlant(stId) {
+  const st = state.plants.find(s => s.id === stId);
   if (!st || !st.composerDraft || !st.composerDraft.trim()) return;
   if (st.status === "running") return;
 
   const userText = st.composerDraft.trim();
   st.composerDraft = "";
-  const draftEl = document.querySelector(`textarea[data-strand-draft="${stId}"]`);
+  const draftEl = document.querySelector(`textarea[data-plant-draft="${stId}"]`);
   if (draftEl) draftEl.value = "";
-  if (!st.title) st.title = userText.length > 40 ? userText.slice(0, 40) + "…" : userText;
+  if (!st.title) {
+    st.title = userText.length > 40 ? userText.slice(0, 40) + "…" : userText;
+    graph.setPlantTitle(st.id, st.title);
+  }
   const turn = { id: makeId(), user: userText, asst: "", status: "streaming" };
+  // graph: chat node inplant. Parent is previous turn id, or the plant
+  // container if this is the first turn.
+  const turnParent = st.turns.length > 0 ? st.turns[st.turns.length - 1].id : st.id;
   st.turns.push(turn);
+  graph.addChat({ id: turn.id, thread: "plant", plantId: st.id, prompt: userText, parent: turnParent });
   st.status = "running";
-  renderStrands();
+  st.selected = true;
+  renderPlants();
 
-  await streamStrandFromOllama(st, turn, userText);
+  await streamPlantFromOllama(st, turn, userText);
 }
 
-async function streamStrandFromOllama(st, turn, prompt) {
+async function streamPlantFromOllama(st, turn, prompt) {
   try {
     turn.asst = "Thinking with local Ollama…";
-    renderStrands();
+    renderPlants();
     const data = await callOllamaChat(
       prompt,
-      "You are Dandelion running a side-thread investigation. Be specific, concise, and useful.",
+      "You are Dandelion running a plant investigation. Be specific, concise, and useful.",
     );
-    streamIntoStrand(st, turn, data.answer || "", Math.max(2200, Math.min(6800, (data.answer || "").length * 22)));
+    streamIntoPlant(st, turn, data.answer || "", Math.max(2200, Math.min(6800, (data.answer || "").length * 22)));
   } catch (error) {
     const reply = generateReply(prompt);
-    streamIntoStrand(st, turn, reply.text + "\n\n(Local Ollama was unavailable, so this used the scripted fallback.)", reply.duration);
+    streamIntoPlant(st, turn, reply.text + "\n\n(Local Ollama was unavailable, so this used the scripted fallback.)", reply.duration);
   }
 }
 
-function streamIntoStrand(st, turn, fullText, durationMs) {
+function streamIntoPlant(st, turn, fullText, durationMs) {
   const start = performance.now();
   const len = fullText.length;
   function tick(now) {
     const t = Math.min(1, (now - start) / durationMs);
     const chars = Math.floor(t * len);
     turn.asst = fullText.slice(0, chars);
-    const body = document.querySelector(`[data-strand-turn="${turn.id}"]`);
+    const body = document.querySelector(`[data-plant-turn="${turn.id}"]`);
     if (body) {
       body.innerHTML = escapeHtml(turn.asst) + (t < 1 ? '<span class="cursor"></span>' : "");
-      const msgs = document.querySelector(`[data-strand-msgs="${st.id}"]`);
+      const msgs = document.querySelector(`[data-plant-msgs="${st.id}"]`);
       if (msgs) msgs.scrollTop = msgs.scrollHeight;
     }
     if (t < 1) {
@@ -1649,28 +1881,34 @@ function streamIntoStrand(st, turn, fullText, durationMs) {
     } else {
       turn.status = "complete";
       st.status = "idle";
-      renderStrands();
+      // graph: persist finalized plant response
+      graph.setResponse(turn.id, fullText);
+      renderPlants();
     }
   }
   requestAnimationFrame(tick);
 }
 
 function onWeave() {
-  const woven = state.strands.filter(s => s.selected && s.status === "idle" && s.turns.length > 0);
+  const woven = state.plants.filter(s => s.selected && s.status === "idle" && s.turns.length > 0);
   if (woven.length === 0) return;
   const wovenPayload = woven.map(s => ({
     title: s.title,
     turns: s.turns.map(t => ({ user: t.user, asst: t.asst })),
     _wovenKey: s.id,
   }));
-  const route = classifyWovenStrands(wovenPayload);
+  const route = classifyWovenPlants(wovenPayload);
 
+  const mergeId = makeId();
   state.mainConv.push({
     kind: "weave-marker",
-    id: makeId(),
+    id: mergeId,
     route,
-    strands: wovenPayload,
+    plants: wovenPayload,
   });
+  // graph: merge node, parents = last turn of each woven plant. New main leaf.
+  const mergeParents = woven.map(s => s.turns[s.turns.length - 1].id);
+  graph.addMerge({ id: mergeId, parents: mergeParents, route });
 
   if (route.kind === "material_conflict") {
     state.mainConv.push({
@@ -1686,9 +1924,9 @@ function onWeave() {
   }
 
   const wovenIds = new Set(woven.map(s => s.id));
-  state.strands = state.strands.filter(s => !wovenIds.has(s.id));
+  state.plants = state.plants.filter(s => !wovenIds.has(s.id));
 
-  renderStrands();
+  renderPlants();
   renderMain();
 
   composerInput.placeholder = route.kind === "material_conflict" ? "Choose a path above to continue…" : "Continue from the woven context…";
@@ -1705,37 +1943,46 @@ function resolveConflictChoice(choiceId, choiceIndex) {
   state.mainConv.push({ kind: "user", text: choice });
   const item = { kind: "assistant", id: makeId(), text: "", status: "streaming" };
   state.mainConv.push(item);
+  // graph: continuation chat node attached to the merge node (current leaf)
+  graph.addChat({ id: item.id, thread: "main", prompt: choice, parent: state.graph.mainLeafId });
   composerInput.placeholder = "Continue from the chosen path…";
   renderMain();
   streamInto(item, "Got it. I'll carry that path forward as the main-thread context from here. The other stance remains visible in the weave fold, but I won't use it as the active direction unless you ask to revisit it.", 3600);
 }
 
-function closeStrand(stId) {
-  state.strands = state.strands.filter(s => s.id !== stId);
-  if (state.activeStrandId === stId) {
-    state.activeStrandId = state.strands[0] ? state.strands[0].id : null;
+function closePlant(stId) {
+  state.plants = state.plants.filter(s => s.id !== stId);
+  if (state.activePlantId === stId) {
+    state.activePlantId = state.plants[0] ? state.plants[0].id : null;
   }
-  renderStrands();
+  renderPlants();
+}
+
+function closeSeedPanel() {
+  state.plants = [];
+  state.activePlantId = null;
+  renderPlants();
 }
 
 function newSession() {
   state.mainConv = [];
-  state.strands = [];
-  state.activeStrandId = null;
+  state.plants = [];
+  state.activePlantId = null;
   state.parentContext = null;
   state.postWeaveArmed = false;
   state.nextId = 1;
+  graph.reset();
   composerInput.value = "";
   composerInput.placeholder = "Ask anything…";
   autoSizeTextarea(composerInput, 160);
   contextChip.classList.remove("visible");
   contextText.textContent = "";
   renderMain();
-  renderStrands();
+  renderPlants();
   setTimeout(() => composerInput.focus(), 100);
 }
 
-function openStrandFromMessage(item) {
+function openPlantFromMessage(item) {
   const id = makeId();
   const st = {
     id,
@@ -1746,42 +1993,47 @@ function openStrandFromMessage(item) {
     status: "idle",
     selected: true,
   };
-  state.strands.push(st);
-  state.activeStrandId = id;
-  renderStrands();
+  state.plants.push(st);
+  state.activePlantId = id;
+  // graph: plant forked off main-thread leaf
+  graph.addPlant({ id, title: "", parent: state.graph.mainLeafId });
+  renderPlants();
   setTimeout(() => {
-    const ta = document.querySelector(`textarea[data-strand-draft="${id}"]`);
+    const ta = document.querySelector(`textarea[data-plant-draft="${id}"]`);
     if (ta) ta.focus();
   }, 80);
 }
 
 function onWeaveOne(stId) {
-  const st = state.strands.find(s => s.id === stId);
+  const st = state.plants.find(s => s.id === stId);
   if (!st || st.status === "running" || st.turns.length === 0) return;
   const wovenPayload = [{ title: st.title, turns: st.turns.map(t => ({ user: t.user, asst: t.asst })), _wovenKey: st.id }];
-  const route = classifyWovenStrands(wovenPayload);
-  state.mainConv.push({ kind: "weave-marker", id: makeId(), route, strands: wovenPayload });
+  const route = classifyWovenPlants(wovenPayload);
+  const mergeId = makeId();
+  state.mainConv.push({ kind: "weave-marker", id: mergeId, route, plants: wovenPayload });
+  // graph: single-parent merge node
+  graph.addMerge({ id: mergeId, parents: [st.turns[st.turns.length - 1].id], route });
   if (route.kind === "material_conflict") {
     state.mainConv.push({ kind: "conflict-choice", id: makeId(), summary: route.summary, choices: route.choices, resolved: false });
     state.postWeaveArmed = false;
   } else {
     state.postWeaveArmed = true;
   }
-  state.strands = state.strands.filter(s => s.id !== stId);
-  renderStrands();
+  state.plants = state.plants.filter(s => s.id !== stId);
+  renderPlants();
   renderMain();
   composerInput.placeholder = route.kind === "material_conflict" ? "Choose a path above to continue…" : "Continue from the woven context…";
   setTimeout(() => composerInput.focus(), 350);
 }
 
-function renderDandelionSVG(strands) {
+function renderDandelionSVG(plants) {
   // Anchor sits at the bottom-left of the SVG; all stems lean to the upper-right.
   const cx = 16, cy = 104, stemLen = 70;
-  const n = strands.length;
+  const n = plants.length;
   const angleMin = 20, angleMax = 78;   // degrees from vertical, all positive = leaning right
   const angles = n === 1 ? [(angleMin + angleMax) / 2] :
     Array.from({ length: n }, (_, i) => angleMin + (angleMax - angleMin) * i / (n - 1));
-  const seeds = strands.map((t, i) => {
+  const seeds = plants.map((t, i) => {
     const θ = angles[i] * Math.PI / 180;
     const tx = +(cx + stemLen * Math.sin(θ)).toFixed(1);
     const ty = +(cy - stemLen * Math.cos(θ)).toFixed(1);
@@ -1801,26 +2053,34 @@ function renderDandelionSVG(strands) {
   `</svg>`;
 }
 
-function reopenWovenSeed(strandData) {
-  const existing = state.strands.find(s => s._wovenKey === strandData._wovenKey);
+function reopenWovenSeed(plantData) {
+  const existing = state.plants.find(s => s._wovenKey === plantData._wovenKey);
   if (existing) {
-    state.activeStrandId = existing.id;
-    renderStrands();
+    state.activePlantId = existing.id;
+    renderPlants();
     return;
   }
   const id = makeId();
+  const reopenedTurns = plantData.turns.map(t => ({ id: makeId(), user: t.user, asst: t.asst, status: "complete" }));
   const st = {
     id,
-    title: strandData.title || "Woven seed",
-    turns: strandData.turns.map(t => ({ id: makeId(), user: t.user, asst: t.asst, status: "complete" })),
+    title: plantData.title || "Woven seed",
+    turns: reopenedTurns,
     composerDraft: "",
     status: "idle",
     selected: false,
-    _wovenKey: strandData._wovenKey,
+    _wovenKey: plantData._wovenKey,
   };
-  state.strands.push(st);
-  state.activeStrandId = id;
-  renderStrands();
+  state.plants.push(st);
+  state.activePlantId = id;
+  // graph: re-opened plant forks off current leaf; each cloned turn becomes a chat node
+  graph.addPlant({ id, title: st.title, parent: state.graph.mainLeafId });
+  let prev = id;
+  for (const t of reopenedTurns) {
+    graph.addChat({ id: t.id, thread: "plant", plantId: id, prompt: t.user, response: t.asst, parent: prev });
+    prev = t.id;
+  }
+  renderPlants();
 }
 
 /* ============================================================
@@ -1866,10 +2126,11 @@ composerInput.addEventListener("keydown", (e) => {
   }
 });
 composerSend.addEventListener("click", onSend);
-strandBtn.addEventListener("click", onOpenStrand);
+plantBtn.addEventListener("click", onOpenPlant);
 weaveBtn.addEventListener("click", onWeave);
 $("#reset-btn").addEventListener("click", newSession);
-$("#tray-add-btn").addEventListener("click", onOpenStrand);
+$("#tray-add-btn").addEventListener("click", onOpenPlant);
+$("#tray-close-btn").addEventListener("click", closeSeedPanel);
 
 // init model selection visually
 selectModel(state.currentModel.id, state.currentModel.label, state.currentModel.kind);

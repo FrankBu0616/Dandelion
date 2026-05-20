@@ -6,7 +6,7 @@ The best contributions are small, testable improvements to the core loop:
 
 ```text
 main thread
-  -> side strands
+  -> plants
   -> weave
   -> merge router
   -> continue or ask the user to choose
@@ -38,7 +38,7 @@ Good first lanes:
 
 - Add merge-router scenarios.
 - Improve route classification.
-- Improve side-strand UX.
+- Improve plant UX.
 - Improve prompt contracts.
 - Port the prototype into React.
 - Implement SQLite graph storage.

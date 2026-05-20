@@ -12,13 +12,13 @@ const MODEL = process.env.OLLAMA_MODEL ?? 'qwen2.5:3b';
 const scenarios = {
   curated_additional_context: {
     title: 'Additional context',
-    description: 'Compatible side threads add data model, UI, and evaluation details.',
+    description: 'Compatible plants add data model, UI, and evaluation details.',
     route: { classification: 'additional_context' },
     parent: [
       {
         role: 'user',
         content:
-          'I want to build the first real Dandelion prototype. The core flow is root question, several side threads, merge, then continue in the main thread.',
+          'I want to build the first real Dandelion prototype. The core flow is root question, several plants, merge, then continue in the main thread.',
       },
       {
         role: 'assistant',
@@ -31,17 +31,17 @@ const scenarios = {
         id: 'data-model',
         title: 'Data model',
         transcript:
-          'User: Explore the minimal data model for the prototype.\n\nAssistant: The prototype only needs sessions, thread records, and a merge record. A session stores the root question and model. Each side thread stores its prompt, response, status, and parent session. A merge record stores the selected side thread ids and the generated merge prompt. This can be in memory or a JSON file for the test; SQLite can wait until the real app. The key is preserving the transcript boundaries so the merge prompt can distinguish parent context from parallel threads.',
+          'User: Explore the minimal data model for the prototype.\n\nAssistant: The prototype only needs sessions, thread records, and a merge record. A session stores the root question and model. Each plant stores its prompt, response, status, and parent session. A merge record stores the selected plant ids and the generated merge prompt. This can be in memory or a JSON file for the test; SQLite can wait until the real app. The key is preserving the transcript boundaries so the merge prompt can distinguish parent context from parallel threads.',
         claims:
-          '- Prototype needs sessions, thread records, and merge records\n- Side threads should preserve prompt, response, status, and parent session\n- JSON or memory is enough for the harness; SQLite can wait\n- Transcript boundaries are essential for merge prompting',
+          '- Prototype needs sessions, thread records, and merge records\n- Plants should preserve prompt, response, status, and parent session\n- JSON or memory is enough for the harness; SQLite can wait\n- Transcript boundaries are essential for merge prompting',
       },
       {
         id: 'ui-flow',
         title: 'UI flow',
         transcript:
-          'User: Explore the minimal UI flow for the prototype.\n\nAssistant: The smallest useful UI is a single page with a root question input, three side-thread prompt boxes, a Run button, and a Merge button. Show each side thread in a column or drawer with status: queued, running, completed, failed. After merge, show either the continued answer or a conflict choice prompt. Do not build account settings, history, file uploads, or a canvas for this test.',
+          'User: Explore the minimal UI flow for the prototype.\n\nAssistant: The smallest useful UI is a single page with a root question input, three plant prompt boxes, a Run button, and a Merge button. Show each plant in a column or drawer with status: queued, running, completed, failed. After merge, show either the continued answer or a conflict choice prompt. Do not build account settings, history, file uploads, or a canvas for this test.',
         claims:
-          '- Minimal UI needs root input, side-thread prompts, Run, and Merge\n- Side threads should show visible status\n- After merge, show continuation or conflict choice\n- Skip settings, history, uploads, and canvas in the prototype',
+          '- Minimal UI needs root input, plant prompts, Run, and Merge\n- Plants should show visible status\n- After merge, show continuation or conflict choice\n- Skip settings, history, uploads, and canvas in the prototype',
       },
       {
         id: 'eval',
@@ -56,7 +56,7 @@ const scenarios = {
   },
   curated_soft_disagreement: {
     title: 'Soft disagreement',
-    description: 'Side threads differ in emphasis but can be integrated.',
+    description: 'Plants differ in emphasis but can be integrated.',
     route: { classification: 'soft_disagreement' },
     parent: [
       {
@@ -75,24 +75,24 @@ const scenarios = {
         id: 'speed-first',
         title: 'Speed first',
         transcript:
-          'User: Argue for a rough prototype first.\n\nAssistant: Start rough. The highest-risk assumption is not visual polish; it is whether side-thread merge creates a useful continuation. Build the fastest possible harness: text boxes, run side threads, merge, continue. If that fails, beautiful UI is wasted. Keep styling minimal and use the existing HTML prototype only as reference.',
+          'User: Argue for a rough prototype first.\n\nAssistant: Start rough. The highest-risk assumption is not visual polish; it is whether plant merge creates a useful continuation. Build the fastest possible harness: text boxes, run plants, merge, continue. If that fails, beautiful UI is wasted. Keep styling minimal and use the existing HTML prototype only as reference.',
         claims:
-          '- Start with a rough prototype\n- The riskiest assumption is merge usefulness, not visual polish\n- Build text boxes, side-thread runs, merge, and continue\n- Use the existing HTML prototype only as reference',
+          '- Start with a rough prototype\n- The riskiest assumption is merge usefulness, not visual polish\n- Build text boxes, plant runs, merge, and continue\n- Use the existing HTML prototype only as reference',
       },
       {
         id: 'fidelity-matters',
         title: 'Fidelity matters',
         transcript:
-          'User: Argue for enough UI fidelity to test the feeling.\n\nAssistant: Do not make it ugly. Dandelion is partly a workflow product, and the value depends on whether side threads feel calm, live, and mergeable. You need enough UI fidelity to show side-thread status, selected-for-merge state, and the post-merge moment. But this does not require Electron or brand-perfect styling; a clean local web page is enough.',
+          'User: Argue for enough UI fidelity to test the feeling.\n\nAssistant: Do not make it ugly. Dandelion is partly a workflow product, and the value depends on whether plants feel calm, live, and mergeable. You need enough UI fidelity to show plant status, selected-for-merge state, and the post-merge moment. But this does not require Electron or brand-perfect styling; a clean local web page is enough.',
         claims:
-          '- Some UI fidelity matters because Dandelion is a workflow product\n- Prototype should show side-thread status, selection, and post-merge moment\n- Does not require Electron or brand-perfect styling\n- A clean local web page is enough',
+          '- Some UI fidelity matters because Dandelion is a workflow product\n- Prototype should show plant status, selection, and post-merge moment\n- Does not require Electron or brand-perfect styling\n- A clean local web page is enough',
       },
     ],
     followUp: 'So what level of prototype should I build first?',
   },
   curated_provider_scope: {
     title: 'Material conflict',
-    description: 'Side threads recommend incompatible v1 provider strategies.',
+    description: 'Plants recommend incompatible v1 provider strategies.',
     route: {
       classification: 'material_conflict',
       choices: [
@@ -222,7 +222,7 @@ function buildContinuationPrompt(scenario) {
   ].join('\n');
 }
 
-function buildDynamicContinuationPrompt({ parentContext, mainConversation, wovenStrands, route, followUp }) {
+function buildDynamicContinuationPrompt({ parentContext, mainConversation, wovenPlants, route, followUp }) {
   const parentTurns = (mainConversation ?? [])
     .filter((item) => item.kind === 'user' || item.kind === 'assistant')
     .map((item) => ({
@@ -231,8 +231,8 @@ function buildDynamicContinuationPrompt({ parentContext, mainConversation, woven
     }));
 
   return [
-    'The user has been exploring a question through parallel side threads.',
-    'All selected side threads happened; none of them is hypothetical or rejected.',
+    'The user has been exploring a question through parallel plants.',
+    'All selected plants happened; none of them is hypothetical or rejected.',
     'Treat them as shared context for one continuous conversation.',
     route?.classification === 'soft_disagreement'
       ? 'The selected threads differ in emphasis but can be integrated into one practical next action.'
@@ -242,9 +242,9 @@ function buildDynamicContinuationPrompt({ parentContext, mainConversation, woven
     parentContext || transcript(parentTurns),
     '</parent_context>',
     '',
-    ...wovenStrands.flatMap((strand, index) => [
-      `<parallel_thread id="${index + 1}" name="${strand.title || `strand-${index + 1}`}">`,
-      strand.turns.map((turn) => [
+    ...wovenPlants.flatMap((plant, index) => [
+      `<parallel_thread id="${index + 1}" name="${plant.title || `plant-${index + 1}`}">`,
+      plant.turns.map((turn) => [
         turn.user ? `User: ${turn.user}` : '',
         turn.asst ? `Assistant: ${turn.asst}` : '',
       ].filter(Boolean).join('\n\n')).join('\n\n'),
@@ -253,8 +253,8 @@ function buildDynamicContinuationPrompt({ parentContext, mainConversation, woven
     ]),
     'Output rules:',
     '- Answer the user directly.',
-    '- Do not mention branches, strands, threads, investigations, transcripts, key claims, routing, or merged context.',
-    '- Do not summarize the side threads unless the user asks.',
+    '- Do not mention branches, plants, threads, investigations, transcripts, key claims, routing, or merged context.',
+    '- Do not summarize the plants unless the user asks.',
     '- Start with the concrete recommendation or answer.',
     '',
     followUp,
@@ -373,7 +373,7 @@ const server = createServer(async (request, response) => {
           content: [
             'You are continuing one coherent conversation.',
             'Answer directly as if the relevant context is already part of the conversation.',
-            'Do not mention merged context, side threads, branches, transcripts, key claims, classification, or routing.',
+            'Do not mention merged context, plants, branches, transcripts, key claims, classification, or routing.',
             'Do not begin with setup language like "Given the discussions".',
           ].join('\n'),
         },

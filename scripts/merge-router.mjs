@@ -1,6 +1,6 @@
 // Dandelion merge router.
 //
-// Classifies a set of woven side-thread strands into one of three routes:
+// Classifies a set of woven plants into one of three routes:
 //   - additional_context : compatible, continue naturally
 //   - soft_disagreement  : different emphasis, integrate into one recommendation
 //   - material_conflict  : incompatible next steps, ask the user to choose
@@ -15,18 +15,18 @@
 
 /**
  * @typedef {{ user?: string, asst?: string }} Turn
- * @typedef {{ title?: string, turns: Turn[] }} Strand
+ * @typedef {{ title?: string, turns: Turn[] }} Plant
  * @typedef {"additional_context" | "soft_disagreement" | "material_conflict"} RouteKind
  * @typedef {{ kind: RouteKind, summary: string, choices: string[] }} Route
  */
 
 /**
- * Classify a set of woven strands into a merge route.
- * @param {Strand[]} wovenStrands
+ * Classify a set of woven plants into a merge route.
+ * @param {Plant[]} wovenPlants
  * @returns {Route}
  */
-export function classifyWovenStrands(wovenStrands) {
-  const text = (wovenStrands || [])
+export function classifyWovenPlants(wovenPlants) {
+  const text = (wovenPlants || [])
     .flatMap((s) => (s.turns || []).flatMap((t) => [t.user || "", t.asst || ""]))
     .join("\n")
     .toLowerCase();
@@ -58,7 +58,7 @@ export function classifyWovenStrands(wovenStrands) {
     return {
       kind: "soft_disagreement",
       summary:
-        "The strands differ in emphasis, but they combine cleanly: build a small prototype that is fast to ship and polished enough to test the workflow feel.",
+        "The plants differ in emphasis, but they combine cleanly: build a small prototype that is fast to ship and polished enough to test the workflow feel.",
       choices: [],
     };
   }
@@ -66,7 +66,7 @@ export function classifyWovenStrands(wovenStrands) {
   return {
     kind: "additional_context",
     summary:
-      "The selected strands add compatible context. The next main-thread message will inherit the new information without needing a recap.",
+      "The selected plants add compatible context. The next main-thread message will inherit the new information without needing a recap.",
     choices: [],
   };
 }

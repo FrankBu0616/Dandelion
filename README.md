@@ -4,7 +4,7 @@
 
 **Fork a question. Weave the answers.**
 
-A local-first desktop concept for parallel side-threads that merge cleanly — or surface the conflict when they don't.
+A local-first desktop concept for parallel plants that merge cleanly — or surface the conflict when they don't.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-0F0F12.svg)](./LICENSE)
 [![Node](https://img.shields.io/badge/node-%E2%89%A520-C97B4E.svg)](https://nodejs.org/)
@@ -17,9 +17,9 @@ A local-first desktop concept for parallel side-threads that merge cleanly — o
 
 ## What it is
 
-Take one question. Spin up parallel side threads. Weave the ones you want back into the main conversation.
+Take one question. Spin up parallel plants. Weave the ones you want back into the main conversation.
 
-- If the side threads add **compatible context**, the main thread continues with that context.
+- If the plants add **compatible context**, the main thread continues with that context.
 - If they have **different emphasis**, Dandelion folds them into one recommendation.
 - If they **materially conflict**, Dandelion asks which stance should become the path forward — instead of letting the model hedge a forced synthesis.
 
@@ -86,16 +86,16 @@ http://localhost:4321/prototype-router.html
 The prototype supports:
 
 - Main-thread chat via local Ollama.
-- Side-thread chat via local Ollama.
-- Multiple side threads generating while other strands remain editable.
-- Weaving selected strands back into the main conversation.
+- Plant chat via local Ollama.
+- Multiple plants generating while other plants remain editable.
+- Weaving selected plants back into the main conversation.
 - App-owned merge routing across three routes:
 
 | Route | When it fires | What Dandelion does |
 |---|---|---|
-| ![additional_context](https://img.shields.io/badge/additional__context-3A7A7A?style=flat-square) | Strands add compatible information | Continues the main thread with expanded context |
-| ![soft_disagreement](https://img.shields.io/badge/soft__disagreement-C97B4E?style=flat-square) | Strands differ in emphasis | Folds them into one integrated recommendation |
-| ![material_conflict](https://img.shields.io/badge/material__conflict-8A4F22?style=flat-square) | Strands propose incompatible next steps | Renders a choice prompt — never forces a synthesis |
+| ![additional_context](https://img.shields.io/badge/additional__context-3A7A7A?style=flat-square) | Plants add compatible information | Continues the main thread with expanded context |
+| ![soft_disagreement](https://img.shields.io/badge/soft__disagreement-C97B4E?style=flat-square) | Plants differ in emphasis | Folds them into one integrated recommendation |
+| ![material_conflict](https://img.shields.io/badge/material__conflict-8A4F22?style=flat-square) | Plants propose incompatible next steps | Renders a choice prompt — never forces a synthesis |
 
 - Conflict-choice UI rendered by the app, not improvised by the model.
 
@@ -114,12 +114,12 @@ Main thread
      +--------------------+
      |                    |
      v                    v
-Side strand A        Side strand B        ... Side strand N
+Plant A        Plant B        ... Plant N
      |                    |                      |
      +--------------------+----------------------+
                           |
                           v
-                 Weave selected strands
+                 Weave selected plants
                           |
                           v
                     Merge router
@@ -149,12 +149,12 @@ prototype.html
   |      v
   |   /api/chat
   |
-  |-- Side strand prompt
+  |-- Plant prompt
   |      |
   |      v
   |   /api/chat
   |
-  |-- Weave selected strands
+  |-- Weave selected plants
          |
          v
       Merge router
@@ -190,7 +190,7 @@ The important product decision is that merge routing belongs to the app, not the
 The reliable flow is:
 
 ```text
-selected side threads
+selected plants
   -> classify merge route
   -> if compatible: call model with merged context
   -> if material conflict: render a user choice

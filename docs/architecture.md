@@ -4,7 +4,7 @@ Current prototype:
 
 ```text
 prototype.html
-  -> /api/chat       ordinary main/strand messages
+  -> /api/chat       ordinary main/plant messages
   -> /api/continue   post-weave continuation
 
 scripts/router-prototype-server.mjs
@@ -14,7 +14,7 @@ scripts/router-prototype-server.mjs
 The browser owns the interaction state:
 
 - main thread
-- side strands
+- plants
 - weave action
 - merge-route decision
 - conflict-choice UI

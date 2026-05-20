@@ -336,7 +336,7 @@
       <span id="route-chip" class="route-chip">router idle</span>
       <div class="topbar-actions">
         <button id="reset-btn">Reset</button>
-        <button id="run-btn" class="primary">Run side threads</button>
+        <button id="run-btn" class="primary">Run plants</button>
       </div>
     </div>
     <section id="conversation" class="conversation"></section>
@@ -344,7 +344,7 @@
 
   <aside class="drawer">
     <div class="drawer-head">
-      <span class="drawer-title">Side threads</span>
+      <span class="drawer-title">Plants</span>
       <span id="thread-count" class="drawer-count">0 selected</span>
     </div>
     <div id="thread-list" class="thread-list"></div>
@@ -503,8 +503,8 @@ async function runScenario() {
   if (!state.selectedId || state.running) return;
   state.running = true;
   runBtn.disabled = true;
-  routeChip.textContent = 'running side threads';
-  conversation.innerHTML = '<div class="empty">Side threads are running...</div>';
+  routeChip.textContent = 'running plants';
+  conversation.innerHTML = '<div class="empty">Plants are running...</div>';
 
   try {
     const payload = await api('/api/run', {

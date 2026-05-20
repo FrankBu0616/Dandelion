@@ -2,15 +2,16 @@
   {
     "id": "additional_context",
     "expected_route": "additional_context",
-    "description": "Compatible strands add implementation details.",
-    "strands": [
+    "curated": true,
+    "description": "Compatible plants add implementation details.",
+    "plants": [
       {
         "title": "Data model",
-        "claim": "Use sessions, side-thread records, and merge records."
+        "claim": "Use sessions, plant records, and merge records."
       },
       {
         "title": "UI flow",
-        "claim": "Use root input, side-thread prompts, Run, and Weave controls."
+        "claim": "Use root input, plant prompts, Run, and Weave controls."
       },
       {
         "title": "Evaluation",
@@ -21,8 +22,9 @@
   {
     "id": "soft_disagreement",
     "expected_route": "soft_disagreement",
-    "description": "Strands differ in emphasis but combine into one next action.",
-    "strands": [
+    "curated": true,
+    "description": "Plants differ in emphasis but combine into one next action.",
+    "plants": [
       {
         "title": "Speed first",
         "claim": "Build the fastest rough prototype to validate the merge workflow."
@@ -36,8 +38,9 @@
   {
     "id": "material_conflict",
     "expected_route": "material_conflict",
-    "description": "Strands recommend incompatible provider strategies.",
-    "strands": [
+    "curated": true,
+    "description": "Plants recommend incompatible provider strategies.",
+    "plants": [
       {
         "title": "Multi-provider",
         "claim": "Support OpenAI, Anthropic, Gemini, and Ollama from day one."
@@ -50,6 +53,110 @@
     "expected_choices": [
       "Proceed with multi-provider support from day one.",
       "Proceed with one provider first, then add others later."
+    ]
+  },
+  {
+    "id": "unscripted_db_facets",
+    "expected_route": "additional_context",
+    "curated": false,
+    "description": "Two plants cover different facets of the same database decision.",
+    "plants": [
+      {
+        "title": "Indexing strategy",
+        "claim": "Add a composite index on (user_id, created_at) for the timeline query. The current full-table scan is the bottleneck during peak hours."
+      },
+      {
+        "title": "Backup cadence",
+        "claim": "Move from daily to hourly incremental snapshots. Recovery point objective should be measured in minutes, not hours, for paid tiers."
+      }
+    ]
+  },
+  {
+    "id": "unscripted_auth_facets",
+    "expected_route": "additional_context",
+    "curated": false,
+    "description": "Two plants cover different aspects of an authentication redesign.",
+    "plants": [
+      {
+        "title": "Token lifetimes",
+        "claim": "Short-lived access tokens (15 minutes) with refresh tokens (30 days) gives a good balance between revocation and convenience."
+      },
+      {
+        "title": "Refresh UX",
+        "claim": "Refresh transparently in a background interceptor so users never see a re-login prompt unless the refresh itself fails."
+      }
+    ]
+  },
+  {
+    "id": "unscripted_onboarding_emphasis",
+    "expected_route": "soft_disagreement",
+    "curated": false,
+    "description": "Plants prioritize tutorial-first vs ship-now but combine into a phased plan.",
+    "plants": [
+      {
+        "title": "Invest in tutorial",
+        "claim": "First-run friction is the biggest activation drop. Build a five-step interactive tutorial before public launch; without it, half the signups won't reach the aha moment."
+      },
+      {
+        "title": "Ship without tutorial",
+        "claim": "Tutorials are a leading indicator that the product isn't self-explanatory. Ship now, watch where people drop off, and fix the product instead of papering over it with onboarding."
+      }
+    ]
+  },
+  {
+    "id": "unscripted_pricing_emphasis",
+    "expected_route": "soft_disagreement",
+    "curated": false,
+    "description": "Plants prefer free-trial vs paid-from-day-one but can combine.",
+    "plants": [
+      {
+        "title": "Free trial first",
+        "claim": "A 14-day free trial gives prospects time to integrate the product into a real workflow before paying. Conversion lift outweighs the leaked usage on power users."
+      },
+      {
+        "title": "Paid from day one",
+        "claim": "Charging immediately filters out tire-kickers and forces real evaluation. Trials attract people who never convert and inflate support load."
+      }
+    ]
+  },
+  {
+    "id": "unscripted_hosting_conflict",
+    "expected_route": "material_conflict",
+    "curated": false,
+    "description": "Plants recommend mutually exclusive deployment models.",
+    "plants": [
+      {
+        "title": "Vercel + serverless",
+        "claim": "Deploy on Vercel and accept the vendor coupling. Speed of iteration and zero-ops outweighs the long-term lock-in risk while you're under 1k MRR."
+      },
+      {
+        "title": "Self-host Kubernetes",
+        "claim": "Run on a small K8s cluster on your own VPS. Higher operational burden, but you keep portability, predictable costs, and the option to move to enterprise on-prem later."
+      }
+    ],
+    "expected_choices": [
+      "Deploy on Vercel and move fast despite the lock-in.",
+      "Self-host on Kubernetes and preserve portability."
+    ]
+  },
+  {
+    "id": "unscripted_schema_conflict",
+    "expected_route": "material_conflict",
+    "curated": false,
+    "description": "Plants recommend incompatible primary data stores.",
+    "plants": [
+      {
+        "title": "Document store",
+        "claim": "Use MongoDB as the primary store. The shape of an entity changes per customer integration, and joining across collections is rare in the actual access patterns."
+      },
+      {
+        "title": "Relational schema",
+        "claim": "Use Postgres with a normalized schema. Every reporting query the team has written so far is a join, and your customers will ask for analytics within six months."
+      }
+    ],
+    "expected_choices": [
+      "Use MongoDB and lean into flexible document shapes.",
+      "Use Postgres and accept upfront schema design for queryability."
     ]
   }
 ]

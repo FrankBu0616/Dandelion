@@ -1,6 +1,6 @@
 # Merge Router
 
-When selected side strands are woven into the main thread, Dandelion routes the result before asking the model to continue.
+When selected plants are woven into the main thread, Dandelion routes the result before asking the model to continue.
 
 ## Route Types
 
