@@ -1262,15 +1262,7 @@ function generateReply(prompt) {
 }
 
 function generatePostWeaveReply(prompt, wovenPlants) {
-  const route = wovenPlants.route || classifyWovenPlants(wovenPlants);
-  if (route.kind === "soft_disagreement") {
-    return {
-      text:
-        "Build a clean, local prototype with enough fidelity to test the plant status, selection, and post-weave moment. " +
-        "That gives you the speed of a rough harness while still testing the feel of the workflow. Keep it to one page, use in-memory state, and make the weave result visible before you touch Electron.",
-      duration: 5200,
-    };
-  }
+  // material_conflict never reaches here — it's handled by the conflict-choice UI.
   const topics = wovenPlants.map(t => t.title).join(" and ");
   return {
     text:

@@ -52,14 +52,13 @@ Run:
 
 ```sh
 node scripts/merge-harness.mjs --scenario curated_additional_context --variant router
-node scripts/merge-harness.mjs --scenario curated_soft_disagreement --variant router
+node scripts/merge-harness.mjs --scenario curated_speed_vs_fidelity --variant router
 node scripts/merge-harness.mjs --scenario curated_provider_scope --variant router
 ```
 
 Expected:
 
 - Additional context continues naturally.
-- Soft disagreement integrates into one recommendation.
 - Material conflict asks the user which stance to proceed with.
 
 ## Design Principles

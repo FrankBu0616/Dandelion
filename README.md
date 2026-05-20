@@ -20,8 +20,7 @@ A local-first desktop concept for parallel plants that merge cleanly — or surf
 Take one question. Spin up parallel plants. Weave the ones you want back into the main conversation.
 
 - If the plants add **compatible context**, the main thread continues with that context.
-- If they have **different emphasis**, Dandelion folds them into one recommendation.
-- If they **materially conflict**, Dandelion asks which stance should become the path forward — instead of letting the model hedge a forced synthesis.
+- If they **materially conflict** — any real tension between them — Dandelion asks which stance should become the path forward, instead of letting the model hedge a forced synthesis.
 
 The important product decision: **merge routing belongs to the app, not to the model's final answer prompt.**
 
@@ -89,13 +88,12 @@ The prototype supports:
 - Plant chat via local Ollama.
 - Multiple plants generating while other plants remain editable.
 - Weaving selected plants back into the main conversation.
-- App-owned merge routing across three routes:
+- App-owned merge routing across two routes:
 
 | Route | When it fires | What Dandelion does |
 |---|---|---|
 | ![additional_context](https://img.shields.io/badge/additional__context-3A7A7A?style=flat-square) | Plants add compatible information | Continues the main thread with expanded context |
-| ![soft_disagreement](https://img.shields.io/badge/soft__disagreement-C97B4E?style=flat-square) | Plants differ in emphasis | Folds them into one integrated recommendation |
-| ![material_conflict](https://img.shields.io/badge/material__conflict-8A4F22?style=flat-square) | Plants propose incompatible next steps | Renders a choice prompt — never forces a synthesis |
+| ![material_conflict](https://img.shields.io/badge/material__conflict-8A4F22?style=flat-square) | Plants have any real tension or propose incompatible next steps | Renders a choice prompt — never forces a synthesis |
 
 - Conflict-choice UI rendered by the app, not improvised by the model.
 
@@ -124,19 +122,19 @@ Plant A        Plant B        ... Plant N
                           v
                     Merge router
                           |
-        +-----------------+-----------------+
-        |                 |                 |
-        v                 v                 v
-Additional context   Soft disagreement   Material conflict
-        |                 |                 |
-        v                 v                 v
-Continue with        Continue with        Ask user which
-expanded context     integrated take      stance to follow
-        |                 |                 |
-        +-----------------+-----------------+
-                          |
-                          v
-                   Main thread continues
+              +---------------+---------------+
+              |                               |
+              v                               v
+       Additional context              Material conflict
+              |                               |
+              v                               v
+       Continue with                    Ask user which
+       expanded context                 stance to follow
+              |                               |
+              +---------------+---------------+
+                              |
+                              v
+                       Main thread continues
 ```
 
 ### Runtime Shape
@@ -160,11 +158,6 @@ prototype.html
       Merge router
          |
          |-- additional_context
-         |      |
-         |      v
-         |   /api/continue
-         |
-         |-- soft_disagreement
          |      |
          |      v
          |   /api/continue
@@ -213,15 +206,21 @@ Run the CLI harness:
 
 ```sh
 node scripts/merge-harness.mjs --scenario curated_additional_context --variant router
-node scripts/merge-harness.mjs --scenario curated_soft_disagreement --variant router
+node scripts/merge-harness.mjs --scenario curated_speed_vs_fidelity --variant router
 node scripts/merge-harness.mjs --scenario curated_provider_scope --variant router
 ```
 
 Expected behavior:
 
 - Additional context: continue naturally.
-- Soft disagreement: combine into one practical recommendation.
 - Material conflict: ask the user which stance to proceed with.
+
+To benchmark the merge-route classifier (regex baseline vs model) across the
+full scenario set:
+
+```sh
+node scripts/classify-experiment.mjs
+```
 
 ## Project Direction
 

@@ -17,15 +17,6 @@ test("material_conflict when multi-provider and single-provider stances both app
   assert.equal(route.choices.length, 2);
 });
 
-test("soft_disagreement when rough-prototype and fidelity stances both appear", () => {
-  const route = classifyWovenPlants([
-    plant("Start rough. Build the fastest possible prototype with just text boxes."),
-    plant("Need some fidelity and polish so the post-weave moment can be evaluated."),
-  ]);
-  assert.equal(route.kind, "soft_disagreement");
-  assert.equal(route.choices.length, 0);
-});
-
 test("additional_context for compatible plants", () => {
   const route = classifyWovenPlants([
     plant("The data model is sessions, threads, and a merge record."),
@@ -46,6 +37,5 @@ test("handles missing turns/fields defensively", () => {
 
 test("routeLabel maps each kind to a short human label", () => {
   assert.equal(routeLabel("material_conflict"), "needs choice");
-  assert.equal(routeLabel("soft_disagreement"), "integrated");
   assert.equal(routeLabel("additional_context"), "context updated");
 });

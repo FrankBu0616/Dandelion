@@ -15,15 +15,15 @@
       },
       {
         "title": "Evaluation",
-        "claim": "Test compatible context, soft disagreement, and material conflict."
+        "claim": "Test compatible context and material conflict."
       }
     ]
   },
   {
-    "id": "soft_disagreement",
-    "expected_route": "soft_disagreement",
+    "id": "speed_vs_fidelity",
+    "expected_route": "material_conflict",
     "curated": true,
-    "description": "Plants differ in emphasis but combine into one next action.",
+    "description": "Speed-first vs fidelity-first are real direction choices; surface to user.",
     "plants": [
       {
         "title": "Speed first",
@@ -33,6 +33,10 @@
         "title": "Fidelity matters",
         "claim": "Make the prototype clean enough to test whether the workflow feels good."
       }
+    ],
+    "expected_choices": [
+      "Ship the fastest rough prototype.",
+      "Build a prototype clean enough to evaluate the feel."
     ]
   },
   {
@@ -88,10 +92,10 @@
     ]
   },
   {
-    "id": "unscripted_onboarding_emphasis",
-    "expected_route": "soft_disagreement",
+    "id": "unscripted_onboarding_conflict",
+    "expected_route": "material_conflict",
     "curated": false,
-    "description": "Plants prioritize tutorial-first vs ship-now but combine into a phased plan.",
+    "description": "Tutorial-first vs ship-now-and-iterate are real launch-strategy choices.",
     "plants": [
       {
         "title": "Invest in tutorial",
@@ -101,13 +105,17 @@
         "title": "Ship without tutorial",
         "claim": "Tutorials are a leading indicator that the product isn't self-explanatory. Ship now, watch where people drop off, and fix the product instead of papering over it with onboarding."
       }
+    ],
+    "expected_choices": [
+      "Build the interactive tutorial before public launch.",
+      "Ship now and improve the product based on dropoff data."
     ]
   },
   {
-    "id": "unscripted_pricing_emphasis",
-    "expected_route": "soft_disagreement",
+    "id": "unscripted_pricing_conflict",
+    "expected_route": "material_conflict",
     "curated": false,
-    "description": "Plants prefer free-trial vs paid-from-day-one but can combine.",
+    "description": "Free-trial vs paid-from-day-one are real pricing-model choices.",
     "plants": [
       {
         "title": "Free trial first",
@@ -117,6 +125,10 @@
         "title": "Paid from day one",
         "claim": "Charging immediately filters out tire-kickers and forces real evaluation. Trials attract people who never convert and inflate support load."
       }
+    ],
+    "expected_choices": [
+      "Launch with a 14-day free trial.",
+      "Charge from day one and skip the trial."
     ]
   },
   {

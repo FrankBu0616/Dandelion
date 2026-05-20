@@ -451,13 +451,11 @@ function renderConversation(payload = state.result) {
 
 function routeTitle(route) {
   if (route === 'material_conflict') return 'Conflict found';
-  if (route === 'soft_disagreement') return 'Integrated difference';
   return 'Context updated';
 }
 
 function routeSubtitle(route) {
   if (route === 'material_conflict') return 'Dandelion asks before continuing.';
-  if (route === 'soft_disagreement') return 'The answer combines compatible priorities.';
   return 'The answer continues without recap.';
 }
 

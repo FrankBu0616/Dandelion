@@ -47,17 +47,23 @@ const scenarios = {
         id: 'eval',
         title: 'Evaluation',
         transcript:
-          'User: Explore how to evaluate whether the prototype works.\n\nAssistant: Evaluate three scenarios: compatible branches, soft disagreement, and material conflict. Compatible branches should continue without recap. Soft disagreement should integrate differences without stopping the user. Material conflict should ask the user which stance to proceed with. Save the full prompt and output for each run so prompt changes can be compared over time.',
+          'User: Explore how to evaluate whether the prototype works.\n\nAssistant: Evaluate two scenarios: compatible branches and material conflict. Compatible branches should continue without recap. Material conflict should ask the user which stance to proceed with. Save the full prompt and output for each run so prompt changes can be compared over time.',
         claims:
-          '- Evaluate compatible branches, soft disagreement, and material conflict\n- Compatible branches should continue without recap\n- Soft disagreement should integrate without interruption\n- Material conflict should ask the user to choose\n- Save prompts and outputs for comparison',
+          '- Evaluate compatible branches and material conflict\n- Compatible branches should continue without recap\n- Material conflict should ask the user to choose\n- Save prompts and outputs for comparison',
       },
     ],
     followUp: 'Okay, given all that, what should I build first tomorrow?',
   },
-  curated_soft_disagreement: {
-    title: 'Soft disagreement',
-    description: 'Plants differ in emphasis but can be integrated.',
-    route: { classification: 'soft_disagreement' },
+  curated_speed_vs_fidelity: {
+    title: 'Material conflict — speed vs fidelity',
+    description: 'Speed-first vs fidelity-first are real direction choices; surface to user.',
+    route: {
+      classification: 'material_conflict',
+      choices: [
+        'Ship the fastest rough prototype.',
+        'Build a prototype clean enough to evaluate the feel.',
+      ],
+    },
     parent: [
       {
         role: 'user',
@@ -234,9 +240,7 @@ function buildDynamicContinuationPrompt({ parentContext, mainConversation, woven
     'The user has been exploring a question through parallel plants.',
     'All selected plants happened; none of them is hypothetical or rejected.',
     'Treat them as shared context for one continuous conversation.',
-    route?.classification === 'soft_disagreement'
-      ? 'The selected threads differ in emphasis but can be integrated into one practical next action.'
-      : 'The selected threads add compatible information. Continue naturally without recapping them.',
+    'The selected threads add compatible information. Continue naturally without recapping them.',
     '',
     '<parent_context>',
     parentContext || transcript(parentTurns),

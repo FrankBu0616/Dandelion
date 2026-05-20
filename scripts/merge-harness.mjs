@@ -131,16 +131,22 @@ const SCENARIOS = {
       {
         id: 'eval',
         transcript:
-          'User: Explore how to evaluate whether the prototype works.\n\nAssistant: Evaluate three scenarios: compatible branches, soft disagreement, and material conflict. Compatible branches should continue without recap. Soft disagreement should integrate differences without stopping the user. Material conflict should ask the user which stance to proceed with. Save the full prompt and output for each run so prompt changes can be compared over time.',
+          'User: Explore how to evaluate whether the prototype works.\n\nAssistant: Evaluate two scenarios: compatible branches and material conflict. Compatible branches should continue without recap. Material conflict should ask the user which stance to proceed with. Save the full prompt and output for each run so prompt changes can be compared over time.',
         claims:
-          '- Evaluate compatible branches, soft disagreement, and material conflict\n- Compatible branches should continue without recap\n- Soft disagreement should integrate without interruption\n- Material conflict should ask the user to choose\n- Save prompts and outputs for comparison',
+          '- Evaluate compatible branches and material conflict\n- Compatible branches should continue without recap\n- Material conflict should ask the user to choose\n- Save prompts and outputs for comparison',
       },
     ],
     followUp: 'Okay, given all that, what should I build first tomorrow?',
   },
-  curated_soft_disagreement: {
-    title: 'Curated soft disagreement: emphasis, not conflict',
-    route: { classification: 'soft_disagreement' },
+  curated_speed_vs_fidelity: {
+    title: 'Curated material conflict: speed vs fidelity',
+    route: {
+      classification: 'material_conflict',
+      choices: [
+        'Ship the fastest rough prototype.',
+        'Build a prototype clean enough to evaluate the feel.',
+      ],
+    },
     parent: [
       {
         role: 'user',
@@ -390,8 +396,7 @@ function buildMergePrompt(scenario, branches, variant) {
       ]),
       'Before answering, classify the merged threads silently:',
       '- additional_context: the threads add compatible information or discuss unrelated aspects of the same question.',
-      '- material_conflict: the threads make incompatible claims or recommendations that affect what the user should do next.',
-      '- soft_disagreement: the threads differ in emphasis, priority, or framing, but can be combined into one next action.',
+      '- material_conflict: the threads have any real tension — incompatible claims, conflicting recommendations, or different directions that affect what the user should do next.',
       '',
       'If the classification is additional_context:',
       '- Continue naturally from the updated shared context.',
@@ -400,11 +405,6 @@ function buildMergePrompt(scenario, branches, variant) {
       '- Start by directly answering the user\'s question.',
       '- Prefer one concrete next action over a recap.',
       '',
-      'If the classification is soft_disagreement:',
-      '- Treat it like additional_context.',
-      '- Integrate the difference into one practical recommendation.',
-      '- Do not ask the user to choose.',
-      '',
       'If the classification is material_conflict:',
       '- Do not pick a side for the user.',
       '- Do not make a recommendation, even if the user asks for your call.',
@@ -412,10 +412,9 @@ function buildMergePrompt(scenario, branches, variant) {
       '- Ask the user which stance they want to proceed with.',
       '- Keep the choice set small and concrete.',
       '',
-      'Only treat a disagreement as material_conflict if the options cannot both be followed.',
-      'Do not treat differences in emphasis, priority, scope, or polish level as material_conflict when they can be combined.',
-      'Example: "build it fast" vs "make it polished enough to test the feeling" is soft_disagreement; recommend a small but clean prototype.',
-      'Example: "ship one provider" vs "ship three providers" is material_conflict; ask the user which path to proceed with.',
+      'When in doubt between additional_context and material_conflict, choose material_conflict so the user can decide.',
+      'Example: "build it fast" vs "make it polished enough to test the feeling" is material_conflict — these are real direction choices.',
+      'Example: "ship one provider" vs "ship three providers" is material_conflict.',
       '',
       'Output rules:',
       '- Never say "both options are valid".',
@@ -426,7 +425,7 @@ function buildMergePrompt(scenario, branches, variant) {
       '- Never state the classification label.',
       '- Never say "merged", "shared context", "key points", "summary", or "threads" in the final answer unless material_conflict requires naming the choices.',
       '',
-      'For additional_context or soft_disagreement, the answer shape is:',
+      'For additional_context, the answer shape is:',
       '1. Direct recommendation in the first sentence.',
       '2. Short rationale.',
       '3. Concrete next step.',
@@ -451,10 +450,10 @@ async function classifyMerge(scenario, branches) {
         content: [
           'Classify how these parallel threads should merge.',
           'Return only JSON with this shape:',
-          '{"classification":"additional_context|soft_disagreement|material_conflict","choices":["..."]}',
-          'Use material_conflict only when the options cannot both be followed and the user must choose.',
-          'Use soft_disagreement when differences can be integrated into one next action.',
-          'Use additional_context when the threads are compatible or cover unrelated aspects.',
+          '{"classification":"additional_context|material_conflict","choices":["..."]}',
+          'Use material_conflict when the threads have any real tension or conflicting direction; the user must choose.',
+          'Use additional_context only when the threads are clearly compatible or cover unrelated aspects.',
+          'When in doubt, choose material_conflict.',
         ].join('\n'),
       },
       {

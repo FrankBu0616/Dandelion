@@ -13,24 +13,20 @@ const DEFAULT_MODEL = process.env.OLLAMA_MODEL ?? "qwen2.5:3b";
 
 const SYSTEM_PROMPT = `You are Dandelion's merge-route classifier.
 
-The user is weaving several plants back into a main conversation. You must decide which of three routes applies:
+The user is weaving several plants back into a main conversation. You must decide which of two routes applies:
 
-1. "additional_context" — the plants add compatible information. They cover different facets of the same topic, or expand the picture without disagreeing. Continuing the main thread with all of them in context will read naturally.
+1. "additional_context" — the plants add compatible information. They cover different facets of the same topic, or expand the picture without disagreeing on direction. The main thread can continue naturally with all of them in context.
 
-2. "soft_disagreement" — the plants differ in emphasis, priority, or tactical recommendation, but they can be sensibly combined into a single integrated answer. The disagreement is about which aspect matters more, not about mutually exclusive choices.
-
-3. "material_conflict" — the plants recommend mutually exclusive next steps. Doing one rules out the other; there is no integrated middle. The user must pick a direction.
-
-The hardest distinction is soft_disagreement vs material_conflict. Ask: can a single coherent next step incorporate both stances? If yes → soft_disagreement. If the stances commit the project to incompatible paths → material_conflict.
+2. "material_conflict" — the plants have a real tension: different stances, recommendations, or directions. The user must pick one to proceed. When in doubt, classify as material_conflict so the user can decide.
 
 Output strictly a single JSON object with this shape and nothing else:
 {
-  "kind": "additional_context" | "soft_disagreement" | "material_conflict",
+  "kind": "additional_context" | "material_conflict",
   "summary": "one or two sentences describing how the plants relate",
   "choices": ["short imperative option A", "short imperative option B"]
 }
 
-The "choices" array MUST be present for material_conflict (two options) and MUST be an empty array [] for the other two routes.
+The "choices" array MUST be present for material_conflict (exactly two options) and MUST be an empty array [] for additional_context.
 
 Do not include any prose outside the JSON. Do not wrap in markdown code fences.`;
 
@@ -61,7 +57,15 @@ function buildUserPrompt(wovenPlants) {
   return `Classify the following ${wovenPlants.length} plant${wovenPlants.length === 1 ? "" : "s"}:\n\n${blocks}\n\nReturn only the JSON object.`;
 }
 
-function safeParseRoute(raw) {
+// Synthesize "follow plant N" choices when the model returned a valid kind
+// but failed to produce two clean choice strings. Better than dropping the
+// classification — the user still gets a choice prompt, just with generic
+// labels they can interpret from the plant content.
+function synthesizeChoices(wovenPlants) {
+  return (wovenPlants || []).slice(0, 2).map((p, i) => `Proceed with ${p.title || `plant ${i + 1}`}.`);
+}
+
+function safeParseRoute(raw, wovenPlants) {
   if (!raw || typeof raw !== "string") return null;
   // Strip code fences and surrounding prose if any
   const fenced = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
@@ -77,14 +81,24 @@ function safeParseRoute(raw) {
   } catch {
     return null;
   }
-  const validKinds = ["additional_context", "soft_disagreement", "material_conflict"];
-  if (!validKinds.includes(parsed.kind)) return null;
-  const choices = Array.isArray(parsed.choices) ? parsed.choices.map(String) : [];
-  if (parsed.kind === "material_conflict" && choices.length < 2) return null;
+  const validKinds = ["additional_context", "material_conflict"];
+  // Coerce any legacy "soft_disagreement" output from older prompts to material_conflict.
+  let kind = parsed.kind === "soft_disagreement" ? "material_conflict" : parsed.kind;
+  if (!validKinds.includes(kind)) return null;
+  let choices = Array.isArray(parsed.choices)
+    ? parsed.choices.map(String).filter((s) => s.trim().length > 0)
+    : [];
+  if (kind === "material_conflict") {
+    // Trust the kind even if choices are malformed — synthesize from plant titles.
+    if (choices.length < 2) choices = synthesizeChoices(wovenPlants);
+    choices = choices.slice(0, 2);
+  } else {
+    choices = [];
+  }
   return {
-    kind: parsed.kind,
+    kind,
     summary: typeof parsed.summary === "string" ? parsed.summary : "",
-    choices: parsed.kind === "material_conflict" ? choices.slice(0, 2) : [],
+    choices,
   };
 }
 
@@ -140,7 +154,7 @@ export async function classifyRouteWithModel(wovenPlants, opts = {}) {
   } catch (err) {
     return { ...fallbackRoute(), error: String(err.message || err) };
   }
-  const parsed = safeParseRoute(raw);
+  const parsed = safeParseRoute(raw, wovenPlants);
   if (!parsed) return { ...fallbackRoute(), error: "unparseable_model_output", raw };
   return parsed;
 }

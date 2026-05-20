@@ -90,7 +90,7 @@ async function main() {
 
   // Per-route breakdown for the model
   console.log(`--- Model confusion (unscripted only) ---`);
-  const routes = ["additional_context", "soft_disagreement", "material_conflict"];
+  const routes = ["additional_context", "material_conflict"];
   for (const expected of routes) {
     const cells = routes.map((actual) => {
       const n = unscripted.filter((r) => r.expected === expected && r.model === actual).length;

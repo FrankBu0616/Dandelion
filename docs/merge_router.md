@@ -8,12 +8,11 @@ When selected plants are woven into the main thread, Dandelion routes the result
 additional_context
   Compatible information. Continue normally with expanded context.
 
-soft_disagreement
-  Different emphasis, but one combined next action is possible.
-
 material_conflict
-  Incompatible next actions. Ask the user which stance to follow.
+  Any real tension between plants. Ask the user which stance to follow.
 ```
+
+Dandelion deliberately uses only two routes. An earlier `soft_disagreement` route — meant for plants that differed in emphasis but could be integrated — was removed because the soft / material boundary was unreliable for both heuristic and small-model classifiers, and a tension the model can't confidently call as compatible should surface to the user as a choice rather than be silently merged.
 
 ## Rule
 
@@ -28,7 +27,7 @@ Data model + UI flow + eval plan
 => additional_context
 
 Rough prototype + polished enough to test feel
-=> soft_disagreement
+=> material_conflict   (real direction choice; surface to user)
 
 Multi-provider day one + one provider first
 => material_conflict

@@ -16,12 +16,21 @@
 /**
  * @typedef {{ user?: string, asst?: string }} Turn
  * @typedef {{ title?: string, turns: Turn[] }} Plant
- * @typedef {"additional_context" | "soft_disagreement" | "material_conflict"} RouteKind
+ * @typedef {"additional_context" | "material_conflict"} RouteKind
  * @typedef {{ kind: RouteKind, summary: string, choices: string[] }} Route
  */
 
 /**
  * Classify a set of woven plants into a merge route.
+ *
+ * Dandelion uses a two-route model:
+ *   - additional_context : plants are compatible; continue naturally.
+ *   - material_conflict  : plants have any real tension; ask the user to pick.
+ *
+ * An earlier "soft_disagreement" route was removed: the soft/material boundary
+ * was unreliable for both heuristic and small-model classifiers, and a tension
+ * the model can't confidently call as compatible should surface to the user.
+ *
  * @param {Plant[]} wovenPlants
  * @returns {Route}
  */
@@ -51,18 +60,6 @@ export function classifyWovenPlants(wovenPlants) {
     };
   }
 
-  const hasRough = /rough prototype|fastest possible|start rough|speed-first|text boxes/.test(text);
-  const hasFidelity =
-    /fidelity|feel|polish|clean local web page|status.*selection|post-merge|post-weave/.test(text);
-  if (hasRough && hasFidelity) {
-    return {
-      kind: "soft_disagreement",
-      summary:
-        "The plants differ in emphasis, but they combine cleanly: build a small prototype that is fast to ship and polished enough to test the workflow feel.",
-      choices: [],
-    };
-  }
-
   return {
     kind: "additional_context",
     summary:
@@ -77,6 +74,5 @@ export function classifyWovenPlants(wovenPlants) {
  */
 export function routeLabel(kind) {
   if (kind === "material_conflict") return "needs choice";
-  if (kind === "soft_disagreement") return "integrated";
   return "context updated";
 }

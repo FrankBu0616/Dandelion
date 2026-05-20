@@ -94,7 +94,7 @@ test("continuing after a merge attaches to the merge node", () => {
   g.addChat({ id: "n1", thread: "main", prompt: "root", parent: null });
   g.addPlant({ id: "sA", title: "A", parent: "n1" });
   g.addChat({ id: "a1", thread: "plant", plantId: "sA", prompt: "qa", parent: "sA" });
-  g.addMerge({ id: "m1", parents: ["a1"], route: { kind: "soft_disagreement" } });
+  g.addMerge({ id: "m1", parents: ["a1"], route: { kind: "material_conflict" } });
   g.addChat({ id: "n2", thread: "main", prompt: "continue", parent: g.state.graph.mainLeafId });
   const cont = g.state.graph.nodes.get("n2");
   assert.equal(cont.parent, "m1");
