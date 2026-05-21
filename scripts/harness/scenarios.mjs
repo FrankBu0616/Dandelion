@@ -74,7 +74,8 @@ export const SCENARIOS = {
   },
 
   curated_provider_scope: {
-    title: 'Curated disagreement: provider scope',
+    title: 'Material conflict',
+    description: 'Plants recommend incompatible v1 provider strategies.',
     route: {
       kind: 'material_conflict',
       choices: [
@@ -96,6 +97,7 @@ export const SCENARIOS = {
     branches: [
       {
         id: 'multi-provider',
+        title: 'Multi-provider',
         transcript:
           'User: Argue for supporting all three providers from day one.\n\nAssistant: If the product is BYO-key and open-source, multi-provider on day one is close to free and protects against a real risk. The OpenAI SDK and Anthropic SDK have nearly identical chat-completion shapes; the Gemini SDK differs but is wrappable. A thin provider-adapter layer is maybe 200 lines of TypeScript per provider. The user-facing benefit is significant: people have strong existing preferences, and a tool that only supports the provider they do not have a key for is a tool they close. The downside is testing surface: you have to verify your prompt and merge logic against three model families with three different quirks. But you have to do this eventually anyway. Doing it day-one is cheaper than retrofitting after you have baked OpenAI-specific assumptions in. Verdict: ship multi-provider from day one.',
         claims:
@@ -103,6 +105,7 @@ export const SCENARIOS = {
       },
       {
         id: 'single-provider',
+        title: 'Single provider',
         transcript:
           'User: Argue for picking one provider and adding others later.\n\nAssistant: For a single-developer side project, multi-provider from day one sounds free but is not. Each provider has subtle behavior differences: tokenization, system-prompt handling, max context, rate-limit error shapes, retry semantics, JSON-mode quirks, vision-API formats, tool-calling interfaces. Your code path can paper over all of these but your prompt engineering cannot: a prompt that works perfectly on Claude often degrades on Gemini and vice versa, and your merge template is going to be especially sensitive to this. Shipping with one model lets you tune the prompts against that model behavior and ship something that works well. Adding providers later, after the prompts are locked, is the right order. Verdict: pick one, probably Claude given the merge framing test complexity, and add others in v0.2.',
         claims:
@@ -113,7 +116,8 @@ export const SCENARIOS = {
   },
 
   curated_additional_context: {
-    title: 'Curated compatible branches: additional context',
+    title: 'Additional context',
+    description: 'Compatible plants add data model, UI, and evaluation details.',
     route: { kind: 'additional_context' },
     parent: [
       {
@@ -130,6 +134,7 @@ export const SCENARIOS = {
     branches: [
       {
         id: 'data-model',
+        title: 'Data model',
         transcript:
           'User: Explore the minimal data model for the prototype.\n\nAssistant: The prototype only needs sessions, thread records, and a merge record. A session stores the root question and model. Each plant stores its prompt, response, status, and parent session. A merge record stores the selected plant ids and the generated merge prompt. This can be in memory or a JSON file for the test; SQLite can wait until the real app. The key is preserving the transcript boundaries so the merge prompt can distinguish parent context from parallel threads.',
         claims:
@@ -137,6 +142,7 @@ export const SCENARIOS = {
       },
       {
         id: 'ui-flow',
+        title: 'UI flow',
         transcript:
           'User: Explore the minimal UI flow for the prototype.\n\nAssistant: The smallest useful UI is a single page with a root question input, three plant prompt boxes, a Run button, and a Merge button. Show each plant in a column or drawer with status: queued, running, completed, failed. After merge, show either the continued answer or a conflict choice prompt. Do not build account settings, history, file uploads, or a canvas for this test.',
         claims:
@@ -144,6 +150,7 @@ export const SCENARIOS = {
       },
       {
         id: 'eval',
+        title: 'Evaluation',
         transcript:
           'User: Explore how to evaluate whether the prototype works.\n\nAssistant: Evaluate two scenarios: compatible branches and material conflict. Compatible branches should continue without recap. Material conflict should ask the user which stance to proceed with. Save the full prompt and output for each run so prompt changes can be compared over time.',
         claims:
@@ -154,7 +161,8 @@ export const SCENARIOS = {
   },
 
   curated_speed_vs_fidelity: {
-    title: 'Curated material conflict: speed vs fidelity',
+    title: 'Material conflict — speed vs fidelity',
+    description: 'Speed-first vs fidelity-first are real direction choices; surface to user.',
     route: {
       kind: 'material_conflict',
       choices: [
@@ -177,6 +185,7 @@ export const SCENARIOS = {
     branches: [
       {
         id: 'speed-first',
+        title: 'Speed first',
         transcript:
           'User: Argue for a rough prototype first.\n\nAssistant: Start rough. The highest-risk assumption is not visual polish; it is whether plant merge creates a useful continuation. Build the fastest possible harness: text boxes, run plants, merge, continue. If that fails, beautiful UI is wasted. Keep styling minimal and use the existing HTML prototype only as reference.',
         claims:
@@ -184,6 +193,7 @@ export const SCENARIOS = {
       },
       {
         id: 'fidelity-matters',
+        title: 'Fidelity matters',
         transcript:
           'User: Argue for enough UI fidelity to test the feeling.\n\nAssistant: Do not make it ugly. Dandelion is partly a workflow product, and the value depends on whether plants feel calm, live, and mergeable. You need enough UI fidelity to show plant status, selected-for-merge state, and the post-merge moment. But this does not require Electron or brand-perfect styling; a clean local web page is enough.',
         claims:

@@ -40,17 +40,32 @@ Current working prototype:
 ## Repository Map
 
 ```text
-README.md                         project overview and run instructions
-CONTRIBUTING.md                   contribution lanes and local workflow
-prototype.html                    main runnable prototype
-prototype-router.html             smaller router-only comparison prototype
-scripts/merge-router.mjs          canonical merge-router classifier (browser + node)
-scripts/router-prototype-server.mjs
-                                  local server + Ollama proxy
-scripts/merge-harness.mjs         repeatable CLI merge-router harness
-docs/README.md                    docs index
-tests/merge-router.test.mjs       unit tests for the merge-router classifier
-tests/merge-router/scenarios.json route fixtures and expected classifications
+README.md                          project overview and run instructions
+CONTRIBUTING.md                    contribution lanes and local workflow
+prototype.html                     main runnable prototype (HTML + inline render code)
+prototype/                         prototype modules — extracted from the HTML
+  styles.css                       all CSS
+  graph.mjs                        shadow DAG factory (chat/plant/merge nodes)
+  scripted-content.mjs             demo starters + canned fallback replies
+  dandelion-svg.mjs                seed-head SVG renderer
+  escape.mjs                       shared escapeHtml utility
+prototype-router.html              smaller router-only comparison prototype
+scripts/
+  merge-router.mjs                 deterministic regex baseline classifier
+  classify-route.mjs               model-based classifier (canonical)
+  classify-experiment.mjs          benchmarks regex vs model across scenarios
+  merge-harness.mjs                CLI: full merge-flow simulation
+  router-prototype-server.mjs      local HTTP server + Ollama proxy
+  harness/
+    scenarios.mjs                  rich scenarios (parent + branches + followUp)
+    merge-prompt.mjs               merge-prompt template
+  server/
+    prompts.mjs                    continuation-prompt builders for /api/run + /api/continue
+tests/
+  merge-router.test.mjs            classifier unit tests
+  graph-shadow.test.mjs            graph helper tests
+  merge-router/scenarios.json      classifier benchmark fixtures
+docs/README.md                     docs index
 ```
 
 ## Run
