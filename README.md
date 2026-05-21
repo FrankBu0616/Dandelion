@@ -205,9 +205,9 @@ More detail:
 Run the CLI harness:
 
 ```sh
-node scripts/merge-harness.mjs --scenario curated_additional_context --variant router
-node scripts/merge-harness.mjs --scenario curated_speed_vs_fidelity --variant router
-node scripts/merge-harness.mjs --scenario curated_provider_scope --variant router
+node scripts/merge-harness.mjs --scenario curated_additional_context
+node scripts/merge-harness.mjs --scenario curated_speed_vs_fidelity
+node scripts/merge-harness.mjs --scenario curated_provider_scope
 ```
 
 Expected behavior:
