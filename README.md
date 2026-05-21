@@ -95,10 +95,31 @@ Requires Node.js 20+. No npm install is needed — Dandelion has no dependencies
 
 Pick a provider:
 
-**Local (Ollama, default).** Start Ollama and pull the model, then:
+**Local (Ollama, default).** Install [Ollama](https://ollama.com/), start the local server, and pull the default model:
+
+```sh
+ollama serve          # starts http://localhost:11434
+ollama pull qwen2.5:3b
+```
+
+In another terminal, start Dandelion:
 
 ```sh
 npm start              # or: node scripts/router-prototype-server.mjs
+```
+
+By default the prototype talks to Ollama through its OpenAI-compatible endpoint at `http://localhost:11434/v1` and uses `qwen2.5:3b`. To use a different local model:
+
+```sh
+export OLLAMA_MODEL=llama3.2:3b
+npm start
+```
+
+If Ollama is running somewhere else:
+
+```sh
+export OLLAMA_BASE_URL=http://localhost:11434/v1
+npm start
 ```
 
 **Claude API.** Set two env vars and start:

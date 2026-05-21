@@ -1,5 +1,10 @@
   /* ============ MESSAGES (main column) ============ */
   .msg { margin: 18px 0; display: flex; flex-direction: column; }
+  .main-turn {
+    position: relative;
+    margin: 18px 0;
+  }
+  .main-turn .msg { margin: 18px 0; }
   .msg-user { align-items: flex-end; }
   .msg-user .bubble {
     background: var(--user-bg);
@@ -50,6 +55,140 @@
     color: var(--muted);
     margin: 2px 4px;
     letter-spacing: 0.02em;
+  }
+  .main-history-node {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    margin: 5px 0 5px 2px;
+    padding: 2px 0;
+  }
+  .main-history-open {
+    min-width: 0;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+  }
+  .main-history-seed {
+    position: relative;
+    width: 25px;
+    height: 31px;
+    display: grid;
+    place-items: center;
+    color: var(--accent);
+    opacity: 0.78;
+  }
+  .main-history-seed::before,
+  .main-history-seed::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    width: 1px;
+    height: 16px;
+    background: rgba(138, 79, 34, 0.18);
+    transform: translateX(-50%);
+  }
+  .main-history-seed::before { top: -15px; }
+  .main-history-seed::after { bottom: -15px; }
+  .main-history-node:first-of-type .main-history-seed::before,
+  .main-history-node:last-of-type .main-history-seed::after {
+    display: none;
+  }
+  .main-history-seed svg {
+    width: 25px;
+    height: 31px;
+    display: block;
+    overflow: visible;
+  }
+  .main-history-stem,
+  .main-history-puff {
+    stroke: currentColor;
+    stroke-width: 2.3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .main-history-stem { opacity: 0.55; }
+  .main-history-puff { opacity: 0.9; }
+  .main-history-core {
+    fill: var(--accent-soft);
+    stroke: currentColor;
+    stroke-width: 1.8;
+  }
+  .main-history-copy {
+    min-width: 0;
+    display: grid;
+    gap: 1px;
+    padding: 5px 0;
+  }
+  .main-history-title,
+  .main-history-preview {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .main-history-title {
+    font-size: 12.5px;
+    font-weight: 650;
+    color: var(--text);
+  }
+  .main-history-preview {
+    font-size: 12px;
+    line-height: 1.35;
+    color: var(--muted);
+  }
+  .main-history-branch,
+  .main-turn-collapse {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 6px;
+    padding: 4px 9px;
+    font-size: 11px;
+    color: var(--muted);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .main-history-branch {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-3px);
+    transition: opacity 0.15s, transform 0.15s, border-color 0.15s, background 0.15s, color 0.15s;
+  }
+  .main-history-node:hover .main-history-branch,
+  .main-history-node:focus-within .main-history-branch {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(0);
+  }
+  .main-history-node:hover {
+    color: var(--accent);
+  }
+  .main-history-node:hover .main-history-seed,
+  .main-history-open:focus-visible .main-history-seed {
+    opacity: 1;
+    transform: translateY(-1px);
+  }
+  .main-history-open:focus-visible,
+  .main-history-branch:focus-visible,
+  .main-turn-collapse:focus-visible {
+    outline: 2px solid var(--accent-soft);
+    outline-offset: 3px;
+  }
+  .main-history-branch:hover,
+  .main-turn-collapse:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .main-turn-collapse {
+    display: block;
+    margin: -4px 0 4px auto;
   }
 
   /* ============ GRAFT MARKER (in main column after grafting) ============ */
@@ -171,4 +310,3 @@
     background: var(--surface-soft);
     border-color: var(--border);
   }
-

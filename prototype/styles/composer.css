@@ -14,7 +14,8 @@
     pointer-events: auto;
     transition: max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  body.has-plants .main-composer-inner { max-width: none; padding: 0 8px; }
+  /* keep composer centered at the same width when plants open, so the user
+     bubble doesn't slide horizontally as seeds auto-appear. */
   .composer-box {
     background: var(--surface);
     border: 1px solid var(--border-strong);
