@@ -20,9 +20,7 @@
 import { classifyRouteWithModel } from './classify-route.mjs';
 import { SCENARIOS } from './harness/scenarios.mjs';
 import { buildMergePrompt } from './harness/merge-prompt.mjs';
-
-const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL ?? 'http://localhost:11434/v1';
-const MODEL = process.env.OLLAMA_MODEL ?? 'qwen2.5:3b';
+import { chat, activeModel, activeProvider } from './providers.mjs';
 
 function parseArgs(argv) {
   const args = { scenario: 'product_risk', list: false };
@@ -30,7 +28,11 @@ function parseArgs(argv) {
     const arg = argv[i];
     if (arg === '--list') args.list = true;
     else if (arg === '--scenario') args.scenario = argv[++i];
-    else if (arg === '--model') process.env.OLLAMA_MODEL = argv[++i];
+    else if (arg === '--model') {
+      const m = argv[++i];
+      if (activeProvider() === 'anthropic') process.env.ANTHROPIC_MODEL = m;
+      else process.env.OLLAMA_MODEL = m;
+    } else if (arg === '--provider') process.env.DANDELION_PROVIDER = argv[++i];
     else if (arg === '--help' || arg === '-h') {
       printHelp();
       process.exit(0);
@@ -46,33 +48,17 @@ function printHelp() {
 
 Options:
   --scenario <name>   Scenario to run. Default: product_risk
-  --model <name>      Ollama model tag. Default: qwen2.5:3b
+  --provider <name>   ollama (default) | anthropic
+  --model <name>      Model tag for the active provider
   --list              List scenarios
 
 Environment:
+  DANDELION_PROVIDER  ollama (default) | anthropic
   OLLAMA_BASE_URL     Default: http://localhost:11434/v1
   OLLAMA_MODEL        Default: qwen2.5:3b
+  ANTHROPIC_API_KEY   Required when provider=anthropic
+  ANTHROPIC_MODEL     Default: claude-haiku-4-5
 `);
-}
-
-async function chat(messages, { temperature = 0.4 } = {}) {
-  const response = await fetch(`${OLLAMA_BASE_URL}/chat/completions`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ollama' },
-    body: JSON.stringify({
-      model: process.env.OLLAMA_MODEL ?? MODEL,
-      messages,
-      temperature,
-      stream: false,
-    }),
-  });
-  if (!response.ok) {
-    throw new Error(
-      `Ollama request failed: ${response.status} ${response.statusText}\n${await response.text()}`,
-    );
-  }
-  const json = await response.json();
-  return json.choices?.[0]?.message?.content?.trim() ?? '';
 }
 
 function labelForRole(role) {
@@ -96,7 +82,7 @@ async function runBranch(parent, branch) {
     ...parent,
     { role: 'user', content: branch.prompt },
   ];
-  const response = await chat(messages);
+  const response = await chat(messages, { temperature: 0.4 });
   return {
     ...branch,
     transcript: transcript([
@@ -153,8 +139,8 @@ async function main() {
     throw new Error(`Unknown scenario "${args.scenario}". Use --list to see options.`);
   }
 
-  const model = process.env.OLLAMA_MODEL ?? MODEL;
-  console.log(`Running "${scenario.title}" with ${model}`);
+  const model = activeModel();
+  console.log(`Running "${scenario.title}" with ${activeProvider()}:${model}`);
 
   // Resolve branches (Ollama-generated or pre-baked) and extract claims.
   const branchResults = await Promise.all(
@@ -191,7 +177,7 @@ async function main() {
       ].join('\n'),
     },
     { role: 'user', content: `${buildMergePrompt(scenario, branches)}\n\n${scenario.followUp}` },
-  ]);
+  ], { temperature: 0.4 });
 
   printSection('Follow-up', scenario.followUp);
   printSection('Merged Answer', mergedAnswer);

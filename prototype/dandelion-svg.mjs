@@ -1,10 +1,10 @@
-// Dandelion seed-head visualization for the weave fold.
+// Dandelion seed-head visualization for the graft fold.
 //
-// Renders the woven plants as a small SVG fan: a copper anchor with stems
+// Renders the grafted plants as a small SVG fan: a copper anchor with stems
 // leaning to the upper-right, each ending in a puff and a label.
 //
 // Pure function. Input is a list of {title} objects (the plant titles being
-// woven). Returns an HTML string that can be dropped into innerHTML.
+// grafted). Returns an HTML string that can be dropped into innerHTML.
 
 import { escapeHtml } from "./escape.mjs";
 
@@ -45,7 +45,7 @@ export function renderDandelionSVG(plants) {
     .join("");
 
   return (
-    `<svg class="weave-dandelion" width="220" height="110" style="overflow:visible">` +
+    `<svg class="graft-dandelion" width="220" height="110" style="overflow:visible">` +
     `<circle cx="${ANCHOR_X}" cy="${ANCHOR_Y}" r="3" fill="var(--accent)" opacity="0.55"/>` +
     seeds +
     `</svg>`

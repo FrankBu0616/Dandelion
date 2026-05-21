@@ -1,6 +1,6 @@
 // Dandelion merge router.
 //
-// Classifies a set of woven plants into one of three routes:
+// Classifies a set of grafted plants into one of three routes:
 //   - additional_context : compatible, continue naturally
 //   - soft_disagreement  : different emphasis, integrate into one recommendation
 //   - material_conflict  : incompatible next steps, ask the user to choose
@@ -21,7 +21,7 @@
  */
 
 /**
- * Classify a set of woven plants into a merge route.
+ * Classify a set of grafted plants into a merge route.
  *
  * Dandelion uses a two-route model:
  *   - additional_context : plants are compatible; continue naturally.
@@ -31,11 +31,11 @@
  * was unreliable for both heuristic and small-model classifiers, and a tension
  * the model can't confidently call as compatible should surface to the user.
  *
- * @param {Plant[]} wovenPlants
+ * @param {Plant[]} graftedPlants
  * @returns {Route}
  */
-export function classifyWovenPlants(wovenPlants) {
-  const text = (wovenPlants || [])
+export function classifyGraftedPlants(graftedPlants) {
+  const text = (graftedPlants || [])
     .flatMap((s) => (s.turns || []).flatMap((t) => [t.user || "", t.asst || ""]))
     .join("\n")
     .toLowerCase();
@@ -74,5 +74,6 @@ export function classifyWovenPlants(wovenPlants) {
  */
 export function routeLabel(kind) {
   if (kind === "material_conflict") return "needs choice";
-  return "context updated";
+  if (kind === "additional_context") return "context updated";
+  return "classifying…";
 }

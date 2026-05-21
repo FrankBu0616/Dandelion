@@ -4,7 +4,7 @@
 //   - buildScenarioContinuationPrompt: for the curated /api/run scenario flow,
 //     where parent context + branches + claims are all pre-baked.
 //   - buildDynamicContinuationPrompt: for the live /api/continue flow, where
-//     the prototype's actual main conversation and woven plants are passed in.
+//     the prototype's actual main conversation and grafted plants are passed in.
 //
 // Plus a tiny renderConflict() helper that produces the JSON shape the UI
 // renders when the route is material_conflict.
@@ -55,10 +55,10 @@ export function buildScenarioContinuationPrompt(scenario) {
 
 /**
  * Build the continuation prompt for the live /api/continue flow.
- * Called after a weave classified as additional_context — the prototype sends
- * the current main conversation and the just-woven plants.
+ * Called after a graft classified as additional_context — the prototype sends
+ * the current main conversation and the just-grafted plants.
  */
-export function buildDynamicContinuationPrompt({ parentContext, mainConversation, wovenPlants, followUp }) {
+export function buildDynamicContinuationPrompt({ parentContext, mainConversation, graftedPlants, followUp }) {
   const parentTurns = (mainConversation ?? [])
     .filter((item) => item.kind === 'user' || item.kind === 'assistant')
     .map((item) => ({
@@ -76,7 +76,7 @@ export function buildDynamicContinuationPrompt({ parentContext, mainConversation
     parentContext || transcript(parentTurns),
     '</parent_context>',
     '',
-    ...wovenPlants.flatMap((plant, index) => [
+    ...graftedPlants.flatMap((plant, index) => [
       `<parallel_thread id="${index + 1}" name="${plant.title || `plant-${index + 1}`}">`,
       plant.turns
         .map((turn) =>

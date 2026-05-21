@@ -1,0 +1,46 @@
+  /* ============ WORKSPACE ============ */
+  #workspace {
+    position: fixed; inset: 52px 0 0 0;
+    display: flex;
+  }
+  /* main column — always present */
+  #main-column {
+    flex: 1 1 100%;
+    min-width: 0;
+    overflow-y: auto;
+    position: relative;
+    transition: flex-basis 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  /* right column — plants */
+  #plant-column {
+    flex: 0 0 0%;
+    min-width: 0;
+    overflow: hidden;
+    background: var(--plant-bg);
+    border-left: 1px solid var(--plant-divider);
+    display: flex; flex-direction: column;
+    transition: flex-basis 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  body.has-plants #main-column { flex: 1 1 50%; }
+  body.has-plants #plant-column { flex: 1 1 50%; }
+
+  /* main column inner */
+  #main-inner {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 32px 24px 72px;
+    transition: max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  body.has-plants #main-inner {
+    max-width: none;
+    padding: 32px 32px 72px;
+  }
+  body.is-empty #main-column {
+    overflow-y: hidden;
+  }
+  body.is-empty #main-inner {
+    height: calc(100% - 98px);
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+

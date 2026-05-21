@@ -16,7 +16,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { classifyWovenPlants } from "./merge-router.mjs";
+import { classifyGraftedPlants } from "./merge-router.mjs";
 import { classifyRouteWithModel } from "./classify-route.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -53,7 +53,7 @@ async function main() {
   const results = [];
   for (const scenario of scenarios) {
     const expected = scenario.expected_route;
-    const regexRoute = classifyWovenPlants(plantsForRegex(scenario.plants));
+    const regexRoute = classifyGraftedPlants(plantsForRegex(scenario.plants));
     let modelRoute;
     try {
       modelRoute = await classifyRouteWithModel(scenario.plants, { model });

@@ -4,7 +4,7 @@
 //   - STARTERS: the suggestion chips shown in the empty state.
 //   - generateReply: canned main-thread responses keyed on prompt keywords.
 //     Used as the offline fallback when Ollama isn't reachable.
-//   - generatePostWeaveReply: canned continuation after a weave.
+//   - generatePostGraftReply: canned continuation after a graft.
 //
 // Pure data and pure functions. No DOM, no globals, no network.
 
@@ -174,11 +174,11 @@ export function generateReply(prompt) {
 }
 
 // material_conflict never reaches here — it's handled by the conflict-choice UI.
-export function generatePostWeaveReply(prompt, wovenPlants) {
-  const topics = wovenPlants.map((t) => t.title).join(" and ");
+export function generatePostGraftReply(prompt, graftedPlants) {
+  const topics = graftedPlants.map((t) => t.title).join(" and ");
   return {
     text:
-      "Start with the concrete next step from the woven context: build the smallest working slice that exercises the thing you just explored. " +
+      "Start with the concrete next step from the grafted context: build the smallest working slice that exercises the thing you just explored. " +
       "For these plants, that means using " +
       (topics || "the selected material") +
       " as updated context, then continuing without recapping each plant. " +

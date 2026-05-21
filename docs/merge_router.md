@@ -1,6 +1,6 @@
 # Merge Router
 
-When selected plants are woven into the main thread, Dandelion routes the result before asking the model to continue.
+When selected plants are grafted into the main thread, Dandelion routes the result before asking the model to continue.
 
 ## Route Types
 

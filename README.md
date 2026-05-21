@@ -2,9 +2,9 @@
 
 <img src="brand/wordmark_lockup_horizontal.svg" alt="Dandelion" width="420" />
 
-**Fork a question. Weave the answers.**
+**Sculpt what the model is thinking.**
 
-A local-first desktop concept for parallel plants that merge cleanly — or surface the conflict when they don't.
+A local-first context editor for AI conversations. Fork the question, explore in parallel, choose what survives into your context.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-0F0F12.svg)](./LICENSE)
 [![Node](https://img.shields.io/badge/node-%E2%89%A520-C97B4E.svg)](https://nodejs.org/)
@@ -17,12 +17,23 @@ A local-first desktop concept for parallel plants that merge cleanly — or surf
 
 ## What it is
 
-Take one question. Spin up parallel plants. Weave the ones you want back into the main conversation.
+Dandelion is a **context modulation** tool. The context window is the real product surface of any AI conversation, and today the user has no surgical control over it — whatever gets said stays in, forever, in order. Dandelion treats context as an editable object.
 
-- If the plants add **compatible context**, the main thread continues with that context.
-- If they **materially conflict** — any real tension between them — Dandelion asks which stance should become the path forward, instead of letting the model hedge a forced synthesis.
+The interaction:
 
-The important product decision: **merge routing belongs to the app, not to the model's final answer prompt.**
+1. Start a main thread with a root question.
+2. Spin up parallel **plants** — each one explores a different sub-question, alternative framing, or candidate direction.
+3. Graft the plants you want back into the main thread. The ones you don't are simply discarded.
+4. The app decides *how* the merge happens — it does not ask the model to summarize.
+
+Each plant can be routed to a different model. Use a fast local model for cheap exploration, a frontier model for the branches you want to take seriously, mix providers within the same fork tree.
+
+The merge router has two outcomes:
+
+- **Compatible context** → the main thread continues, now informed by the merged plants.
+- **Material conflict** → Dandelion shows the tension and asks which stance to follow. No forced synthesis.
+
+The important product decision: **merge routing belongs to the app, not to the model's final answer prompt.** The user, not the model, sculpts the context.
 
 ## Status
 
@@ -33,8 +44,8 @@ The important product decision: **merge routing belongs to the app, not to the m
 Current working prototype:
 
 - `prototype.html` is the main interactive template.
-- `scripts/router-prototype-server.mjs` serves the prototype and proxies local Ollama calls.
-- `qwen2.5:3b` via Ollama is the default local model.
+- `scripts/router-prototype-server.mjs` serves the prototype and proxies model calls.
+- Two providers are supported out of the box: local Ollama (default, `qwen2.5:3b`) and Anthropic Claude (`claude-haiku-4-5` by default). Switch the default with `DANDELION_PROVIDER`, or pick a model per plant in the UI.
 - `scripts/merge-harness.mjs` is a CLI harness for repeatable merge-router tests.
 
 ## Repository Map
@@ -42,20 +53,30 @@ Current working prototype:
 ```text
 README.md                          project overview and run instructions
 CONTRIBUTING.md                    contribution lanes and local workflow
-prototype.html                     main runnable prototype (HTML + inline render code)
-prototype/                         prototype modules — extracted from the HTML
-  styles.css                       all CSS
-  graph.mjs                        shadow DAG factory (chat/plant/merge nodes)
-  scripted-content.mjs             demo starters + canned fallback replies
+prototype.html                     main runnable prototype (markup + module wiring)
+prototype/                         prototype modules — the HTML is now a thin shell
+  api.mjs                          /api/* network calls (chat, continue, listModels)
   dandelion-svg.mjs                seed-head SVG renderer
+  dom-utils.mjs                    shared DOM helpers (autoSizeTextarea)
   escape.mjs                       shared escapeHtml utility
-prototype-router.html              smaller router-only comparison prototype
+  graph.mjs                        shadow DAG factory (chat/plant/merge nodes)
+  main-thread.mjs                  main-column rendering + streaming controller
+  model-picker.mjs                 header model dropdown (loads /api/models)
+  plant-tray.mjs                   right-column plant tray UI
+  plants.mjs                       plant lifecycle (open/send/close/reopen)
+  scripted-content.mjs             demo starters + canned fallback replies
+  graft.mjs                        graft flow + conflict-choice resolution
+  styles.css                       @imports the per-area files in styles/
+  styles/                          base / header / workspace / main-thread /
+                                   composer / plant-tray / empty-state
+  router-demo/index.html           smaller router-only comparison prototype
 scripts/
+  providers.mjs                    unified chat() over Ollama + Anthropic
   merge-router.mjs                 deterministic regex baseline classifier
   classify-route.mjs               model-based classifier (canonical)
   classify-experiment.mjs          benchmarks regex vs model across scenarios
   merge-harness.mjs                CLI: full merge-flow simulation
-  router-prototype-server.mjs      local HTTP server + Ollama proxy
+  router-prototype-server.mjs      local HTTP server + provider proxy
   harness/
     scenarios.mjs                  rich scenarios (parent + branches + followUp)
     merge-prompt.mjs               merge-prompt template
@@ -63,21 +84,33 @@ scripts/
     prompts.mjs                    continuation-prompt builders for /api/run + /api/continue
 tests/
   merge-router.test.mjs            classifier unit tests
-  graph-shadow.test.mjs            graph helper tests
+  graph-shadow.test.mjs            graph helper tests (imports prototype/graph.mjs)
   merge-router/scenarios.json      classifier benchmark fixtures
 docs/README.md                     docs index
 ```
 
 ## Run
 
-Requires Node.js 20+ and a running Ollama instance. No npm install is needed —
-Dandelion has no dependencies. Start Ollama separately, then run:
+Requires Node.js 20+. No npm install is needed — Dandelion has no dependencies.
+
+Pick a provider:
+
+**Local (Ollama, default).** Start Ollama and pull the model, then:
 
 ```sh
 npm start              # or: node scripts/router-prototype-server.mjs
 ```
 
-Run the merge-router test suite:
+**Claude API.** Set two env vars and start:
+
+```sh
+export DANDELION_PROVIDER=anthropic
+export ANTHROPIC_API_KEY=sk-ant-...
+# optional: export ANTHROPIC_MODEL=claude-sonnet-4-6   # default: claude-haiku-4-5
+npm start
+```
+
+Run the merge-router test suite (no network needed):
 
 ```sh
 npm test
@@ -92,17 +125,17 @@ http://localhost:4321
 The older router-only test page remains available at:
 
 ```text
-http://localhost:4321/prototype-router.html
+http://localhost:4321/router-demo
 ```
 
 ## Current Behavior
 
 The prototype supports:
 
-- Main-thread chat via local Ollama.
-- Plant chat via local Ollama.
-- Multiple plants generating while other plants remain editable.
-- Weaving selected plants back into the main conversation.
+- Main-thread chat against the configured provider.
+- Plant chat with **per-plant model selection** — mix local Ollama and Claude (and additional providers as they land) inside a single fork tree.
+- Multiple plants generating in parallel while other plants remain editable.
+- Grafting selected plants back into the main conversation — the merge is the context edit.
 - App-owned merge routing across two routes:
 
 | Route | When it fires | What Dandelion does |
@@ -132,7 +165,7 @@ Plant A        Plant B        ... Plant N
      +--------------------+----------------------+
                           |
                           v
-                 Weave selected plants
+                 Graft selected plants
                           |
                           v
                     Merge router
@@ -167,7 +200,7 @@ prototype.html
   |      v
   |   /api/chat
   |
-  |-- Weave selected plants
+  |-- Graft selected plants
          |
          v
       Merge router
@@ -237,16 +270,29 @@ full scenario set:
 node scripts/classify-experiment.mjs
 ```
 
+## TODO
+
+Features that make the context-modulation thesis load-bearing:
+
+- **Context inspector panel.** Render the main thread's current context as a list of admitted segments, each tagged with origin (root, or merged-from-plant-N). The user should always be able to see what is and isn't in their context.
+- **Un-merge / context revision.** Reversible merges — pull a previously-grafted plant back out of the trunk.
+- **Diff between context states.** Show what changed in the context before vs. after a merge, so the modulation is legible.
+- **Save and replay context shapes.** A sculpted trunk at a given point is a reusable artifact — fork from it later, or use it as a starting context for a new question.
+- **Sibling vs. child plant gestures.** "Ask the same root differently" and "go deeper on this branch" are different modulation moves; the UI should distinguish them.
+- **More provider adapters** (OpenAI, Google) for per-plant model selection.
+
 ## Project Direction
+
+Dandelion is targeting one niche and doing it well: **a context editor for AI conversations**, for users who care enough about what their model is reasoning over to shape it deliberately. Not a chat app. Not a multi-agent orchestrator. Not a model aggregator.
 
 The intended production stack remains:
 
 - Electron + React for the desktop shell
-- SQLite for local persistence
-- BYO model providers: Anthropic, OpenAI, Google, and Ollama
+- SQLite for local persistence of fork trees and context states
+- BYO model providers: Anthropic, OpenAI, Google, and Ollama — selectable per plant
 - Local-first, no hosted backend
 
-The current prototype deliberately avoids Electron and persistence so the interaction can be validated first.
+The current prototype deliberately avoids Electron and persistence so the core interaction — fork, modulate, merge — can be validated first.
 
 ## Brand
 

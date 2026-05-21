@@ -10,7 +10,7 @@ Open `brand_kit.html` in a browser for the visual showcase. This file is the wri
 
 **Dandelion** is the canonical mark, and the project takes its name from it: a DAG (three fork sources converging to a diamond merge node), rotated 35° clockwise from vertical. The rotation gives it a windborne-seed-head reading — three seeds drifting on stems toward a heavier core — and structurally breaks the upright-trident silhouette that would otherwise rhyme with the USB icon.
 
-In Dandelion's vocabulary, each side branch the user spins up is a **plant** — a question that's been seeded off the main thread and is growing its own response. Weaving brings selected plants back into the main conversation.
+In Dandelion's vocabulary, each side branch the user spins up is a **plant** — a question that's been seeded off the main thread and is growing its own response. **Grafting** brings selected plants back into the main conversation: the user picks which plants take and become part of the trunk's context.
 
 Why the diamond: it visually distinguishes the *merge primitive* from the fork sources. Sources are circles (regular nodes); the merge is a different geometric primitive. That's the visual move that makes the mark mean *what Dandelion is* — fork *and* merge — rather than just "DAG."
 

@@ -1,0 +1,174 @@
+  /* ============ MESSAGES (main column) ============ */
+  .msg { margin: 18px 0; display: flex; flex-direction: column; }
+  .msg-user { align-items: flex-end; }
+  .msg-user .bubble {
+    background: var(--user-bg);
+    padding: 10px 14px;
+    border-radius: 16px 16px 4px 16px;
+    max-width: 80%;
+    font-size: 14px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .msg-assistant { align-items: flex-start; position: relative; }
+  .msg-branch-btn {
+    position: absolute; top: 0; right: 0;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.15s;
+    display: inline-flex; align-items: center; gap: 4px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 6px;
+    padding: 3px 9px;
+    font-size: 11px; font-family: inherit;
+    color: var(--muted); cursor: pointer;
+    white-space: nowrap;
+  }
+  .msg-assistant:hover .msg-branch-btn { opacity: 1; pointer-events: auto; }
+  .msg-branch-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+  .msg-assistant .body {
+    font-size: 14.5px;
+    line-height: 1.65;
+    color: var(--text);
+    max-width: 100%;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .msg-assistant .body .cursor,
+  .plant-message .cursor {
+    display: inline-block;
+    width: 6px; height: 13px;
+    background: var(--accent);
+    vertical-align: -2px;
+    margin-left: 2px;
+    animation: blink 1s steps(2, start) infinite;
+  }
+  @keyframes blink { to { visibility: hidden; } }
+  .msg-meta {
+    font-size: 11px;
+    color: var(--muted);
+    margin: 2px 4px;
+    letter-spacing: 0.02em;
+  }
+
+  /* ============ GRAFT MARKER (in main column after grafting) ============ */
+  /* ============ GRAFT MARKER — floating seeds ============ */
+  /* ============ GRAFT MARKER — dandelion seeds (floats in right margin) ============ */
+  .graft-marker {
+    position: relative;
+    height: 0;
+    margin: 0;
+    overflow: visible;
+  }
+  .graft-marker-label {
+    position: absolute;
+    right: 6px;
+    top: 4px;
+    font-size: 10.5px; color: var(--muted);
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(244, 239, 230, 0.7);
+    backdrop-filter: blur(4px);
+    padding: 2px 8px;
+    border-radius: 999px;
+    z-index: 3;
+    pointer-events: none;
+  }
+  .graft-route-badge {
+    font-size: 10px; color: var(--graft-text);
+    background: var(--accent-soft);
+    border: 1px solid rgba(138,79,34,0.2);
+    border-radius: 999px; padding: 1px 7px;
+  }
+  .graft-route-badge-pending {
+    opacity: 0.65;
+    font-style: italic;
+    animation: graft-route-badge-pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes graft-route-badge-pulse {
+    0%, 100% { opacity: 0.45; }
+    50%      { opacity: 0.85; }
+  }
+  .graft-dandelion {
+    position: absolute;
+    right: -210px;   /* sit in the right gutter outside main content */
+    top: -90px;
+    display: block;
+    overflow: visible;
+    z-index: 2;
+    pointer-events: none;
+  }
+  /* when the seed tray is open the gutter disappears, so float at the inside-right edge instead */
+  body.has-plants .graft-dandelion {
+    right: 4px;
+  }
+  .graft-dandelion .dan-seed { pointer-events: auto; }
+  @keyframes seedFloat {
+    0%   { transform: translate(0, 0); }
+    50%  { transform: translate(2px, -3px); }
+    100% { transform: translate(4px, -7px); }
+  }
+  .dan-seed {
+    cursor: pointer;
+    animation: seedFloat 3s ease-in-out infinite alternate;
+  }
+  .dan-seed:nth-child(2) { animation-duration: 2.9s; animation-delay: 0s;   }
+  .dan-seed:nth-child(3) { animation-duration: 3.5s; animation-delay: 0.7s; }
+  .dan-seed:nth-child(4) { animation-duration: 2.7s; animation-delay: 1.3s; }
+  .dan-seed:nth-child(5) { animation-duration: 3.2s; animation-delay: 0.4s; }
+  .dan-puff { transition: fill 0.15s; }
+  .dan-seed:hover .dan-puff  { fill: var(--accent-soft); }
+  .dan-seed:hover .dan-label { fill: var(--accent); }
+  .dan-seed:hover .dan-stem  { stroke: var(--accent); opacity: 1; }
+  .conflict-choice {
+    margin: 18px 0;
+    border: 1px solid var(--graft-border);
+    background: var(--surface);
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .conflict-choice-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .conflict-choice-body {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.55;
+    margin-bottom: 12px;
+  }
+  .conflict-choice-options {
+    display: grid;
+    gap: 8px;
+  }
+  .conflict-choice-options button {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    text-align: left;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 7px;
+    padding: 9px 10px;
+    cursor: pointer;
+    font-size: 13px;
+    white-space: normal !important;
+    overflow: visible;
+    text-overflow: clip;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+  .conflict-choice-options button:hover {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .conflict-choice-options button[disabled] {
+    cursor: default;
+    color: var(--muted);
+    background: var(--surface-soft);
+    border-color: var(--border);
+  }
+

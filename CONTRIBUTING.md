@@ -7,26 +7,31 @@ The best contributions are small, testable improvements to the core loop:
 ```text
 main thread
   -> plants
-  -> weave
+  -> graft
   -> merge router
   -> continue or ask the user to choose
 ```
 
 ## Run Locally
 
-Install and start Ollama, then pull the default test model:
+Two ways to point Dandelion at a model.
+
+**Local Ollama (default):**
 
 ```sh
 ollama pull qwen2.5:3b
-```
-
-Run the prototype:
-
-```sh
 node scripts/router-prototype-server.mjs
 ```
 
-Open:
+**Anthropic Claude:**
+
+```sh
+export DANDELION_PROVIDER=anthropic
+export ANTHROPIC_API_KEY=sk-ant-...
+node scripts/router-prototype-server.mjs
+```
+
+Then open:
 
 ```text
 http://localhost:4321

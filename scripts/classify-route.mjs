@@ -1,19 +1,19 @@
 // Model-based merge-route classifier.
 //
 // Replacement candidate for the keyword regex in scripts/merge-router.mjs.
-// Takes the same woven-plant input shape used by the prototype and the
-// existing classifyWovenPlants. Returns the same { kind, summary, choices }
+// Takes the same grafted-plant input shape used by the prototype and the
+// existing classifyGraftedPlants. Returns the same { kind, summary, choices }
 // shape so the live app can swap in without other changes.
 //
-// Calls Ollama by default (model: qwen2.5:3b). Falls back to additional_context
-// if the model output cannot be parsed — never throws into the UI.
+// Routes through scripts/providers.mjs, so DANDELION_PROVIDER=anthropic works
+// the same way as the default Ollama path. Falls back to additional_context if
+// the model output cannot be parsed — never throws into the UI.
 
-const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL ?? "http://localhost:11434/v1";
-const DEFAULT_MODEL = process.env.OLLAMA_MODEL ?? "qwen2.5:3b";
+import { chat } from "./providers.mjs";
 
 const SYSTEM_PROMPT = `You are Dandelion's merge-route classifier.
 
-The user is weaving several plants back into a main conversation. You must decide which of two routes applies:
+The user is grafting several plants back into a main conversation. You must decide which of two routes applies:
 
 1. "additional_context" — the plants add compatible information. They cover different facets of the same topic, or expand the picture without disagreeing on direction. The main thread can continue naturally with all of them in context.
 
@@ -27,6 +27,8 @@ Output strictly a single JSON object with this shape and nothing else:
 }
 
 The "choices" array MUST be present for material_conflict (exactly two options) and MUST be an empty array [] for additional_context.
+
+Each choice must be a complete imperative phrase under 60 characters. Do NOT truncate with "..." — rephrase to fit. Examples of good choices: "Ship multi-provider support from day one.", "Start with one provider, expand later."
 
 Do not include any prose outside the JSON. Do not wrap in markdown code fences.`;
 
@@ -52,20 +54,20 @@ function plantToPromptBlock(plant, i) {
   return `### ${title}\n${body}`;
 }
 
-function buildUserPrompt(wovenPlants) {
-  const blocks = wovenPlants.map(plantToPromptBlock).join("\n\n");
-  return `Classify the following ${wovenPlants.length} plant${wovenPlants.length === 1 ? "" : "s"}:\n\n${blocks}\n\nReturn only the JSON object.`;
+function buildUserPrompt(graftedPlants) {
+  const blocks = graftedPlants.map(plantToPromptBlock).join("\n\n");
+  return `Classify the following ${graftedPlants.length} plant${graftedPlants.length === 1 ? "" : "s"}:\n\n${blocks}\n\nReturn only the JSON object.`;
 }
 
 // Synthesize "follow plant N" choices when the model returned a valid kind
 // but failed to produce two clean choice strings. Better than dropping the
 // classification — the user still gets a choice prompt, just with generic
 // labels they can interpret from the plant content.
-function synthesizeChoices(wovenPlants) {
-  return (wovenPlants || []).slice(0, 2).map((p, i) => `Proceed with ${p.title || `plant ${i + 1}`}.`);
+function synthesizeChoices(graftedPlants) {
+  return (graftedPlants || []).slice(0, 2).map((p, i) => `Proceed with ${p.title || `plant ${i + 1}`}.`);
 }
 
-function safeParseRoute(raw, wovenPlants) {
+function safeParseRoute(raw, graftedPlants) {
   if (!raw || typeof raw !== "string") return null;
   // Strip code fences and surrounding prose if any
   const fenced = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
@@ -90,7 +92,7 @@ function safeParseRoute(raw, wovenPlants) {
     : [];
   if (kind === "material_conflict") {
     // Trust the kind even if choices are malformed — synthesize from plant titles.
-    if (choices.length < 2) choices = synthesizeChoices(wovenPlants);
+    if (choices.length < 2) choices = synthesizeChoices(graftedPlants);
     choices = choices.slice(0, 2);
   } else {
     choices = [];
@@ -112,49 +114,28 @@ function fallbackRoute() {
 }
 
 /**
- * Call the model with the structured classifier prompt.
- */
-async function callModel({ model, baseUrl, temperature, system, user }) {
-  const response = await fetch(`${baseUrl}/chat/completions`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: "Bearer ollama" },
-    body: JSON.stringify({
-      model,
-      messages: [
-        { role: "system", content: system },
-        { role: "user", content: user },
-      ],
-      temperature,
-      stream: false,
-    }),
-  });
-  if (!response.ok) {
-    const body = await response.text();
-    throw new Error(`Ollama request failed: ${response.status} ${response.statusText}\n${body}`);
-  }
-  const json = await response.json();
-  return json.choices?.[0]?.message?.content?.trim() ?? "";
-}
-
-/**
- * Classify woven plants using the model.
- * Returns { kind, summary, choices } — same shape as classifyWovenPlants.
+ * Classify grafted plants using the model.
+ * Returns { kind, summary, choices } — same shape as classifyGraftedPlants.
  *
- * @param {Plant[]} wovenPlants
- * @param {{ model?: string, baseUrl?: string, temperature?: number }} opts
+ * @param {Plant[]} graftedPlants
+ * @param {{ model?: string, temperature?: number }} opts
  */
-export async function classifyRouteWithModel(wovenPlants, opts = {}) {
-  const model = opts.model ?? DEFAULT_MODEL;
-  const baseUrl = opts.baseUrl ?? OLLAMA_BASE_URL;
+export async function classifyRouteWithModel(graftedPlants, opts = {}) {
   const temperature = opts.temperature ?? 0.1;
-  const userPrompt = buildUserPrompt(wovenPlants || []);
+  const userPrompt = buildUserPrompt(graftedPlants || []);
   let raw;
   try {
-    raw = await callModel({ model, baseUrl, temperature, system: SYSTEM_PROMPT, user: userPrompt });
+    raw = await chat(
+      [
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "user", content: userPrompt },
+      ],
+      { temperature, model: opts.model },
+    );
   } catch (err) {
     return { ...fallbackRoute(), error: String(err.message || err) };
   }
-  const parsed = safeParseRoute(raw, wovenPlants);
+  const parsed = safeParseRoute(raw, graftedPlants);
   if (!parsed) return { ...fallbackRoute(), error: "unparseable_model_output", raw };
   return parsed;
 }

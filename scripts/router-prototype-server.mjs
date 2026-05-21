@@ -6,8 +6,10 @@
 //   GET  /api/scenarios   list curated scenarios for the router-only demo
 //   POST /api/run         run a curated scenario end-to-end (deprecated UI path)
 //   POST /api/chat        proxy a single message to the local Ollama model
+//   POST /api/classify-route  classify a set of grafted plants into a merge route
+//                             using the model-based classifier
 //   POST /api/continue    called by the prototype after an additional_context
-//                         weave — builds a continuation prompt from the woven
+//                         graft — builds a continuation prompt from the grafted
 //                         plants and main conversation
 //
 // All scenarios live in scripts/harness/scenarios.mjs (single source of truth
@@ -24,11 +26,13 @@ import {
   buildDynamicContinuationPrompt,
   renderConflict,
 } from './server/prompts.mjs';
+import { chat, activeModel, activeProvider, listModels } from './providers.mjs';
+import { classifyRouteWithModel } from './classify-route.mjs';
 
 const PORT = Number(process.env.PORT ?? 4321);
 const ROOT = process.cwd();
-const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL ?? 'http://localhost:11434/v1';
-const MODEL = process.env.OLLAMA_MODEL ?? 'qwen2.5:3b';
+const MODEL = activeModel();
+const PROVIDER = activeProvider();
 
 // Curated scenarios for the router-only UI. Filtered subset of the harness
 // scenarios that have pre-baked transcripts and a declared route.
@@ -38,19 +42,6 @@ const curatedScenarios = Object.fromEntries(
 );
 
 // ────────────────────────────── helpers ──────────────────────────────
-
-async function chat(messages) {
-  const response = await fetch(`${OLLAMA_BASE_URL}/chat/completions`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ollama' },
-    body: JSON.stringify({ model: MODEL, messages, temperature: 0.35, stream: false }),
-  });
-  if (!response.ok) {
-    throw new Error(`Ollama request failed: ${response.status} ${await response.text()}`);
-  }
-  const json = await response.json();
-  return json.choices?.[0]?.message?.content?.trim() ?? '';
-}
 
 function jsonResponse(body, status = 200) {
   return {
@@ -95,6 +86,21 @@ function publicScenario(scenario) {
 
 // ────────────────────────────── route handlers ──────────────────────────────
 
+function pickModel(payload) {
+  return {
+    provider: payload?.provider,
+    model: payload?.model,
+  };
+}
+
+function reportedModel(payload) {
+  return payload?.model || activeModel();
+}
+
+function reportedProvider(payload) {
+  return payload?.provider || activeProvider();
+}
+
 async function runChat(payload) {
   const messages = [
     {
@@ -106,8 +112,8 @@ async function runChat(payload) {
     ...(payload.context ? [{ role: 'user', content: `Shared context:\n${payload.context}` }] : []),
     { role: 'user', content: payload.prompt || '' },
   ];
-  const answer = await chat(messages);
-  return jsonResponse({ answer, model: MODEL });
+  const answer = await chat(messages, pickModel(payload));
+  return jsonResponse({ answer, model: reportedModel(payload), provider: reportedProvider(payload) });
 }
 
 async function runScenario(id) {
@@ -145,6 +151,16 @@ async function runScenario(id) {
   });
 }
 
+async function runClassifyRoute(payload) {
+  const plants = Array.isArray(payload?.plants) ? payload.plants : [];
+  const route = await classifyRouteWithModel(plants, pickModel(payload));
+  return jsonResponse({
+    route,
+    model: reportedModel(payload),
+    provider: reportedProvider(payload),
+  });
+}
+
 async function runContinue(payload) {
   const prompt = buildDynamicContinuationPrompt(payload);
   const answer = await chat([
@@ -158,8 +174,8 @@ async function runContinue(payload) {
       ].join('\n'),
     },
     { role: 'user', content: prompt },
-  ]);
-  return jsonResponse({ answer, model: MODEL });
+  ], pickModel(payload));
+  return jsonResponse({ answer, model: reportedModel(payload), provider: reportedProvider(payload) });
 }
 
 // ────────────────────────────── HTTP server ──────────────────────────────
@@ -167,6 +183,17 @@ async function runContinue(payload) {
 const server = createServer(async (request, response) => {
   try {
     const url = new URL(request.url ?? '/', `http://${request.headers.host}`);
+
+    if (request.method === 'GET' && url.pathname === '/api/models') {
+      const models = await listModels();
+      const result = jsonResponse({
+        default: { provider: activeProvider(), model: activeModel() },
+        models,
+      });
+      response.writeHead(result.status, result.headers);
+      response.end(result.body);
+      return;
+    }
 
     if (request.method === 'GET' && url.pathname === '/api/scenarios') {
       const items = Object.entries(curatedScenarios).map(([id, scenario]) => ({
@@ -196,6 +223,14 @@ const server = createServer(async (request, response) => {
       return;
     }
 
+    if (request.method === 'POST' && url.pathname === '/api/classify-route') {
+      const payload = await readJson(request);
+      const result = await runClassifyRoute(payload);
+      response.writeHead(result.status, result.headers);
+      response.end(result.body);
+      return;
+    }
+
     if (request.method === 'POST' && url.pathname === '/api/continue') {
       const payload = await readJson(request);
       const result = await runContinue(payload);
@@ -204,11 +239,25 @@ const server = createServer(async (request, response) => {
       return;
     }
 
-    // Static file fallback
-    const pathname = url.pathname === '/' ? '/prototype.html' : url.pathname;
+    // Static file fallback. Friendly aliases:
+    //   /                  → prototype.html
+    //   /router-demo       → prototype/router-demo/index.html
+    //   /prototype-router.html (legacy)
+    let pathname = url.pathname;
+    if (pathname === '/') pathname = '/prototype.html';
+    else if (pathname === '/router-demo' || pathname === '/router-demo/') {
+      pathname = '/prototype/router-demo/index.html';
+    } else if (pathname === '/prototype-router.html') {
+      pathname = '/prototype/router-demo/index.html';
+    }
     const filePath = join(ROOT, pathname.slice(1));
     const body = await readFile(filePath);
-    response.writeHead(200, { 'Content-Type': contentType(pathname) });
+    response.writeHead(200, {
+      'Content-Type': contentType(pathname),
+      // Dev server: never let the browser cache static assets, so CSS / JS
+      // edits show up on a plain reload without a hard refresh dance.
+      'Cache-Control': 'no-store, must-revalidate',
+    });
     response.end(body);
   } catch (error) {
     const result = jsonResponse({ error: error.message }, 500);
@@ -219,6 +268,6 @@ const server = createServer(async (request, response) => {
 
 server.listen(PORT, () => {
   console.log(`Dandelion router prototype: http://localhost:${PORT}`);
-  console.log(`Router-only prototype:     http://localhost:${PORT}/prototype-router.html`);
-  console.log(`Ollama model: ${MODEL}`);
+  console.log(`Router-only prototype:     http://localhost:${PORT}/router-demo`);
+  console.log(`Provider: ${PROVIDER}    Model: ${MODEL}`);
 });

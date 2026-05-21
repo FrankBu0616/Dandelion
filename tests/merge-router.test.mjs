@@ -4,12 +4,12 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
-import { classifyWovenPlants, routeLabel } from "../scripts/merge-router.mjs";
+import { classifyGraftedPlants, routeLabel } from "../scripts/merge-router.mjs";
 
 const plant = (text) => ({ title: "t", turns: [{ user: "", asst: text }] });
 
 test("material_conflict when multi-provider and single-provider stances both appear", () => {
-  const route = classifyWovenPlants([
+  const route = classifyGraftedPlants([
     plant("We should ship multi-provider support from day one across OpenAI, Anthropic, and Gemini."),
     plant("Pick one provider, claude only, add others later once prompts are tuned."),
   ]);
@@ -18,7 +18,7 @@ test("material_conflict when multi-provider and single-provider stances both app
 });
 
 test("additional_context for compatible plants", () => {
-  const route = classifyWovenPlants([
+  const route = classifyGraftedPlants([
     plant("The data model is sessions, threads, and a merge record."),
     plant("Transcript boundaries matter so the merge prompt can distinguish parent context."),
   ]);
@@ -26,12 +26,12 @@ test("additional_context for compatible plants", () => {
 });
 
 test("handles empty input without throwing", () => {
-  const route = classifyWovenPlants([]);
+  const route = classifyGraftedPlants([]);
   assert.equal(route.kind, "additional_context");
 });
 
 test("handles missing turns/fields defensively", () => {
-  const route = classifyWovenPlants([{ title: "no turns" }, { turns: [{}] }]);
+  const route = classifyGraftedPlants([{ title: "no turns" }, { turns: [{}] }]);
   assert.equal(route.kind, "additional_context");
 });
 

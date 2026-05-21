@@ -5,7 +5,7 @@ Current prototype:
 ```text
 prototype.html
   -> /api/chat       ordinary main/plant messages
-  -> /api/continue   post-weave continuation
+  -> /api/continue   post-graft continuation
 
 scripts/router-prototype-server.mjs
   -> Ollama qwen2.5:3b
@@ -15,7 +15,7 @@ The browser owns the interaction state:
 
 - main thread
 - plants
-- weave action
+- graft action
 - merge-route decision
 - conflict-choice UI
 

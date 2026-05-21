@@ -54,7 +54,7 @@ export function createGraph() {
     },
 
     /**
-     * Add a merge node. parents = last chat node of each woven plant.
+     * Add a merge node. parents = last chat node of each grafted plant.
      * Becomes the new main-thread leaf.
      */
     addMerge({ id, parents, route }) {
@@ -63,6 +63,12 @@ export function createGraph() {
       for (const p of parents) state.edges.push({ from: p, to: id, kind: "merged-into" });
       state.mainLeafId = id;
       return node;
+    },
+
+    /** Update the route classification on an existing merge node. */
+    setRoute(id, route) {
+      const n = state.nodes.get(id);
+      if (n && n.kind === "merge") n.route = route;
     },
 
     /** Update a streaming response after it finishes. */
@@ -79,7 +85,7 @@ export function createGraph() {
 
     /**
      * Return the id of the most recent chat node attached to a plant.
-     * Used to find merge-parents (the tip of each woven plant).
+     * Used to find merge-parents (the tip of each grafted plant).
      */
     plantTip(plantId) {
       let tip = plantId;

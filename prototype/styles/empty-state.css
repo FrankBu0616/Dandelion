@@ -1,0 +1,83 @@
+  /* ============ EMPTY STATE ============ */
+  .empty-state {
+    height: 100%;
+    min-height: 0;
+    display: grid;
+    place-items: center;
+    padding: 0 20px;
+    margin: 0 auto;
+    color: var(--muted);
+  }
+  .dandelion-idle {
+    width: min(360px, 74vw);
+    height: auto;
+    overflow: visible;
+  }
+  .idle-dandelion {
+    transform-origin: 50% 92%;
+    animation: idleSway 5.8s ease-in-out infinite;
+  }
+  .idle-stem {
+    fill: none;
+    stroke: #6F8B55;
+    stroke-width: 5;
+    stroke-linecap: round;
+  }
+  .idle-leaf {
+    fill: #89A66B;
+    opacity: 0.72;
+    transform-origin: 50% 86%;
+    animation: leafSway 5.8s ease-in-out infinite;
+  }
+  .idle-head {
+    transform-origin: 50% 31%;
+    animation: headBreathe 4.6s ease-in-out infinite;
+  }
+  .idle-seed-line {
+    stroke: rgba(92, 95, 102, 0.58);
+    stroke-width: 1.15;
+    stroke-linecap: round;
+  }
+  .idle-seed-puff {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.94);
+    stroke-width: 1.65;
+    stroke-linecap: round;
+  }
+  .idle-seed-core {
+    fill: rgba(201, 123, 78, 0.72);
+  }
+  .idle-floating-seed-anchor {
+    transform-box: fill-box;
+  }
+  .idle-floating-seed {
+    animation: floatingSeed 7.5s ease-in-out infinite;
+  }
+  .idle-floating-seed-anchor:nth-of-type(2) .idle-floating-seed { animation-delay: -1.8s; }
+  .idle-floating-seed-anchor:nth-of-type(3) .idle-floating-seed { animation-delay: -3.7s; }
+  .idle-floating-seed-anchor:nth-of-type(4) .idle-floating-seed { animation-delay: -5.1s; }
+  @keyframes idleSway {
+    0%, 100% { transform: rotate(-1.2deg) translateX(-2px); }
+    50% { transform: rotate(1.6deg) translateX(2px); }
+  }
+  @keyframes leafSway {
+    0%, 100% { transform: rotate(1deg); }
+    50% { transform: rotate(-2deg); }
+  }
+  @keyframes headBreathe {
+    0%, 100% { transform: scale(0.985); opacity: 0.96; }
+    50% { transform: scale(1.018); opacity: 1; }
+  }
+  @keyframes floatingSeed {
+    0%, 100% { transform: translate(0, 0) rotate(-4deg); opacity: 0.46; }
+    50% { transform: translate(12px, -12px) rotate(5deg); opacity: 0.82; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .idle-dandelion,
+    .idle-leaf,
+    .idle-head,
+    .idle-floating-seed {
+      animation: none;
+    }
+  }
+

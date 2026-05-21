@@ -5,7 +5,7 @@ Dandelion is a local-first interface for parallel LLM exploration.
 Core loop:
 
 ```text
-main question -> plants -> weave -> continue or choose a path
+main question -> plants -> graft -> continue or choose a path
 ```
 
 The product bet is that heavy LLM users often want multiple investigations running at once, but they also need a clean way to bring useful side work back into the main thread.
@@ -14,7 +14,7 @@ The product bet is that heavy LLM users often want multiple investigations runni
 
 - Main thread
 - Plant drawer
-- Weave selected plants
+- Graft selected plants
 - Conflict-choice UI
 - Local model/provider support
 - Local persistence later
