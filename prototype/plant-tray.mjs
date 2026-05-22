@@ -18,6 +18,14 @@
 //   tray.render();
 
 import { escapeHtml } from "./escape.mjs";
+import { renderMarkdown } from "./markdown.mjs";
+
+function renderAssistantBody(text, streaming) {
+  if (streaming) {
+    return `<div class="body-streaming">${escapeHtml(text || "")}<span class="cursor"></span></div>`;
+  }
+  return renderMarkdown(text);
+}
 import { autoSizeTextarea } from "./dom-utils.mjs";
 
 export function createPlantTray({ dom, state, callbacks }) {
@@ -42,8 +50,8 @@ export function createPlantTray({ dom, state, callbacks }) {
           html += `<div class="plant-message user"><div class="bubble">${escapeHtml(turn.user)}</div></div>`;
         }
         if (turn.asst !== undefined) {
-          const cursor = turn.status === "streaming" ? '<span class="cursor"></span>' : "";
-          html += `<div class="plant-message assistant"><div class="body" data-plant-turn="${turn.id || ""}">${escapeHtml(turn.asst)}${cursor}</div></div>`;
+          const body = renderAssistantBody(turn.asst, turn.status === "streaming");
+          html += `<div class="plant-message assistant"><div class="body" data-plant-turn="${turn.id || ""}">${body}</div></div>`;
         }
         return html;
       })
@@ -140,11 +148,27 @@ export function createPlantTray({ dom, state, callbacks }) {
         const preview = seedPreview(st);
         const disableMergeChk = st.status === "running" || st.turns.length === 0;
         const canGraft = st.status === "idle" && st.turns.length > 0;
+        const models = state.availableModels || [];
+        const currentModelId = st.model?.id || "";
+        const modelOptions = models
+          .map(
+            (m) =>
+              `<option value="${escapeHtml(m.id)}" ${m.id === currentModelId ? "selected" : ""}>${escapeHtml(m.label)}</option>`
+          )
+          .join("");
+        const modelKind = st.model?.kind === "local" ? "local" : "cloud";
+        const modelSelect = models.length
+          ? `<label class="seed-model" data-plant-model-wrap="${st.id}" title="Model for this seed">` +
+            `<span class="seed-model-dot ${modelKind}"></span>` +
+            `<select data-plant-model="${st.id}" ${st.status === "running" ? "disabled" : ""}>${modelOptions}</select>` +
+            `</label>`
+          : "";
         seed.innerHTML =
           `<span class="seed-status-dot"></span>` +
           `<div class="seed-main">` +
           `<div class="seed-title">${escapeHtml(title)}</div>` +
           `<div class="seed-preview">${escapeHtml(preview)}</div>` +
+          modelSelect +
           `</div>` +
           `<button class="seed-graft-btn" data-seed-graft="${st.id}" ${canGraft ? "" : "hidden"}>Graft</button>` +
           `<label class="seed-check" title="Include in graft">` +
@@ -158,9 +182,18 @@ export function createPlantTray({ dom, state, callbacks }) {
           // event can fire and st.selected never updates. So skip when the
           // click originates from the checkbox area.
           if (e.target.closest(".seed-check")) return;
+          if (e.target.closest(".seed-model")) return;
           state.activePlantId = st.id;
           render();
         });
+        const modelSel = seed.querySelector(`select[data-plant-model="${st.id}"]`);
+        modelSel?.addEventListener("change", (e) => {
+          e.stopPropagation();
+          const picked = (state.availableModels || []).find((m) => m.id === e.target.value);
+          if (picked) st.model = picked;
+          render();
+        });
+        modelSel?.addEventListener("click", (e) => e.stopPropagation());
         const chk = seed.querySelector(`input[data-plant-merge="${st.id}"]`);
         chk.addEventListener("change", (e) => {
           st.selected = e.target.checked;
@@ -242,7 +275,7 @@ export function createPlantTray({ dom, state, callbacks }) {
   function patchTurn(plantId, turnId, text, streaming) {
     const turnBody = document.querySelector(`[data-plant-turn="${turnId}"]`);
     if (!turnBody) return;
-    turnBody.innerHTML = escapeHtml(text) + (streaming ? '<span class="cursor"></span>' : "");
+    turnBody.innerHTML = renderAssistantBody(text, streaming);
     const msgs = document.querySelector(`[data-plant-msgs="${plantId}"]`);
     if (msgs) msgs.scrollTop = msgs.scrollHeight;
   }

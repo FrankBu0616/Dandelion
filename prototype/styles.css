@@ -4,6 +4,8 @@
 
 @import url("styles/base.css");
 @import url("styles/header.css");
+@import url("styles/context-inspector.css");
+@import url("styles/sessions-sidebar.css");
 @import url("styles/workspace.css");
 @import url("styles/main-thread.css");
 @import url("styles/composer.css");

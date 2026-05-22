@@ -1,0 +1,347 @@
+  /* ============ CONTEXT INSPECTOR ============ */
+  /* Permanent right-edge drawer tab. Always visible — Context is a
+     first-class surface, not an action you have to discover in the top
+     bar. The tab is glued to the drawer's left edge: when the drawer
+     opens (translateX(0)) the tab follows via the same .open-driven
+     transform so the user always sees one continuous handle. */
+  .context-drawer-tab {
+    position: fixed;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    z-index: 51;            /* above the drawer so it can sit on its edge */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 18px 8px;
+    min-height: 130px;
+    border: 1px solid var(--accent);
+    border-right: 0;
+    border-radius: 12px 0 0 12px;
+    background: var(--accent);
+    color: #fff;
+    box-shadow: -6px 0 18px rgba(15, 15, 18, 0.12);
+    cursor: pointer;
+    font: inherit;
+    transition:
+      transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+      background 0.15s,
+      box-shadow 0.15s;
+  }
+  /* When the drawer is open, slide the tab leftward by the drawer width
+     so it stays glued to the drawer's outer edge. Width formula matches
+     the .context-inspector width below. */
+  .context-drawer-tab.active {
+    transform: translateY(-50%) translateX(calc(-1 * min(410px, 100vw - 28px)));
+    background: var(--graft-text);
+  }
+  .context-drawer-tab:hover { background: var(--accent-hover, var(--graft-text)); }
+  .context-drawer-tab-label {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    letter-spacing: 0.14em;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .context-drawer-tab-count {
+    background: rgba(255, 255, 255, 0.22);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 999px;
+    padding: 2px 7px;
+    font-size: 11px;
+    font-weight: 700;
+    min-width: 22px;
+    text-align: center;
+  }
+  .context-drawer-tab-count[hidden] { display: none; }
+  /* Pulse — fires when new context lands while the drawer is closed.
+     Box-shadow only (no `transform`) because the drawer tab uses transform
+     for both its centering (translateY) and its open-state slide
+     (translateX). Touching transform here would fight those. */
+  @keyframes context-pill-pulse {
+    0%   { box-shadow: -6px 0 18px rgba(15, 15, 18, 0.12), 0 0 0 0  rgba(201, 123, 78, 0.55); }
+    35%  { box-shadow: -6px 0 18px rgba(15, 15, 18, 0.12), 0 0 0 12px rgba(201, 123, 78, 0); }
+    100% { box-shadow: -6px 0 18px rgba(15, 15, 18, 0.12), 0 0 0 0   rgba(201, 123, 78, 0); }
+  }
+  .context-drawer-tab.is-pulsing {
+    animation: context-pill-pulse 1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .context-inspector {
+    position: fixed;
+    top: 52px;
+    right: 0;
+    bottom: 0;
+    width: min(410px, calc(100vw - 28px));
+    background: #F8F3EA;
+    border-left: 1px solid var(--border-strong);
+    box-shadow: -18px 0 44px rgba(15, 15, 18, 0.11);
+    z-index: 50;
+    transform: translateX(100%);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+  }
+  .context-inspector.open {
+    transform: translateX(0);
+  }
+  .context-inspector-header {
+    flex: 0 0 auto;
+    padding: 18px 18px 14px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: start;
+    border-bottom: 1px solid rgba(15, 15, 18, 0.08);
+  }
+  .context-inspector-title {
+    font-size: 16px;
+    font-weight: 650;
+    color: var(--text);
+  }
+  .context-inspector-count {
+    margin-top: 2px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .context-close-btn {
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--muted);
+  }
+  .context-close-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .context-ledger {
+    position: relative;
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 22px 18px 28px;
+  }
+  .context-ledger::before {
+    content: "";
+    position: absolute;
+    top: 24px;
+    bottom: 32px;
+    left: 32px;
+    width: 1px;
+    background: linear-gradient(to bottom, rgba(201, 123, 78, 0.12), rgba(201, 123, 78, 0.42), rgba(201, 123, 78, 0.08));
+  }
+  .context-item {
+    position: relative;
+    display: grid;
+    grid-template-columns: 30px minmax(0, 1fr);
+    gap: 12px;
+    padding: 0 0 20px;
+  }
+  .context-item[data-context-plant] {
+    cursor: pointer;
+  }
+  .context-glyph {
+    position: relative;
+    z-index: 1;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--bg);
+    border: 1px solid rgba(201, 123, 78, 0.34);
+    color: var(--graft-text);
+    font-size: 12px;
+    font-weight: 650;
+  }
+  .context-item.root .context-glyph::after {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .context-item.trunk .context-glyph::after {
+    content: "";
+    width: 4px;
+    height: 16px;
+    border-radius: 999px;
+    background: rgba(201, 123, 78, 0.55);
+  }
+  .context-item.seed .context-glyph {
+    border-radius: 10px 10px 10px 3px;
+    background: #FFF8EF;
+  }
+  .context-item.seed .context-glyph::after {
+    content: "";
+    width: 11px;
+    height: 11px;
+    border-radius: 50% 50% 50% 12%;
+    border: 1.5px solid var(--accent);
+    transform: rotate(-24deg);
+    background: var(--accent-soft);
+  }
+  .context-item.choice .context-glyph {
+    width: 24px;
+    height: 24px;
+    margin: 3px;
+    border-radius: 6px;
+    transform: rotate(45deg);
+    background: var(--accent-soft);
+  }
+  .context-item.choice .context-glyph {
+    color: transparent;
+  }
+  .context-item.conflict .context-glyph {
+    border-color: rgba(138, 79, 34, 0.48);
+    background: var(--graft-bg);
+  }
+  /* System prompt — always at the top of the ledger. Muted, scaffold-y. */
+  .context-item.system .context-glyph {
+    border-style: dashed;
+    border-color: rgba(138, 79, 34, 0.32);
+    background: transparent;
+  }
+  .context-item.system .context-glyph::after {
+    content: "";
+    width: 14px;
+    height: 2px;
+    border-radius: 2px;
+    background: rgba(138, 79, 34, 0.55);
+    box-shadow: 0 4px 0 0 rgba(138, 79, 34, 0.32), 0 -4px 0 0 rgba(138, 79, 34, 0.32);
+  }
+  /* Attachments — paperclip-y stacked-rect glyph. */
+  .context-item.attachment .context-glyph {
+    background: #FFF8EF;
+    border-color: rgba(201, 123, 78, 0.4);
+  }
+  .context-item.attachment .context-glyph::after {
+    content: "";
+    width: 12px;
+    height: 14px;
+    border: 1.5px solid var(--accent);
+    border-radius: 2px;
+    background: var(--accent-soft);
+    box-shadow: 3px -3px 0 -1.5px var(--bg), 3px -3px 0 0 var(--accent);
+  }
+  /* Mute × button — top-right of any mutable segment. Compact, unobtrusive
+     by default; shows on hover/focus of the segment. */
+  .context-item {
+    /* Reserve room on the right for the × so titles don't crowd it. */
+    grid-template-columns: 30px minmax(0, 1fr) auto;
+  }
+  .ctx-mute-btn {
+    align-self: start;
+    margin-top: 2px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.15s, color 0.15s, border-color 0.15s, background 0.15s;
+  }
+  .ctx-mute-btn svg { display: block; }
+  .ctx-mute-btn[aria-pressed="true"] {
+    color: var(--graft-text);
+    border-color: rgba(138, 79, 34, 0.32);
+    background: rgba(255, 255, 255, 0.6);
+  }
+  .context-item:hover .ctx-mute-btn,
+  .context-item:focus-within .ctx-mute-btn,
+  .context-item.is-muted .ctx-mute-btn {
+    opacity: 1;
+  }
+  .ctx-mute-btn:hover {
+    color: var(--graft-text);
+    border-color: rgba(138, 79, 34, 0.4);
+    background: var(--accent-soft);
+  }
+  /* Muted segment — kept in view, faded to signal it won't reach the model. */
+  .context-item.is-muted {
+    opacity: 0.55;
+  }
+  .context-item.is-muted .context-item-title {
+    text-decoration: line-through;
+    text-decoration-color: rgba(15, 15, 18, 0.32);
+    text-decoration-thickness: 1px;
+  }
+  .context-item.is-muted .context-glyph {
+    border-style: dashed;
+  }
+  .context-copy {
+    min-width: 0;
+    padding-top: 1px;
+  }
+  .context-item-kicker {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .context-item-meta {
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--graft-text);
+    background: var(--accent-soft);
+    border-radius: 999px;
+    padding: 1px 6px;
+  }
+  .context-item-title {
+    margin-top: 4px;
+    font-size: 13.5px;
+    line-height: 1.35;
+    font-weight: 650;
+    color: var(--text);
+  }
+  .context-item-preview {
+    margin-top: 3px;
+    font-size: 12.5px;
+    line-height: 1.45;
+    color: var(--muted);
+  }
+  .context-item[data-context-plant]:hover .context-item-title {
+    color: var(--accent);
+  }
+  .context-empty {
+    min-height: calc(100vh - 150px);
+    display: grid;
+    place-items: center;
+    align-content: center;
+    text-align: center;
+    color: var(--muted);
+    padding: 24px;
+  }
+  .context-empty-mark {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 7px var(--accent-soft);
+    margin-bottom: 18px;
+  }
+  .context-empty-title {
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 650;
+  }
+  .context-empty-copy {
+    margin-top: 5px;
+    max-width: 230px;
+    font-size: 12.5px;
+    line-height: 1.5;
+  }

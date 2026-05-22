@@ -28,12 +28,68 @@ The interaction:
 
 Each plant can be routed to a different model. Use a fast local model for cheap exploration, a frontier model for the branches you want to take seriously, mix providers within the same fork tree.
 
-The merge router has two outcomes:
+The context router has two outcomes:
 
 - **Compatible context** → the main thread continues, now informed by the merged plants.
 - **Material conflict** → Dandelion shows the tension and asks which stance to follow. No forced synthesis.
 
-The important product decision: **merge routing belongs to the app, not to the model's final answer prompt.** The user, not the model, sculpts the context.
+The important product decision: **context routing belongs to the app, not to the model's final answer prompt.** The user, not the model, sculpts the context.
+
+## Why It Is Different
+
+Most adjacent tools make AI chat less linear: branches, trees, canvases, side-by-side comparisons, reusable threads, and model pickers. They preserve more possible paths.
+
+Dandelion is trying to solve a different problem:
+
+```text
+The model does not need every path.
+It needs the right working memory.
+```
+
+Dandelion is a **memory-control surface** for AI work. Plants are scratch space until the user admits them. Grafting is a context transaction. The trunk is not just the visible main chat; it is the set of things the next model call is allowed to inherit.
+
+That makes the product different in kind:
+
+| Branching chat tools | Dandelion |
+|---|---|
+| Preserve alternate paths | Controls what becomes working memory |
+| Treat a branch as another conversation | Treats a plant as candidate context |
+| Merge by summarizing or linking a branch | Graft by admitting selected context |
+| Focus on navigating the tree | Focuses on the trunk's context state |
+| Hide contradictions inside model prose | Stops and asks when context conflicts |
+| Make dead ends easier to keep | Keeps dead ends visible but non-steering |
+
+The simple test:
+
+```text
+Can the user decide what the AI remembers, forgets, questions, and inherits next?
+```
+
+If not, the feature belongs to generic branching chat, not Dandelion.
+
+## North Star
+
+Dandelion is not a branching chat app. It is a **context editor** for AI conversations.
+
+Branches are temporary probes. Plants are candidate context segments. Grafting is the explicit act of admitting selected side work into the trunk's future context.
+
+The durable product question:
+
+```text
+What should the main thread know now, and what should it deliberately not know?
+```
+
+That is the difference between Dandelion and ordinary branching chat. Many tools help users manage conversation paths. Dandelion helps users modulate context.
+
+The positioning becomes real only when the product makes context visible:
+
+- **Context inspector first.** Users must be able to see what the model is reasoning over.
+- **Context-state diff second.** Grafting should show what changed in the trunk's working context.
+- **Undo / un-graft early.** People will only explore freely if context edits are reversible.
+- **Do not lead with branching chat.** Branching, trees, and forks belong in mechanics docs; the front-door pitch should be context control.
+- **Keep conflict human-visible.** Surface `material_conflict` as plain language, like "the plants disagree," instead of letting a model smooth it away.
+
+More detail lives in [North Star](docs/north_star.md).
 
 ## Status
 
@@ -46,7 +102,7 @@ Current working prototype:
 - `prototype.html` is the main interactive template.
 - `scripts/router-prototype-server.mjs` serves the prototype and proxies model calls.
 - Two providers are supported out of the box: local Ollama (default, `qwen2.5:3b`) and Anthropic Claude (`claude-haiku-4-5` by default). Switch the default with `DANDELION_PROVIDER`, or pick a model per plant in the UI.
-- `scripts/merge-harness.mjs` is a CLI harness for repeatable merge-router tests.
+- `scripts/merge-harness.mjs` is a CLI harness for repeatable context-router tests.
 
 ## Repository Map
 
@@ -87,6 +143,7 @@ tests/
   graph-shadow.test.mjs            graph helper tests (imports prototype/graph.mjs)
   merge-router/scenarios.json      classifier benchmark fixtures
 docs/README.md                     docs index
+docs/north_star.md                 product doctrine: context modulation, not branching chat
 ```
 
 ## Run
@@ -131,7 +188,7 @@ export ANTHROPIC_API_KEY=sk-ant-...
 npm start
 ```
 
-Run the merge-router test suite (no network needed):
+Run the context-router test suite (no network needed):
 
 ```sh
 npm test
@@ -157,7 +214,7 @@ The prototype supports:
 - Plant chat with **per-plant model selection** — mix local Ollama and Claude (and additional providers as they land) inside a single fork tree.
 - Multiple plants generating in parallel while other plants remain editable.
 - Grafting selected plants back into the main conversation — the merge is the context edit.
-- App-owned merge routing across two routes:
+- App-owned context routing across two routes:
 
 | Route | When it fires | What Dandelion does |
 |---|---|---|
@@ -189,7 +246,7 @@ Plant A        Plant B        ... Plant N
                  Graft selected plants
                           |
                           v
-                    Merge router
+                    Context router
                           |
               +---------------+---------------+
               |                               |
@@ -224,7 +281,7 @@ prototype.html
   |-- Graft selected plants
          |
          v
-      Merge router
+      Context router
          |
          |-- additional_context
          |      |
@@ -247,13 +304,13 @@ Ollama qwen2.5:3b
 
 ## Architecture Notes
 
-The important product decision is that merge routing belongs to the app, not the model's final answer prompt.
+The important product decision is that context routing belongs to the app, not the model's final answer prompt.
 
 The reliable flow is:
 
 ```text
 selected plants
-  -> classify merge route
+  -> classify context route
   -> if compatible: call model with merged context
   -> if material conflict: render a user choice
 ```
@@ -264,7 +321,7 @@ More detail:
 
 - [Product](docs/product.md)
 - [Architecture](docs/architecture.md)
-- [Merge Router](docs/merge_router.md)
+- [Context Router](docs/context_router.md)
 - [Data Model](docs/data_model.md)
 - [Docs Index](docs/README.md)
 - [Contributing](CONTRIBUTING.md)
@@ -284,7 +341,7 @@ Expected behavior:
 - Additional context: continue naturally.
 - Material conflict: ask the user which stance to proceed with.
 
-To benchmark the merge-route classifier (regex baseline vs model) across the
+To benchmark the context-route classifier (regex baseline vs model) across the
 full scenario set:
 
 ```sh

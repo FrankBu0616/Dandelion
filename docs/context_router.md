@@ -1,6 +1,12 @@
-# Merge Router
+# Context Router
 
-When selected plants are grafted into the main thread, Dandelion routes the result before asking the model to continue.
+When selected plants are grafted into the main thread, Dandelion routes the context change before asking the model to continue.
+
+The context router is the app-owned decision point that answers:
+
+```text
+Can this graft safely become trunk context, or does the user need to choose a stance first?
+```
 
 ## Route Types
 
@@ -32,3 +38,7 @@ Rough prototype + polished enough to test feel
 Multi-provider day one + one provider first
 => material_conflict
 ```
+
+## Implementation Note
+
+Some prototype files still use `merge-router` in their names. Treat those as historical implementation names for the context router.

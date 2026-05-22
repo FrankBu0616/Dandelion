@@ -22,7 +22,7 @@ import { generateReply } from "./scripted-content.mjs";
 import * as api from "./api.mjs";
 
 const PLANT_SYSTEM_PROMPT =
-  "You are Dandelion running a plant investigation. Be specific, concise, and useful.";
+  "You are Dandelion running a plant investigation. Be specific, concise, and useful. Answer the plant's current prompt directly. Parent context is background only; if the plant prompt asks about a different subject, answer the plant prompt rather than recapping the parent.";
 
 const FALLBACK_SUFFIX =
   "\n\n(Local Ollama was unavailable, so this used the scripted fallback.)";
@@ -59,6 +59,7 @@ export function createPlants({
       composerDraft: draft,
       status: "idle",
       selected: false,
+      model: state.currentModel,
     };
     state.plants.push(st);
     state.activePlantId = id;
@@ -73,12 +74,14 @@ export function createPlants({
     const st = {
       id,
       title: "",
+      parentMessageId: message.id,
       contextHint:
         message.text.slice(0, 60) + (message.text.length > 60 ? "…" : ""),
       turns: [],
       composerDraft: "",
       status: "idle",
       selected: true,
+      model: state.currentModel,
     };
     state.plants.push(st);
     state.activePlantId = id;
@@ -97,6 +100,7 @@ export function createPlants({
     st.composerDraft = "";
     clearComposer?.(plantId);
     if (!st.title) {
+      st.fullPrompt = userText;
       st.title = userText.length > 40 ? userText.slice(0, 40) + "…" : userText;
       graph.setPlantTitle(st.id, st.title);
     }
@@ -121,11 +125,20 @@ export function createPlants({
     try {
       turn.asst = "Thinking with local Ollama…";
       notify();
+      // Send the admitted parent path as structured chat history so the plant
+      // prompt remains the active user turn. Root mute only withholds the
+      // standalone parent-context label; individual trunk turns and grafts
+      // carry their own mute state in this path.
+      const contextMessages = state.parentContextMessagesForPlant?.(st);
       const data = await api.chat({
         prompt,
-        context: state.parentContext,
+        contextMessages,
         system: PLANT_SYSTEM_PROMPT,
-        model: state.currentModel,
+        model: st.model || state.currentModel,
+        // Session-scoped files (set in prototype.html). Seeds inherit any
+        // file the user has uploaded so they can see the same attachments
+        // the main thread does — minus any the user has muted.
+        attachments: state.getAttachments?.() ?? [],
       });
       streamIn(st, turn, data.answer || "", durationFor(data.answer));
     } catch {
@@ -193,7 +206,9 @@ export function createPlants({
       composerDraft: "",
       status: "idle",
       selected: false,
+      model: plantData.model || state.currentModel,
       _graftedKey: plantData._graftedKey,
+      fullPrompt: plantData.fullPrompt,
     };
     state.plants.push(st);
     state.activePlantId = id;

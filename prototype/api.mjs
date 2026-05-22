@@ -3,6 +3,7 @@
 // Endpoints:
 //   GET  /api/models     list models available across configured providers
 //   POST /api/chat            single-turn chat in the active provider+model
+//   POST /api/files           upload a file to Anthropic; returns { id, ... }
 //   POST /api/classify-route  classify grafted plants → { kind, summary, choices }
 //   POST /api/continue        post-graft continuation, given grafted plants + route
 //
@@ -29,21 +30,94 @@ async function postJSON(path, body) {
 }
 
 /**
- * Send one prompt to the model. Returns { answer, model, provider }.
- * @param {{ prompt: string, context?: string, system?: string, model?: ModelSelection }} args
+ * @typedef {{ file_id: string, kind: 'document'|'image' }} Attachment
  */
-export function chat({ prompt, context, system, model }) {
+
+/**
+ * @typedef {{ role: 'system'|'user'|'assistant', content: string }} ContextMessage
+ */
+
+/**
+ * Send one prompt to the model. Returns { answer, model, provider }.
+ * Pass `attachments` (file_ids from uploadFile) to include files in the turn.
+ * @param {{ prompt: string, context?: string, contextMessages?: ContextMessage[], system?: string, model?: ModelSelection, attachments?: Attachment[] }} args
+ */
+export function chat({ prompt, context, contextMessages, system, model, attachments }) {
   return postJSON("/api/chat", {
     prompt,
     context,
+    contextMessages: contextMessages?.length ? contextMessages : undefined,
     system,
+    attachments: attachments?.length ? attachments : undefined,
     provider: model?.provider || undefined,
     model: model?.model || undefined,
   });
 }
 
+/* ────────── Sessions ────────── */
+
 /**
- * Classify a set of grafted plants into a merge route using the model-based
+ * List saved sessions (metadata only — no body). Returns
+ * `[{id, title, createdAt, updatedAt}, ...]` newest-first. Throws on non-2xx.
+ */
+export async function listSavedSessions() {
+  const response = await fetch("/api/sessions");
+  if (!response.ok) throw new Error(await response.text());
+  const data = await response.json();
+  return Array.isArray(data?.sessions) ? data.sessions : [];
+}
+
+/** Fetch a single session snapshot by id, or null if 404. */
+export async function fetchSavedSession(id) {
+  const response = await fetch(`/api/sessions/${encodeURIComponent(id)}`);
+  if (response.status === 404) return null;
+  if (!response.ok) throw new Error(await response.text());
+  return response.json();
+}
+
+/** Persist a snapshot to the server. Body is the snapshot. */
+export async function putSavedSession(id, snapshot) {
+  const response = await fetch(`/api/sessions/${encodeURIComponent(id)}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(snapshot),
+  });
+  if (!response.ok) throw new Error(await response.text());
+  return response.json();
+}
+
+/** Delete a saved session by id. Returns `true` if it existed. */
+export async function deleteSavedSession(id) {
+  const response = await fetch(`/api/sessions/${encodeURIComponent(id)}`, { method: "DELETE" });
+  if (!response.ok) throw new Error(await response.text());
+  const data = await response.json();
+  return Boolean(data?.deleted);
+}
+
+/**
+ * Upload a file (PDF / image / text) to the Anthropic Files API via the
+ * local prototype server. Returns { id, filename, mime_type, size_bytes }.
+ * The returned `id` is what you pass as `attachments[].file_id` to chat().
+ * @param {File | Blob} file  Browser File or Blob with a `.name` (Files have one).
+ * @returns {Promise<{ id: string, filename: string, mime_type: string, size_bytes: number }>}
+ */
+export async function uploadFile(file) {
+  const filename = file.name || "upload.bin";
+  const mediaType = file.type || "application/octet-stream";
+  const response = await fetch("/api/files", {
+    method: "POST",
+    headers: {
+      "Content-Type": mediaType,
+      "X-Filename": filename,
+    },
+    body: file,
+  });
+  if (!response.ok) throw new Error(await response.text());
+  return response.json();
+}
+
+/**
+ * Classify a set of grafted plants into a context route using the model-based
  * classifier. Returns { route: { kind, summary, choices }, model, provider }.
  * @param {{ plants: Array<object>, model?: ModelSelection }} args
  */

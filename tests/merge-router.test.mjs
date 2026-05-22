@@ -1,4 +1,4 @@
-// Tests for the merge router classifier.
+// Tests for the context router classifier.
 //
 // Run with: node --test tests/
 

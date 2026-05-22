@@ -7,7 +7,7 @@
 //      or use the pre-baked transcript.
 //   3. Extract 3-5 key claims per branch (Ollama call, skipped if branch
 //      already has claims).
-//   4. Classify the merge route using the production classifier
+//   4. Classify the context route using the production classifier
 //      (scripts/classify-route.mjs), unless the scenario pre-declares a route.
 //   5. If material_conflict, render the conflict-choice UI text and stop.
 //      Otherwise, build the merge prompt and call Ollama for the continuation.
@@ -153,7 +153,7 @@ async function main() {
     printSection(`Claims: ${branch.id}`, branch.claims);
   }
 
-  // Classify the merge route. Pre-declared route wins.
+  // Classify the context route. Pre-declared route wins.
   const route =
     scenario.route ?? (await classifyRouteWithModel(branchesToPlants(branches), { model }));
   printSection('Route', route.kind);

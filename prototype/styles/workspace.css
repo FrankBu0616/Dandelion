@@ -16,6 +16,10 @@
   #main-inner {
     flex: 1 1 auto;
     overflow-y: auto;
+    /* Do NOT clip overflow-x here — the graft dandelion SVG floats into the
+       right gutter at `right: -210px` and would get cut off. Wide content
+       (KaTeX, code blocks) is constrained at the bubble level instead. */
+    scrollbar-gutter: stable;
     min-height: 0;
   }
   .main-composer { flex: 0 0 auto; }

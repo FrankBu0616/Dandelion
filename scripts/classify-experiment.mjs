@@ -46,7 +46,7 @@ async function main() {
   const scenarios = JSON.parse(await fs.readFile(SCENARIO_PATH, "utf8"));
   const model = process.env.OLLAMA_MODEL ?? "qwen2.5:3b";
 
-  console.log(`\nDandelion merge-router experiment`);
+  console.log(`\nDandelion context-router experiment`);
   console.log(`Model: ${model}`);
   console.log(`Scenarios: ${scenarios.length} (${scenarios.filter((s) => s.curated).length} curated, ${scenarios.filter((s) => !s.curated).length} unscripted)\n`);
 

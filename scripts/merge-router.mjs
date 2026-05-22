@@ -1,4 +1,4 @@
-// Dandelion merge router.
+// Dandelion context router.
 //
 // Classifies a set of grafted plants into one of three routes:
 //   - additional_context : compatible, continue naturally
@@ -6,7 +6,7 @@
 //   - material_conflict  : incompatible next steps, ask the user to choose
 //
 // This is intentionally a small, deterministic, keyword-based heuristic.
-// The product decision is that merge routing belongs to the app, not to the
+// The product decision is that context routing belongs to the app, not to the
 // model's final answer prompt — so this file is the canonical source of truth
 // for that classification, used by both the browser prototype and the CLI
 // harness.
@@ -21,7 +21,7 @@
  */
 
 /**
- * Classify a set of grafted plants into a merge route.
+ * Classify a set of grafted plants into a context route.
  *
  * Dandelion uses a two-route model:
  *   - additional_context : plants are compatible; continue naturally.

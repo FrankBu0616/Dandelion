@@ -20,26 +20,6 @@
     width: 18px; height: 18px;
     color: var(--text);
   }
-  .top-bar .context-chip {
-    margin-left: 18px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    padding: 3px 10px;
-    border-radius: 999px;
-    font-size: 12px;
-    color: var(--text-soft);
-    max-width: 420px;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    display: none;
-  }
-  .top-bar .context-chip.visible { display: inline-block; }
-  .top-bar .context-chip .label {
-    color: var(--muted);
-    margin-right: 6px;
-    font-size: 11px;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
   .top-bar .actions {
     margin-left: auto;
     display: flex; gap: 8px; align-items: center;

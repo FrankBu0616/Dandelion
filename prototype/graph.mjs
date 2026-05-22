@@ -106,5 +106,34 @@ export function createGraph() {
         edges: state.edges,
       };
     },
+
+    /**
+     * Replace graph state from a `toJSON()` payload (or a structurally
+     * compatible object). Used by persistence to restore a saved session.
+     * Idempotent — call freely; the prior state is dropped first.
+     */
+    fromJSON(payload) {
+      state.nodes.clear();
+      state.edges = [];
+      state.rootId = null;
+      state.mainLeafId = null;
+      if (!payload || typeof payload !== "object") return;
+      const nodes = Array.isArray(payload.nodes) ? payload.nodes : [];
+      for (const node of nodes) {
+        if (node && typeof node.id === "string") {
+          // Shallow clone so callers can't mutate the saved payload through
+          // our Map. Edge arrays inside merge nodes are copied defensively.
+          const restored = { ...node };
+          if (Array.isArray(restored.parents)) restored.parents = [...restored.parents];
+          state.nodes.set(restored.id, restored);
+        }
+      }
+      const edges = Array.isArray(payload.edges) ? payload.edges : [];
+      state.edges = edges
+        .filter((e) => e && typeof e.from === "string" && typeof e.to === "string")
+        .map((e) => ({ from: e.from, to: e.to, kind: e.kind || "next" }));
+      if (typeof payload.rootId === "string") state.rootId = payload.rootId;
+      if (typeof payload.mainLeafId === "string") state.mainLeafId = payload.mainLeafId;
+    },
   };
 }

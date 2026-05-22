@@ -1,0 +1,191 @@
+  /* ============ SESSIONS SIDEBAR ============ */
+  .sessions-open-btn {
+    margin-right: 14px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.62);
+    color: var(--text-soft);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+  }
+  .sessions-open-btn:hover {
+    background: var(--accent-soft);
+    border-color: rgba(201, 123, 78, 0.42);
+    color: var(--graft-text);
+  }
+  .sessions-open-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .sessions-sidebar {
+    position: fixed;
+    top: 52px;
+    left: 0;
+    bottom: 0;
+    width: min(360px, calc(100vw - 28px));
+    background: #F8F3EA;
+    border-right: 1px solid var(--border-strong);
+    box-shadow: 18px 0 44px rgba(15, 15, 18, 0.11);
+    z-index: 50;
+    transform: translateX(-100%);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+  }
+  .sessions-sidebar.open { transform: translateX(0); }
+  .sessions-sidebar-header {
+    flex: 0 0 auto;
+    padding: 18px 18px 12px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: start;
+    border-bottom: 1px solid rgba(15, 15, 18, 0.08);
+  }
+  .sessions-sidebar-title {
+    font-size: 16px;
+    font-weight: 650;
+    color: var(--text);
+  }
+  .sessions-sidebar-subtitle {
+    margin-top: 2px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .sessions-close-btn {
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--muted);
+  }
+  .sessions-close-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+  .sessions-new-btn {
+    margin: 14px 18px 10px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--accent);
+    background: var(--accent-soft);
+    color: var(--graft-text);
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.12s, border-color 0.12s;
+  }
+  .sessions-new-btn:hover {
+    background: rgba(201, 123, 78, 0.22);
+    border-color: rgba(138, 79, 34, 0.6);
+  }
+  .sessions-list {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 4px 8px 18px;
+  }
+  .sessions-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    transition: background 0.12s;
+  }
+  .sessions-row:hover {
+    background: rgba(201, 123, 78, 0.08);
+  }
+  .sessions-row.is-active {
+    background: var(--accent-soft);
+  }
+  .sessions-row-open {
+    min-width: 0;
+    background: transparent;
+    border: 0;
+    text-align: left;
+    cursor: pointer;
+    padding: 6px 4px;
+    display: grid;
+    gap: 2px;
+  }
+  .sessions-row-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .sessions-row-meta {
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .sessions-row.is-active .sessions-row-title {
+    color: var(--graft-text);
+  }
+  .sessions-row-rename {
+    width: 100%;
+    padding: 3px 6px;
+    font: inherit;
+    font-size: 13px;
+    border: 1px solid var(--accent);
+    border-radius: 5px;
+    background: #fff;
+    color: var(--text);
+    outline: none;
+  }
+  .sessions-row-actions {
+    display: inline-flex;
+    gap: 2px;
+    opacity: 0;
+    transition: opacity 0.12s;
+  }
+  .sessions-row:hover .sessions-row-actions,
+  .sessions-row:focus-within .sessions-row-actions {
+    opacity: 1;
+  }
+  .sessions-row-rename-btn,
+  .sessions-row-delete-btn {
+    width: 26px;
+    height: 26px;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .sessions-row-rename-btn:hover {
+    background: var(--accent-soft);
+    color: var(--graft-text);
+  }
+  .sessions-row-delete-btn:hover {
+    background: rgba(192, 57, 43, 0.12);
+    color: #c0392b;
+  }
+  .sessions-empty {
+    padding: 28px 24px;
+    text-align: center;
+    color: var(--muted);
+  }
+  .sessions-empty-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .sessions-empty-copy {
+    font-size: 12px;
+    line-height: 1.5;
+  }

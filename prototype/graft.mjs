@@ -1,5 +1,5 @@
 // Graft flow — collapses one or more plants back into the main thread and
-// classifies the merge route (additional_context vs material_conflict).
+// classifies the context route (additional_context vs material_conflict).
 //
 // Two entry points:
 //   graftSelected()       — grafts every plant currently checked in the tray
@@ -30,6 +30,7 @@ const PENDING_ROUTE = { kind: null, pending: true, summary: "", choices: [] };
 function plantToPayload(st) {
   return {
     title: st.title,
+    fullPrompt: st.fullPrompt || st.turns[0]?.user || st.title,
     turns: st.turns.map((t) => ({ user: t.user, asst: t.asst })),
     _graftedKey: st.id,
   };

@@ -10,11 +10,20 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=JetBrains+Mono&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="prototype/styles.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
 </head>
 <body>
 
   <!-- ============ TOP BAR ============ -->
   <div class="top-bar">
+    <button class="sessions-open-btn" id="sessions-open-btn" type="button"
+            aria-expanded="false" aria-controls="sessions-sidebar" title="Saved sessions">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="2.5" y1="4" x2="13.5" y2="4"/>
+        <line x1="2.5" y1="8" x2="13.5" y2="8"/>
+        <line x1="2.5" y1="12" x2="13.5" y2="12"/>
+      </svg>
+    </button>
     <div class="brand">
       <svg class="brand-mark" viewBox="0 0 120 120" fill="none">
         <!-- Dandelion mark — DAG rotated 35°. See /brand/logos/dandelion.svg -->
@@ -34,9 +43,6 @@
       </svg>
       dandelion
     </div>
-    <div class="context-chip" id="context-chip">
-      <span class="label">Context</span><span id="context-text"></span>
-    </div>
     <div class="actions">
       <span class="plant-count" id="plant-count"></span>
       <div class="model-picker" id="model-picker">
@@ -51,7 +57,45 @@
       </div>
       <button class="new-btn" id="reset-btn">New session</button>
     </div>
+
   </div>
+
+  <!-- Right-edge drawer tab — always visible. Clicking toggles the inspector
+       drawer that slides in beside it. Tab translates with the drawer so it
+       stays glued to the drawer's outer edge. -->
+  <button class="context-drawer-tab" id="context-open-btn" type="button"
+          aria-controls="context-inspector" aria-expanded="false"
+          title="Open context inspector">
+    <span class="context-drawer-tab-label">Context</span>
+    <span class="context-drawer-tab-count" id="context-open-btn-count" hidden></span>
+  </button>
+
+  <aside class="context-inspector" id="context-inspector" aria-hidden="true">
+    <div class="context-inspector-header">
+      <div>
+        <div class="context-inspector-title">Context</div>
+        <div class="context-inspector-count" id="context-inspector-count">0 admitted segments</div>
+      </div>
+      <button class="context-close-btn" id="context-close-btn" type="button" aria-label="Close context">×</button>
+    </div>
+    <div class="context-ledger" id="context-ledger"></div>
+  </aside>
+
+  <aside class="sessions-sidebar" id="sessions-sidebar" aria-hidden="true">
+    <div class="sessions-sidebar-header">
+      <div>
+        <div class="sessions-sidebar-title">Sessions</div>
+        <div class="sessions-sidebar-subtitle">Recent first</div>
+      </div>
+      <button class="sessions-close-btn" id="sessions-close-btn" type="button" aria-label="Close sessions">×</button>
+    </div>
+    <button class="sessions-new-btn" id="sessions-new-btn" type="button">+ New session</button>
+    <div class="sessions-list" id="sessions-list"></div>
+    <div class="sessions-empty" id="sessions-empty" hidden>
+      <div class="sessions-empty-title">No saved sessions yet</div>
+      <div class="sessions-empty-copy">Start a conversation — it will be saved here automatically.</div>
+    </div>
+  </aside>
 
   <!-- ============ WORKSPACE ============ -->
   <div id="workspace">
@@ -61,8 +105,17 @@
 
       <div class="main-composer">
         <div class="main-composer-inner">
+          <div class="composer-attachments" id="composer-attachments" hidden></div>
           <div class="composer-box">
             <textarea id="composer-input" placeholder="Ask anything…" rows="1"></textarea>
+
+            <input type="file" id="composer-file-input" multiple hidden
+                   accept="application/pdf,image/png,image/jpeg,image/gif,image/webp,text/plain" />
+            <button class="attach-btn" id="composer-attach" title="Attach files (PDF, image, text)" aria-label="Attach files" hidden>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M10.5 4 L5.5 9 a1.5 1.5 0 0 0 2.12 2.12 L12.62 6.12 a3 3 0 0 0 -4.24 -4.24 L3.38 6.88 a4.5 4.5 0 0 0 6.36 6.36 L14 9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
 
             <button class="plant-btn" id="plant-btn" title="Plant a side seed that shares this context" aria-label="Plant a side seed">
               <svg width="18" height="18" viewBox="0 0 120 120" fill="none">
@@ -112,269 +165,6 @@
 
   </div>
 
-<script type="module">
-import { classifyGraftedPlants, routeLabel } from "./scripts/merge-router.mjs";
-import { createGraph } from "./prototype/graph.mjs";
-import { escapeHtml } from "./prototype/escape.mjs";
-import { renderDandelionSVG } from "./prototype/dandelion-svg.mjs";
-import { STARTERS, generateReply, generatePostGraftReply } from "./prototype/scripted-content.mjs";
-import { createModelPicker } from "./prototype/model-picker.mjs";
-import { createPlantTray } from "./prototype/plant-tray.mjs";
-import { autoSizeTextarea } from "./prototype/dom-utils.mjs";
-import * as api from "./prototype/api.mjs";
-import { createMainThread } from "./prototype/main-thread.mjs";
-import { createPlants } from "./prototype/plants.mjs";
-import { createGraft } from "./prototype/graft.mjs";
-
-/* ============================================================
-   STATE
-   ============================================================ */
-const graph = createGraph();
-const state = {
-  parentContext: null,
-  mainConv: [],       // user/assistant/graft-marker items
-  plants: [],         // {id, title, turns, composerDraft, status, selected}
-  activePlantId: null,
-  nextId: 1,
-  postGraftArmed: false,
-  currentModel: { id: "", label: "loading…", kind: "local", provider: "", model: "" },
-  availableModels: [],
-  // Shadow DAG — Phase 1. See prototype/graph.mjs and docs/data_model.md.
-  graph: graph.state,
-};
-function makeId() { return "n" + (state.nextId++); }
-// Dev helper: inspect the graph from DevTools.
-if (typeof window !== "undefined") {
-  window.__dumpGraph = () => {
-    const json = graph.toJSON();
-    console.log("[Dandelion graph]", json);
-    return json;
-  };
-}
-
-
-
-// classifyGraftedPlants and routeLabel are imported from ./scripts/merge-router.mjs
-// at the top of this module. They are the canonical merge-router heuristic,
-// shared with the CLI harness and tests.
-
-/* ============================================================
-   DOM
-   ============================================================ */
-const $ = (s) => document.querySelector(s);
-const mainColumn = $("#main-column");
-const mainInner = $("#main-inner");
-const plantColumn = $("#plant-column");
-const plantColumnBody = $("#plant-column-body");
-const plantColumnSubtitle = $("#plant-column-subtitle");
-const graftBtn = $("#graft-btn");
-const graftHint = $("#graft-hint");
-const composerInput = $("#composer-input");
-const composerSend = $("#composer-send");
-const plantBtn = $("#plant-btn");
-const plantCountEl = $("#plant-count");
-const contextChip = $("#context-chip");
-const contextText = $("#context-text");
-const modelChip = $("#model-chip");
-const modelMenu = $("#model-menu");
-const modelName = $("#model-name");
-const modelDot = $("#model-dot");
-const metaModel = $("#meta-model");
-
-/* ============================================================
-   MAIN THREAD (see prototype/main-thread.mjs)
-   ============================================================ */
-const mainThread = createMainThread({
-  dom: { column: mainColumn, inner: mainInner },
-  state,
-  graph,
-  callbacks: {
-    onBranch: (item) => openPlantFromMessage(item),
-    onConflictChoice: (itemId, idx) => resolveConflictChoice(itemId, idx),
-    onReopenGraftedSeed: (plant) => reopenGraftedSeed(plant),
-  },
-});
-const renderMain = () => mainThread.render();
-const streamInto = (item, fullText, durationMs, onDone) =>
-  mainThread.streamInto(item, fullText, durationMs, onDone);
-const streamMainFromOllama = (item, prompt) => mainThread.streamChat(item, prompt);
-const streamPostGraftFromOllama = (item, followUp, lastFold) =>
-  mainThread.streamContinue(item, followUp, lastFold);
-
-/* ============================================================
-   PLANT TRAY (see prototype/plant-tray.mjs)
-   ============================================================ */
-const plantTray = createPlantTray({
-  dom: {
-    column: plantColumn,
-    body: plantColumnBody,
-    subtitle: plantColumnSubtitle,
-    countLabel: plantCountEl,
-    graftBtn,
-    graftHint,
-  },
-  state,
-  callbacks: {
-    onOpenPlant: () => onOpenPlant(),
-    onGraftOne: (plantId) => onGraftOne(plantId),
-    onSendInPlant: (plantId) => sendInPlant(plantId),
-  },
-});
-const renderPlants = () => plantTray.render();
-const updateGraftButton = () => plantTray.updateGraftButton();
-
-/* ============================================================
-   ACTIONS
-   ============================================================ */
-function startWithStarter(starter) {
-  state.parentContext = starter.contextLabel;
-  contextChip.classList.add("visible");
-  contextText.textContent = starter.contextLabel;
-  state.mainConv.push({ kind: "user", text: starter.text });
-  const id = makeId();
-  const item = { kind: "assistant", id, text: "", status: "streaming" };
-  state.mainConv.push(item);
-  // graph: root chat node
-  graph.addChat({ id, thread: "main", prompt: starter.text, parent: state.graph.mainLeafId });
-  renderMain();
-  streamInto(item, starter.response, 3000, () => composerInput.focus());
-}
-
-async function onSend() {
-  const text = composerInput.value.trim();
-  if (!text) return;
-  composerInput.value = "";
-  autoSizeTextarea(composerInput, 160);
-
-  state.mainConv.push({ kind: "user", text });
-  const id = makeId();
-  const item = { kind: "assistant", id, text: "", status: "streaming" };
-  state.mainConv.push(item);
-  // graph: main-thread chat node attached to current leaf (which may be a merge node)
-  graph.addChat({ id, thread: "main", prompt: text, parent: state.graph.mainLeafId });
-  renderMain();
-
-  if (state.postGraftArmed) {
-    state.postGraftArmed = false;
-    const lastFold = [...state.mainConv].reverse().find(x => x.kind === "graft-marker");
-    if (!state.parentContext) {
-      contextChip.classList.add("visible");
-      state.parentContext = text.length > 60 ? text.slice(0, 60) + "…" : text;
-      contextText.textContent = state.parentContext;
-    }
-    await streamPostGraftFromOllama(item, text, lastFold);
-    return;
-  } else {
-    if (!state.parentContext) {
-      contextChip.classList.add("visible");
-      state.parentContext = text.length > 60 ? text.slice(0, 60) + "…" : text;
-      contextText.textContent = state.parentContext;
-    }
-
-    await streamMainFromOllama(item, text);
-  }
-}
-
-/* ============================================================
-   PLANTS (see prototype/plants.mjs)
-   ============================================================ */
-const plants = createPlants({
-  state,
-  graph,
-  makeId,
-  onChange: () => renderPlants(),
-  patchTurn: (plantId, turnId, text, streaming) =>
-    plantTray.patchTurn(plantId, turnId, text, streaming),
-  focusComposer: (plantId) => plantTray.focusComposer(plantId),
-  clearComposer: (plantId) => plantTray.clearComposer(plantId),
-});
-
-function onOpenPlant() {
-  const draft = composerInput.value.trim();
-  composerInput.value = "";
-  autoSizeTextarea(composerInput, 160);
-  plants.open(draft);
-}
-
-const sendInPlant = (stId) => plants.send(stId);
-const closePlant = (stId) => plants.close(stId);
-const closeSeedPanel = () => plants.closeAll();
-const openPlantFromMessage = (item) => plants.openFromMessage(item);
-const reopenGraftedSeed = (plantData) => plants.reopenGrafted(plantData);
-
-/* ============================================================
-   GRAFT (see prototype/graft.mjs)
-   ============================================================ */
-const graft = createGraft({
-  state,
-  graph,
-  makeId,
-  render: {
-    main: () => renderMain(),
-    plants: () => renderPlants(),
-  },
-  composer: {
-    setPlaceholder: (text) => { composerInput.placeholder = text; },
-    focusLater: (ms) => setTimeout(() => composerInput.focus(), ms),
-  },
-  streamInto: (item, text, durationMs) => streamInto(item, text, durationMs),
-});
-const onGraft = () => graft.graftSelected();
-const resolveConflictChoice = (choiceId, idx) => graft.resolveConflictChoice(choiceId, idx);
-
-function newSession() {
-  state.mainConv = [];
-  state.plants = [];
-  state.activePlantId = null;
-  state.parentContext = null;
-  state.postGraftArmed = false;
-  state.nextId = 1;
-  graph.reset();
-  composerInput.value = "";
-  composerInput.placeholder = "Ask anything…";
-  autoSizeTextarea(composerInput, 160);
-  contextChip.classList.remove("visible");
-  contextText.textContent = "";
-  renderMain();
-  renderPlants();
-  setTimeout(() => composerInput.focus(), 100);
-}
-
-const onGraftOne = (stId) => graft.graftOne(stId);
-
-/* ============================================================
-   MODEL PICKER (see prototype/model-picker.mjs)
-   ============================================================ */
-const modelPicker = createModelPicker({
-  chip: modelChip,
-  menu: modelMenu,
-  name: modelName,
-  dot: modelDot,
-  meta: metaModel,
-  onChange(model) {
-    state.currentModel = model;
-  },
-});
-
-/* ============================================================
-   WIRING
-   ============================================================ */
-composerInput.addEventListener("input", () => autoSizeTextarea(composerInput, 160));
-composerInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter" && !e.shiftKey) {
-    e.preventDefault();
-    onSend();
-  }
-});
-composerSend.addEventListener("click", onSend);
-plantBtn.addEventListener("click", onOpenPlant);
-graftBtn.addEventListener("click", onGraft);
-$("#reset-btn").addEventListener("click", newSession);
-$("#tray-add-btn").addEventListener("click", onOpenPlant);
-$("#tray-close-btn").addEventListener("click", closeSeedPanel);
-
-modelPicker.load();
-newSession();
-</script>
+<script type="module" src="./prototype/bootstrap.mjs"></script>
 </body>
 </html>

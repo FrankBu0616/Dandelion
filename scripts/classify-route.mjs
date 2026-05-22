@@ -1,4 +1,4 @@
-// Model-based merge-route classifier.
+// Model-based context-route classifier.
 //
 // Replacement candidate for the keyword regex in scripts/merge-router.mjs.
 // Takes the same grafted-plant input shape used by the prototype and the
@@ -11,7 +11,7 @@
 
 import { chat } from "./providers.mjs";
 
-const SYSTEM_PROMPT = `You are Dandelion's merge-route classifier.
+const SYSTEM_PROMPT = `You are Dandelion's context-route classifier.
 
 The user is grafting several plants back into a main conversation. You must decide which of two routes applies:
 

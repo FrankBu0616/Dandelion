@@ -39,11 +39,57 @@
     padding: 6px 4px;
   }
   .plant-btn,
-  .send-btn {
+  .send-btn,
+  .attach-btn {
     border: 0; cursor: pointer; flex-shrink: 0;
     border-radius: 8px;
     display: inline-flex; align-items: center; justify-content: center;
   }
+  .attach-btn {
+    width: 32px; height: 32px;
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border-strong);
+  }
+  .attach-btn:hover { color: var(--text); border-color: var(--text); }
+  .attach-btn[hidden] { display: none; }
+
+  /* Attachment chips strip above the textarea. */
+  .composer-attachments {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  .composer-attachments[hidden] { display: none; }
+  .attachment-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    padding: 4px 8px 4px 10px;
+    font-size: 12px;
+    color: var(--text);
+    max-width: 240px;
+  }
+  .attachment-chip .name {
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .attachment-chip.is-uploading { opacity: 0.6; }
+  .attachment-chip.is-error { border-color: #c0392b; color: #c0392b; }
+  /* Mute toggled from the context inspector — keep the chip visible so the
+     user can find/remove the file, but signal it won't reach the model. */
+  .attachment-chip.is-muted {
+    opacity: 0.55;
+    border-style: dashed;
+  }
+  .attachment-chip.is-muted .name { text-decoration: line-through; }
+  .attachment-chip .remove {
+    border: 0; background: transparent; cursor: pointer;
+    color: var(--muted); font-size: 14px; line-height: 1;
+    padding: 0 2px;
+  }
+  .attachment-chip .remove:hover { color: var(--text); }
   .plant-btn {
     height: 32px;
     padding: 0 12px;
@@ -58,6 +104,20 @@
     background: var(--accent-soft);
   }
   .plant-btn svg { color: var(--accent); }
+  /* Disabled while the main thread is still generating — planting a fork off
+     a half-written reply would inherit an incomplete context. */
+  .plant-btn:disabled,
+  .plant-btn[aria-disabled="true"] {
+    border-color: var(--border-strong);
+    color: var(--muted);
+    background: var(--surface);
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+  .plant-btn:disabled svg,
+  .plant-btn[aria-disabled="true"] svg { color: var(--muted); }
+  .plant-btn:disabled:hover,
+  .plant-btn[aria-disabled="true"]:hover { background: var(--surface); }
   .send-btn {
     width: 32px; height: 32px;
     background: var(--accent);
