@@ -40,12 +40,11 @@ async function postJSON(path, body) {
 /**
  * Send one prompt to the model. Returns { answer, model, provider }.
  * Pass `attachments` (file_ids from uploadFile) to include files in the turn.
- * @param {{ prompt: string, context?: string, contextMessages?: ContextMessage[], system?: string, model?: ModelSelection, attachments?: Attachment[] }} args
+ * @param {{ prompt: string, contextMessages?: ContextMessage[], system?: string, model?: ModelSelection, attachments?: Attachment[] }} args
  */
-export function chat({ prompt, context, contextMessages, system, model, attachments }) {
+export function chat({ prompt, contextMessages, system, model, attachments }) {
   return postJSON("/api/chat", {
     prompt,
-    context,
     contextMessages: contextMessages?.length ? contextMessages : undefined,
     system,
     attachments: attachments?.length ? attachments : undefined,

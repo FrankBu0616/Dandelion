@@ -124,26 +124,17 @@ function reportedProvider(payload) {
 }
 
 async function runChat(payload) {
-  const baseSystem =
+  // Wire shape:  [system, ...contextMessages, current user]
+  // The client builds `contextMessages` from its own trunk (and the seed's
+  // own history, for plant sends) with mute filters already applied — this
+  // handler is purely a serializer + proxy. The legacy string-based
+  // `payload.context` fold-into-system path was removed once no caller
+  // relied on it; see CHANGELOG.
+  const system =
     payload.system ||
     'You are Dandelion, a concise assistant inside a local prototype. Answer directly and naturally.';
-  const hasStructuredContext = Array.isArray(payload.contextMessages) && payload.contextMessages.length > 0;
-  const system = payload.context && !hasStructuredContext
-    ? [
-        baseSystem,
-        '',
-        'Shared parent transcript is provided below as background only.',
-        'Use it only when it helps answer the current user prompt.',
-        'Do not answer or continue the shared transcript itself; the current user prompt is the task.',
-        '',
-        `Shared parent transcript:\n${payload.context}`,
-      ].join('\n')
-    : baseSystem;
   const messages = [
-    {
-      role: 'system',
-      content: system,
-    },
+    { role: 'system', content: system },
     ...sanitizeContextMessages(payload.contextMessages),
     { role: 'user', content: buildUserContent(payload.prompt, payload.attachments) },
   ];

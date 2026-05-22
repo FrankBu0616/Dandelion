@@ -31,6 +31,36 @@ function durationFor(text) {
   return Math.max(2200, Math.min(6800, (text || "").length * 22));
 }
 
+/**
+ * Serialize a seed's prior turns into chat-shape messages for the next
+ * `/api/chat` request. Exported so it can be unit-tested without booting
+ * the full createPlants factory.
+ *
+ * Rules:
+ *   - The in-flight turn (matched by `currentTurnId`) is skipped — its
+ *     user side is sent as the request's `prompt`, its assistant side
+ *     is the streaming target.
+ *   - Turns are emitted in order: user, then assistant (if non-streaming).
+ *   - Empty strings are skipped (trimmed) so blank placeholders don't
+ *     reach the wire.
+ *
+ * @param {Array<{id?: string, user?: string, asst?: string, status?: string}>} turns
+ * @param {string} [currentTurnId]
+ * @returns {Array<{role: "user"|"assistant", content: string}>}
+ */
+export function seedTurnsToMessages(turns, currentTurnId) {
+  if (!Array.isArray(turns)) return [];
+  const out = [];
+  for (const t of turns) {
+    if (!t || t.id === currentTurnId) continue;
+    const user = String(t.user || "").trim();
+    const asst = String(t.asst || "").trim();
+    if (user) out.push({ role: "user", content: user });
+    if (asst && t.status !== "streaming") out.push({ role: "assistant", content: asst });
+  }
+  return out;
+}
+
 export function createPlants({
   state,
   graph,
@@ -125,11 +155,17 @@ export function createPlants({
     try {
       turn.asst = "Thinking with local Ollama…";
       notify();
-      // Send the admitted parent path as structured chat history so the plant
-      // prompt remains the active user turn. Root mute only withholds the
-      // standalone parent-context label; individual trunk turns and grafts
-      // carry their own mute state in this path.
-      const contextMessages = state.parentContextMessagesForPlant?.(st);
+      // Build the context the model sees on this seed send. Two parts:
+      //   1. Trunk history up to the seed's branch point — same context the
+      //      user had visible when they spawned the seed, mute-filtered by
+      //      the existing helper.
+      //   2. The seed's OWN prior turns within this conversation, so the
+      //      model has memory of what was said earlier in this seed.
+      // Other seeds are intentionally NOT included — seeds are isolated.
+      // The current in-flight turn is excluded (it gets sent as `prompt`).
+      const trunkContext = state.parentContextMessagesForPlant?.(st) ?? [];
+      const seedHistory = seedTurnsToMessages(st.turns, turn.id);
+      const contextMessages = [...trunkContext, ...seedHistory];
       const data = await api.chat({
         prompt,
         contextMessages,
@@ -146,6 +182,7 @@ export function createPlants({
       streamIn(st, turn, reply.text + FALLBACK_SUFFIX, reply.duration);
     }
   }
+
 
   // Character-by-character streaming. Each tick mutates turn.asst and asks the
   // renderer (the plant tray) to patch the in-place DOM. No full re-render per
