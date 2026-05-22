@@ -34,7 +34,7 @@
   },
   "scripts": {
     "start": "node scripts/router-prototype-server.mjs",
-    "test": "node --test 'tests/**/*.test.mjs'",
+    "test": "node --test tests/*.test.mjs",
     "harness": "node scripts/merge-harness.mjs"
   }
 }
