@@ -7,7 +7,7 @@
 //     so a child SVG positioned `right: -210px` would be clipped by the
 //     column's natural extent.
 //   - Streaming re-renders wipe `#main-inner` every frame; visuals living
-//     under `document.body` survive the wipe and we re-attach them
+//     under `#workspace` survive the wipe and we re-attach them
 //     transform-positioned via `getBoundingClientRect()`.
 //
 // Module shape:
@@ -36,7 +36,7 @@ export function createGraftOverlay({ scrollElement }) {
     if (container) return container;
     container = document.createElement("div");
     container.className = "graft-overlay";
-    document.body.appendChild(container);
+    (document.getElementById("workspace") || document.body).appendChild(container);
     return container;
   }
 

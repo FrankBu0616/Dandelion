@@ -52,7 +52,7 @@ function shortenChoice(raw) {
 
 export function createMainThread({ dom, state, graph, callbacks }) {
   const { column, inner } = dom;
-  const { onBranch, onConflictChoice, onReopenGraftedSeed } = callbacks;
+  const { onBranch, onConflictChoice, onReopenGraftedSeed, onAfterRender } = callbacks;
   // Auto-collapse hides turns older than RECENT_EXPANDED_TURNS by default.
   // Both sets let the user override that:
   //   expandedHistoryTurns  — old turns the user manually re-opened
@@ -319,6 +319,10 @@ export function createMainThread({ dom, state, graph, callbacks }) {
     } else if (options.scrollToBottom !== false) {
       scrollToBottom();
     }
+    // Fire after every render so the host can resync derived UI state
+    // (e.g. the composer Plant button's streaming gate). Called from
+    // streamInto ticks too — the host is responsible for keeping it cheap.
+    onAfterRender?.();
   }
 
   // Scripted streaming: tick each character into item.text, then mark done.

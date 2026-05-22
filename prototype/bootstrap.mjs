@@ -161,6 +161,12 @@ const mainThread = createMainThread({
     onBranch: (item) => openPlantFromMessage(item),
     onConflictChoice: (itemId, idx) => resolveConflictChoice(itemId, idx),
     onReopenGraftedSeed: (plant) => reopenGraftedSeed(plant),
+    // Fires after every mainThread.render — including the internal calls
+    // from streamInto's animation ticks. We use it to keep the Plant
+    // button's streaming gate in sync; without this hook, the button
+    // would never re-enable after a stream ends because nothing outside
+    // the module wakes up to flip it.
+    onAfterRender: () => updatePlantBtnAvailability(),
   },
 });
 const renderMain = () => {
@@ -201,15 +207,10 @@ function updatePlantBtnAvailability() {
   }
 }
 
-// `mainThread.render()` is called every streaming tick from inside the module
-// (it bypasses the `renderMain` wrapper above). Wrap it so the plant-button
-// availability check runs after every render, including those mid-stream.
-const _origMainRender = mainThread.render;
-mainThread.render = (...args) => {
-  const result = _origMainRender.apply(mainThread, args);
-  updatePlantBtnAvailability();
-  return result;
-};
+// (Plant-button availability is now refreshed by the `onAfterRender`
+// callback wired into createMainThread above — fires on every render
+// including streamInto's internal ticks, so the gate releases the moment
+// status flips from "streaming" to "complete".)
 const streamInto = (item, fullText, durationMs, onDone) =>
   mainThread.streamInto(item, fullText, durationMs, onDone);
 const streamMainFromOllama = (item, prompt, attachments) => mainThread.streamChat(item, prompt, attachments);

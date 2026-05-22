@@ -324,7 +324,7 @@
 <div class="shell">
   <aside class="sidebar">
     <div class="brand">
-      <img src="brand/logos/dandelion.svg" alt="">
+      <img src="/brand/logos/dandelion.svg" alt="">
       <span>Dandelion</span>
     </div>
     <div id="scenario-list" class="scenario-list"></div>
@@ -433,10 +433,10 @@ function renderConversation(payload = state.result) {
 
   const mergeBanner = `
     <div class="merge-banner">
-      <div class="route-mark">${payload.route.classification === 'material_conflict' ? '!' : '+'}</div>
+      <div class="route-mark">${payload.route.kind === 'material_conflict' ? '!' : '+'}</div>
       <div>
-        <div class="merge-title">${routeTitle(payload.route.classification)}</div>
-        <div class="merge-subtitle">${routeSubtitle(payload.route.classification)}</div>
+        <div class="merge-title">${routeTitle(payload.route.kind)}</div>
+        <div class="merge-subtitle">${routeSubtitle(payload.route.kind)}</div>
       </div>
     </div>
   `;
@@ -510,7 +510,7 @@ async function runScenario() {
       body: JSON.stringify({ scenarioId: state.selectedId }),
     });
     state.result = payload;
-    routeChip.textContent = payload.route.classification.replace('_', ' ');
+    routeChip.textContent = (payload.route.kind || 'unknown').replace('_', ' ');
     renderThreads(payload);
     renderConversation(payload);
   } catch (error) {
