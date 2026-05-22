@@ -6,6 +6,7 @@
 import { relative, resolve, sep } from 'node:path';
 
 const PUBLIC_ROOT_FILES = new Set(['prototype.html']);
+const PUBLIC_FILES = new Set(['scripts/merge-router.mjs']);
 const PUBLIC_DIRS = ['brand', 'prototype'];
 
 function decodePathname(pathname) {
@@ -26,7 +27,7 @@ export function publicStaticPath(root, pathname) {
     return null;
   }
 
-  if (PUBLIC_ROOT_FILES.has(relPath)) return fullPath;
+  if (PUBLIC_ROOT_FILES.has(relPath) || PUBLIC_FILES.has(relPath)) return fullPath;
   if (PUBLIC_DIRS.some((dir) => relPath === dir || relPath.startsWith(`${dir}${sep}`))) {
     return fullPath;
   }
