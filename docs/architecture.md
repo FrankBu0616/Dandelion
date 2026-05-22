@@ -18,7 +18,7 @@ prototype.html                     (thin HTML shell; loads bootstrap.mjs)
        -> markdown                  (marked + KaTeX + DOMPurify)
 
   HTTP endpoints served by scripts/router-prototype-server.mjs:
-    /api/chat          single-turn chat in the active provider+model
+    /api/chat          current prompt + admitted structured history
     /api/files         proxy multipart upload to Anthropic Files API
     /api/continue      post-graft continuation prompt
     /api/classify-route classify grafted plants → kind + summary

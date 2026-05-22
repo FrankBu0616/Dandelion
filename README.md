@@ -11,7 +11,7 @@ what should.
 [![License: MIT](https://img.shields.io/badge/license-MIT-0F0F12.svg)](./LICENSE)
 [![Node](https://img.shields.io/badge/node-%E2%89%A520-C97B4E.svg)](https://nodejs.org/)
 [![Status](https://img.shields.io/badge/status-pre--alpha-3A7A7A.svg)](#status)
-[![Tests](https://img.shields.io/badge/tests-51%20passing-3A7A7A.svg)](./tests)
+[![Tests](https://img.shields.io/badge/tests-54%20passing-3A7A7A.svg)](./tests)
 [![CI](https://github.com/FrankBu0616/Dandelion/actions/workflows/test.yml/badge.svg)](https://github.com/FrankBu0616/Dandelion/actions/workflows/test.yml)
 
 </div>
@@ -155,7 +155,7 @@ If not, the feature belongs to generic branching chat, not Dandelion.
 - 🔌 **BYO keys**, local-first — Dandelion never phones home. Your
   Anthropic key talks to Anthropic; your Ollama runs locally. No
   telemetry, no account, no hosted backend.
-- 🧪 **51 tests** covering the classifier, mute filters, persistence,
+- 🧪 **54 tests** covering the classifier, mute filters, persistence,
   server session store, and `.env` loader.
 
 ## Quick start
@@ -165,7 +165,7 @@ git clone https://github.com/FrankBu0616/Dandelion.git
 cd Dandelion
 cp .env.example .env       # then edit .env — fill in keys or leave blank for Ollama-only
 npm start                  # serves http://localhost:4321
-npm test                   # 51 unit tests, no network needed
+npm test                   # 54 unit tests, no network needed
 ```
 
 Requires Node.js 20+. **No `npm install`** — Dandelion has no npm
@@ -297,7 +297,7 @@ prototype.html  (thin HTML shell)
   v
 prototype/bootstrap.mjs  (application host)
   |
-  |-- /api/chat         single-turn request
+  |-- /api/chat         current prompt + admitted structured history
   |-- /api/files        upload-to-Anthropic file proxy
   |-- /api/continue     post-graft synthesis prompt
   |-- /api/classify-route   plant disagreement classifier
@@ -355,7 +355,7 @@ scripts/
     prompts.mjs                    continuation-prompt builders
     sessions.mjs                   file-backed session storage (./sessions/*.json)
 sessions/                          server-side session snapshots (gitignored)
-tests/                             node:test suites (51 tests)
+tests/                             node:test suites (54 tests)
 docs/
   README.md                        docs index
   north_star.md                    product doctrine

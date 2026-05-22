@@ -34,7 +34,6 @@ test the core context-modulation loop but features will change.
 - Per-segment **mute** via an eye / eye-off toggle. Muted segments stay
   visible in the thread but are withheld from the model on the next
   send. Reversible.
-- "Sent on the wire" reality-check inside the drawer.
 - Per-user-turn caption stamps the muted segments at send time
   ("↓ asked with 2 muted: parent context, report.pdf"), so the thread
   record stays honest about routing decisions.
@@ -77,23 +76,26 @@ test the core context-modulation loop but features will change.
   hidden-until-positioned. Trimmed ~75 LOC off `main-thread.mjs`.
 - New module `prototype/types.mjs` — JSDoc typedefs for the shared
   `AppState` shape.
-- Server's `runChat` now folds parent context into the system prompt as
-  background guidance, rather than as a leading user turn.
+- Main-thread and plant sends now replay admitted parent turns as
+  structured chat history. The legacy parent-context string fallback is
+  background guidance in the system prompt, not a leading user turn.
 
 #### Defaults
 - `max_tokens` default bumped 1024 → 16000 (the previous default was
   truncating multi-paragraph replies mid-thought).
 
 #### UI
-- Swapped per-chunk **Plant** and **Collapse** button locations: Plant
-  now flows below the assistant bubble (hover-fade), Collapse anchors
-  to the top-right of the bubble.
+- Per-turn **Plant** and **Collapse** actions now live with the
+  assistant turn controls instead of competing with the message body.
 - Replaced the top-bar **Context** pill with a right-edge drawer tab so
   the inspector reads as a permanent surface, not a discoverable
   action.
 
 ### Fixed
 
+- Static asset serving is now gated to the public prototype shell plus
+  `prototype/` and `brand/`, so repo-root secrets like `.env` and
+  server-side `sessions/` snapshots are not fetchable as web assets.
 - Graft dandelion no longer flickers to the top-left during streaming
   re-renders.
 - Main thread's `/api/chat` history replay path now honors mute flags
@@ -105,5 +107,6 @@ test the core context-modulation loop but features will change.
 
 ### Tests
 
-- 13 → 40 (`mute-filters`, `persistence`, `sessions-server` test
-  suites added on top of the existing classifier and graph tests).
+- 13 → 54 (`mute-filters`, `persistence`, `sessions-server`, `.env`
+  loader, and static-file gate coverage added on top of the existing
+  classifier and graph tests).

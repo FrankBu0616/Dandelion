@@ -2,7 +2,7 @@
 //
 // Endpoints:
 //   GET  /api/models     list models available across configured providers
-//   POST /api/chat            single-turn chat in the active provider+model
+//   POST /api/chat            current prompt + admitted context in the active provider+model
 //   POST /api/files           upload a file to Anthropic; returns { id, ... }
 //   POST /api/classify-route  classify grafted plants → { kind, summary, choices }
 //   POST /api/continue        post-graft continuation, given grafted plants + route

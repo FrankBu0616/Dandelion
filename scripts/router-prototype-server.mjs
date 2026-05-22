@@ -5,7 +5,7 @@
 //
 //   GET  /api/scenarios   list curated scenarios for the router-only demo
 //   POST /api/run         run a curated scenario end-to-end (deprecated UI path)
-//   POST /api/chat        proxy a single message to the local Ollama model
+//   POST /api/chat        proxy the current prompt plus admitted context
 //   POST /api/files       proxy a file upload to the Anthropic Files API
 //                         (raw body = file bytes, Content-Type = media type,
 //                         X-Filename = original filename). Returns { id, ... }.
@@ -32,7 +32,7 @@ import './load-env.mjs';
 
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
-import { extname, join } from 'node:path';
+import { extname } from 'node:path';
 
 import { SCENARIOS } from './harness/scenarios.mjs';
 import {
@@ -42,6 +42,7 @@ import {
 } from './server/prompts.mjs';
 import { chat, uploadFile, activeModel, activeProvider, listModels } from './providers.mjs';
 import { classifyRouteWithModel } from './classify-route.mjs';
+import { publicStaticPath } from './server/static-files.mjs';
 import {
   listSessions,
   readSession,
@@ -391,7 +392,13 @@ const server = createServer(async (request, response) => {
     } else if (pathname === '/prototype-router.html') {
       pathname = '/prototype/router-demo/index.html';
     }
-    const filePath = join(ROOT, pathname.slice(1));
+    const filePath = publicStaticPath(ROOT, pathname);
+    if (!filePath) {
+      const result = jsonResponse({ error: `Static path not found: ${url.pathname}` }, 404);
+      response.writeHead(result.status, result.headers);
+      response.end(result.body);
+      return;
+    }
     const body = await readFile(filePath);
     response.writeHead(200, {
       'Content-Type': contentType(pathname),
