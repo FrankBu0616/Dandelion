@@ -79,8 +79,37 @@ const persistence = createPersistence({
 // Updated on session creation, load, and rename. Snapshots key off this id.
 let sessionMeta = { id: newSessionId(), title: "", createdAt: Date.now() };
 
+// Last-saved signature of the state's *content* (everything except
+// `updatedAt`). We compare against this on every persistNow call to
+// suppress redundant writes — most importantly the one that fires from
+// the render right after `loadSession`, which would otherwise stamp the
+// just-opened session as "just now" in the sidebar.
+let lastSavedSignature = null;
+
+function contentSignatureOf(snapshot) {
+  // updatedAt is the field we *want* to be allowed to differ. Everything
+  // else (graph, mainConv, plants, attachments, mute flags, model, title)
+  // counts as "the content" for the purpose of deciding "did anything
+  // actually change?"
+  const { meta, ...rest } = snapshot;
+  return JSON.stringify({ ...rest, title: meta.title });
+}
+
+function hasMeaningfulContent(state) {
+  return (state.mainConv?.length || 0) > 0
+    || (state.plants?.length || 0) > 0
+    || (state.sessionFiles?.length || 0) > 0
+    || Boolean(state.parentContext);
+}
+
 function persistNow() {
+  // Skip empty sessions — otherwise every "New session" click leaves an
+  // "Untitled session" entry in the sidebar before the user has typed.
+  if (!hasMeaningfulContent(state)) return;
   const snapshot = snapshotFromState(state, graph, sessionMeta);
+  const signature = contentSignatureOf(snapshot);
+  if (signature === lastSavedSignature) return;
+  lastSavedSignature = signature;
   sessionMeta = { ...sessionMeta, title: snapshot.meta.title, updatedAt: snapshot.meta.updatedAt };
   persistence.save(snapshot);
 }
@@ -524,6 +553,10 @@ function newSession() {
   // so its final state is on disk and shows up in the recent-sessions list.
   persistence.flush();
   sessionMeta = { id: newSessionId(), title: "", createdAt: Date.now() };
+  // Reset the save-suppression signature so the first real edit in the
+  // new session actually persists (otherwise an empty-vs-empty comparison
+  // could spuriously match across sessions).
+  lastSavedSignature = null;
   persistence.setCurrent(sessionMeta.id);
 
   state.mainConv = [];
@@ -566,6 +599,10 @@ async function loadSession(id) {
     console.warn("Failed to load session", id, err);
     return false;
   }
+  // Seed the save-suppression signature with the just-loaded snapshot so
+  // the render that follows doesn't re-save with a fresh updatedAt and
+  // bump this session to "just now" in the sidebar.
+  lastSavedSignature = contentSignatureOf(snapshot);
   persistence.setCurrent(sessionMeta.id);
   // Re-attach model picker selection if we know which model was active.
   const sel = snapshot.currentModelSelection;
@@ -683,6 +720,9 @@ modelPicker.load();
   if (!snapshot) { newSession(); return; }
   try {
     sessionMeta = applySnapshot(snapshot, { state, graph });
+    // Seed the signature so the post-restore render is a no-op save —
+    // opening the app should not bump `updatedAt` on the active session.
+    lastSavedSignature = contentSignatureOf(snapshot);
     composerInput.value = "";
     autoSizeTextarea(composerInput, 160);
     renderAttachmentChips();

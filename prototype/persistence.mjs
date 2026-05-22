@@ -50,7 +50,14 @@ export function snapshotFromState(state, graph, meta = { id: "" }) {
     throw new Error("snapshotFromState: meta.id is required");
   }
   const now = Date.now();
-  const title = meta.title || deriveTitle(state);
+  // Treat the "Untitled session" placeholder as still-no-title-yet so it
+  // gets re-derived once a real user turn lands. This is the path a
+  // file-first session takes: upload kicks the first save before any user
+  // message exists, so the snapshot's title is the placeholder; on the
+  // *next* save (after the user sends), we want to re-derive instead of
+  // staying frozen as "Untitled session".
+  const isPlaceholder = !meta.title || meta.title === "Untitled session";
+  const title = isPlaceholder ? deriveTitle(state) : meta.title;
   return {
     schemaVersion: SCHEMA_VERSION,
     meta: {

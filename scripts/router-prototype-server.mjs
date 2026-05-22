@@ -23,6 +23,13 @@
 // for both this server and the CLI merge harness). Prompt builders live in
 // scripts/server/prompts.mjs.
 
+// MUST be the first import so its side-effect loadEnv() runs before any
+// other module's top-level `process.env` reads (e.g. SESSIONS_DIR in
+// server/sessions.mjs). ES modules hoist all imports, but execute them
+// in source order — putting this first guarantees env is populated
+// before downstream modules evaluate.
+import './load-env.mjs';
+
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { extname, join } from 'node:path';
@@ -400,8 +407,43 @@ const server = createServer(async (request, response) => {
   }
 });
 
-server.listen(PORT, HOST, () => {
+server.listen(PORT, HOST, async () => {
   console.log(`Dandelion router prototype: http://localhost:${PORT}`);
   console.log(`Router-only prototype:     http://localhost:${PORT}/router-demo`);
   console.log(`Provider: ${PROVIDER}    Model: ${MODEL}`);
+
+  // Surface setup gaps loudly — silent fallback to "one model in the picker"
+  // is the #1 first-impression confusion for new contributors. Run after
+  // bind so the bind error path stays the first thing the user sees.
+  await reportStartupHealth();
 });
+
+async function reportStartupHealth() {
+  const hasAnthropicKey = Boolean(process.env.ANTHROPIC_API_KEY);
+  let ollamaModels = [];
+  try { ollamaModels = await import('./providers.mjs').then((m) => m.listModels()); }
+  catch { /* listModels swallows its own errors; this is just a safety net */ }
+  const hasOllama = ollamaModels.some((m) => m.provider === 'ollama');
+
+  if (!hasAnthropicKey && !hasOllama) {
+    console.warn('');
+    console.warn('⚠ No models available.');
+    console.warn('  • ANTHROPIC_API_KEY is not set (cloud models hidden).');
+    console.warn('  • No Ollama instance reachable at', process.env.OLLAMA_BASE_URL ?? 'http://localhost:11434/v1');
+    console.warn('  See README → Setup, or copy .env.example to .env.');
+    console.warn('');
+  } else if (!hasAnthropicKey) {
+    console.warn('⚠ ANTHROPIC_API_KEY not set — cloud models hidden, file uploads disabled.');
+  }
+
+  // Loopback-only bind is the safe default. If the operator opens it up,
+  // remind them that the server has no auth and any LAN peer can use the
+  // proxied Anthropic key.
+  if (HOST !== '127.0.0.1' && HOST !== 'localhost' && HOST !== '::1') {
+    console.warn('');
+    console.warn(`⚠ Server bound to ${HOST} — reachable from the network.`);
+    console.warn('  Dandelion has no authentication. Anyone who can reach this');
+    console.warn('  port can use your Anthropic API key. Only enable on a trusted network.');
+    console.warn('');
+  }
+}

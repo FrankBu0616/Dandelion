@@ -1,9 +1,33 @@
 {
   "name": "dandelion",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
-  "description": "Local-first desktop app concept where a question spins up parallel plants and weaves selected ones back into the main conversation.",
+  "description": "Chat-native, user-arbitrated parallel exploration with merge. Spin up parallel plants off a question, graft the ones you trust back into the trunk, see exactly what context the model receives.",
   "license": "MIT",
+  "author": "Frank Bu",
+  "homepage": "https://github.com/FrankBu0616/Dandelion#readme",
+  "bugs": {
+    "url": "https://github.com/FrankBu0616/Dandelion/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FrankBu0616/Dandelion.git"
+  },
+  "keywords": [
+    "llm",
+    "claude",
+    "anthropic",
+    "ollama",
+    "agents",
+    "context",
+    "context-engineering",
+    "prompt-engineering",
+    "chat",
+    "parallel",
+    "branching",
+    "local-first",
+    "prototype"
+  ],
   "type": "module",
   "engines": {
     "node": ">=20"

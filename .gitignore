@@ -18,3 +18,7 @@ npm-debug.log*
 .env
 .env.local
 .env.*.local
+
+# Server-side session snapshots (one JSON per session, see
+# scripts/server/sessions.mjs). Per-developer scratch state, not source.
+sessions/

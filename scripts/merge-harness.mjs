@@ -17,6 +17,7 @@
 // classify-experiment.mjs to benchmark classifier accuracy across many
 // scenarios at once.
 
+import './load-env.mjs';
 import { classifyRouteWithModel } from './classify-route.mjs';
 import { SCENARIOS } from './harness/scenarios.mjs';
 import { buildMergePrompt } from './harness/merge-prompt.mjs';

@@ -77,6 +77,29 @@ test("snapshot rejects missing meta.id", () => {
   assert.throws(() => snapshotFromState({}, createGraph(), {}), /meta\.id is required/);
 });
 
+test("snapshot re-derives title when meta.title is the placeholder", () => {
+  // File-first session: first save fires before any user turn → title
+  // becomes "Untitled session". On the next save (now with a user turn)
+  // we must re-derive instead of staying frozen as the placeholder.
+  const stateEmpty = { mainConv: [], plants: [], sessionFiles: [] };
+  const first = snapshotFromState(stateEmpty, createGraph(), { id: "sess_p" });
+  assert.equal(first.meta.title, "Untitled session");
+
+  const stateWithUser = {
+    mainConv: [{ kind: "user", text: "what is X?" }],
+    plants: [],
+    sessionFiles: [],
+  };
+  // Pass the placeholder title back in (this is what bootstrap.mjs caches
+  // in sessionMeta). It must NOT stick.
+  const second = snapshotFromState(stateWithUser, createGraph(), {
+    id: "sess_p",
+    title: "Untitled session",
+    createdAt: first.meta.createdAt,
+  });
+  assert.equal(second.meta.title, "what is X?");
+});
+
 test("applySnapshot restores state and graph", () => {
   const stateBefore = makeMinimalState();
   const graphBefore = createGraph();

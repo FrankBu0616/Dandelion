@@ -1,0 +1,37 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: node ${{ matrix.node }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        node: [20, 22]
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      # Dandelion has no npm dependencies, but we still run the
+      # node:test runner via `npm test`. No `npm install` needed.
+      - name: Run tests
+        run: npm test
+
+      - name: Syntax-check every .mjs file
+        run: |
+          find prototype scripts tests -type f -name "*.mjs" -print0 \
+            | xargs -0 -n1 node --check
