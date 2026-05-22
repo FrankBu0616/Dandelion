@@ -60,6 +60,11 @@ export function loadEnv({ path = '.env', cwd = process.cwd(), env = process.env 
     // the principle-of-least-surprise rule every popular .env loader
     // follows.
     if (env[k] !== undefined && env[k] !== '') continue;
+    // An empty value in the file (e.g. `KEY=` straight out of .env.example)
+    // means "no value provided" — same as leaving the line out entirely.
+    // Assigning '' here would clobber `??` fallbacks downstream, since
+    // empty strings are not nullish. Skip them.
+    if (v === '') continue;
     env[k] = v;
     applied[k] = v;
   }

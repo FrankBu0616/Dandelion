@@ -103,3 +103,17 @@ test("loadEnv treats empty-string env values as overwritable", () => {
     assert.equal(env.A, "fromfile");
   });
 });
+
+test("loadEnv skips empty values in the file (KEY= means 'not set')", () => {
+  // .env.example ships keys like `ANTHROPIC_API_KEY=` to flag "fill this
+  // in"; copying it verbatim must not clobber `??` fallbacks downstream
+  // by assigning ''. We treat empty in the file the same as omitted.
+  withTmpEnv("A=\nB=value\nC=\n", (dir) => {
+    const env = {};
+    const result = loadEnv({ cwd: dir, env });
+    assert.equal(env.A, undefined);
+    assert.equal(env.B, "value");
+    assert.equal(env.C, undefined);
+    assert.deepEqual(Object.keys(result.applied), ["B"]);
+  });
+});
