@@ -1,138 +1,125 @@
-// Network module — every call to the local prototype server lives here.
+// Network module — browser-only edition.
 //
-// Endpoints:
-//   GET  /api/models     list models available across configured providers
-//   POST /api/chat            current prompt + admitted context in the active provider+model
-//   POST /api/files           upload a file to Anthropic; returns { id, ... }
-//   POST /api/classify-route  classify grafted plants → { kind, summary, choices }
-//   POST /api/continue        post-graft continuation, given grafted plants + route
+// In the original local-server version, every function here was a thin
+// `fetch('/api/...')` proxy to scripts/router-prototype-server.mjs. After the
+// browser refactor the server is no longer required at runtime; we call the
+// Anthropic API directly (with the user's own key, stored in localStorage)
+// or the user's local Ollama. The Node server still exists for local dev
+// (`npm start`) but the deployed prototype does not depend on it.
 //
-// All functions throw on non-2xx so callers can fall back to scripted replies.
+// Public surface (preserved from the old version so callers keep working):
+//   listModels(), chat(), uploadFile(), classifyRoute(), continueThread(),
+//   plus the session helpers which are now no-ops (sessions persist locally
+//   via persistence.mjs's localStorage adapter).
 
-export async function listModels() {
-  const response = await fetch("/api/models");
-  if (!response.ok) throw new Error(await response.text());
-  return response.json();
-}
+import {
+  chat as providerChat,
+  listModels as providerListModels,
+  uploadFile as providerUploadFile,
+  activeProvider,
+  activeModel,
+} from './providers.mjs';
+import { classifyRouteWithModel } from './classify-route.mjs';
+import { buildDynamicContinuationPrompt } from './prompts.mjs';
 
 /**
- * @typedef {{ provider?: string, model?: string }} ModelSelection
+ * Return { default: {provider, model}, models: [...] } — same shape the
+ * old GET /api/models endpoint returned, so the model-picker UI doesn't
+ * need to change.
  */
-
-async function postJSON(path, body) {
-  const response = await fetch(path, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  if (!response.ok) throw new Error(await response.text());
-  return response.json();
+export async function listModels() {
+  const models = await providerListModels();
+  return {
+    default: { provider: activeProvider(), model: activeModel() },
+    models,
+  };
 }
 
 /**
  * @typedef {{ file_id: string, kind: 'document'|'image' }} Attachment
+ * @typedef {{ role: 'system'|'user'|'assistant', content: string }} ContextMessage
+ * @typedef {{ provider?: string, model?: string }} ModelSelection
  */
 
-/**
- * @typedef {{ role: 'system'|'user'|'assistant', content: string }} ContextMessage
- */
+const DEFAULT_SYSTEM =
+  'You are Dandelion, a concise assistant inside a local prototype. Answer directly and naturally.';
+
+function sanitizeContextMessages(messages) {
+  if (!Array.isArray(messages)) return [];
+  const allowed = new Set(['system', 'user', 'assistant']);
+  return messages
+    .map((m) => ({
+      role: String(m?.role || ''),
+      content: typeof m?.content === 'string' ? m.content.trim() : '',
+    }))
+    .filter((m) => allowed.has(m.role) && m.content);
+}
+
+// Build the user-message content: plain string when there are no attachments,
+// otherwise an Anthropic-style content-block array referencing uploaded files.
+function buildUserContent(prompt, attachments) {
+  const text = prompt || '';
+  if (!Array.isArray(attachments) || attachments.length === 0) return text;
+  const blocks = attachments.map((att) => ({
+    type: att.kind === 'image' ? 'image' : 'document',
+    source: { type: 'file', file_id: att.file_id },
+  }));
+  if (text) blocks.push({ type: 'text', text });
+  return blocks;
+}
 
 /**
  * Send one prompt to the model. Returns { answer, model, provider }.
- * Pass `attachments` (file_ids from uploadFile) to include files in the turn.
  * @param {{ prompt: string, contextMessages?: ContextMessage[], system?: string, model?: ModelSelection, attachments?: Attachment[] }} args
  */
-export function chat({ prompt, contextMessages, system, model, attachments }) {
-  return postJSON("/api/chat", {
-    prompt,
-    contextMessages: contextMessages?.length ? contextMessages : undefined,
-    system,
-    attachments: attachments?.length ? attachments : undefined,
-    provider: model?.provider || undefined,
-    model: model?.model || undefined,
+export async function chat({ prompt, contextMessages, system, model, attachments }) {
+  const messages = [
+    { role: 'system', content: system || DEFAULT_SYSTEM },
+    ...sanitizeContextMessages(contextMessages),
+    { role: 'user', content: buildUserContent(prompt, attachments) },
+  ];
+  const answer = await providerChat(messages, {
+    model: model?.model,
+    provider: model?.provider,
   });
-}
-
-/* ────────── Sessions ────────── */
-
-/**
- * List saved sessions (metadata only — no body). Returns
- * `[{id, title, createdAt, updatedAt}, ...]` newest-first. Throws on non-2xx.
- */
-export async function listSavedSessions() {
-  const response = await fetch("/api/sessions");
-  if (!response.ok) throw new Error(await response.text());
-  const data = await response.json();
-  return Array.isArray(data?.sessions) ? data.sessions : [];
-}
-
-/** Fetch a single session snapshot by id, or null if 404. */
-export async function fetchSavedSession(id) {
-  const response = await fetch(`/api/sessions/${encodeURIComponent(id)}`);
-  if (response.status === 404) return null;
-  if (!response.ok) throw new Error(await response.text());
-  return response.json();
-}
-
-/** Persist a snapshot to the server. Body is the snapshot. */
-export async function putSavedSession(id, snapshot) {
-  const response = await fetch(`/api/sessions/${encodeURIComponent(id)}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(snapshot),
-  });
-  if (!response.ok) throw new Error(await response.text());
-  return response.json();
-}
-
-/** Delete a saved session by id. Returns `true` if it existed. */
-export async function deleteSavedSession(id) {
-  const response = await fetch(`/api/sessions/${encodeURIComponent(id)}`, { method: "DELETE" });
-  if (!response.ok) throw new Error(await response.text());
-  const data = await response.json();
-  return Boolean(data?.deleted);
+  return {
+    answer,
+    model: model?.model || activeModel(),
+    provider: model?.provider || activeProvider(),
+  };
 }
 
 /**
- * Upload a file (PDF / image / text) to the Anthropic Files API via the
- * local prototype server. Returns { id, filename, mime_type, size_bytes }.
- * The returned `id` is what you pass as `attachments[].file_id` to chat().
- * @param {File | Blob} file  Browser File or Blob with a `.name` (Files have one).
- * @returns {Promise<{ id: string, filename: string, mime_type: string, size_bytes: number }>}
+ * Upload a file (PDF / image / text) to the Anthropic Files API.
+ * Returns { id, filename, mime_type, size_bytes }.
+ * @param {File | Blob} file
  */
 export async function uploadFile(file) {
-  const filename = file.name || "upload.bin";
-  const mediaType = file.type || "application/octet-stream";
-  const response = await fetch("/api/files", {
-    method: "POST",
-    headers: {
-      "Content-Type": mediaType,
-      "X-Filename": filename,
-    },
-    body: file,
-  });
-  if (!response.ok) throw new Error(await response.text());
-  return response.json();
+  return providerUploadFile(file);
 }
 
 /**
- * Classify a set of grafted plants into a context route using the model-based
- * classifier. Returns { route: { kind, summary, choices }, model, provider }.
+ * Classify grafted plants into a context route.
+ * Returns { route: { kind, summary, choices }, model, provider }.
  * @param {{ plants: Array<object>, model?: ModelSelection }} args
  */
-export function classifyRoute({ plants, model }) {
-  return postJSON("/api/classify-route", {
-    plants,
-    provider: model?.provider || undefined,
-    model: model?.model || undefined,
+export async function classifyRoute({ plants, model }) {
+  const route = await classifyRouteWithModel(plants, {
+    model: model?.model,
+    provider: model?.provider,
   });
+  return {
+    route,
+    model: model?.model || activeModel(),
+    provider: model?.provider || activeProvider(),
+  };
 }
 
 /**
- * Ask the model to continue the main thread given a set of grafted plants.
+ * Continue the main thread given a set of grafted plants.
  * Returns { answer, model, provider }.
  */
-export function continueThread({
+export async function continueThread({
   parentContext,
   mainConversation,
   graftedPlants,
@@ -140,13 +127,58 @@ export function continueThread({
   followUp,
   model,
 }) {
-  return postJSON("/api/continue", {
+  const prompt = buildDynamicContinuationPrompt({
     parentContext,
     mainConversation,
     graftedPlants,
     route,
     followUp,
-    provider: model?.provider || undefined,
-    model: model?.model || undefined,
   });
+  const answer = await providerChat(
+    [
+      {
+        role: 'system',
+        content: [
+          'You are continuing one coherent conversation.',
+          'Answer directly as if the relevant context is already part of the conversation.',
+          'Do not mention merged context, plants, branches, transcripts, key claims, classification, or routing.',
+          'Do not begin with setup language like "Given the discussions".',
+        ].join('\n'),
+      },
+      { role: 'user', content: prompt },
+    ],
+    { model: model?.model, provider: model?.provider },
+  );
+  return {
+    answer,
+    model: model?.model || activeModel(),
+    provider: model?.provider || activeProvider(),
+  };
+}
+
+/* ────────── Sessions — now no-ops ──────────
+ *
+ * Sessions persist locally via persistence.mjs's localStorage adapter. The
+ * old server-side session store has no analogue in the browser deploy. We
+ * keep these functions exported (as no-ops) so bootstrap.mjs's optional
+ * remote-adapter wiring continues to be safe:
+ *   - list returns [], so sessions-sidebar shows local-only sessions.
+ *   - fetch returns null, so persistence.fetchRemoteSession falls back to local.
+ *   - put / delete resolve successfully without doing anything.
+ */
+
+export async function listSavedSessions() {
+  return [];
+}
+
+export async function fetchSavedSession(_id) {
+  return null;
+}
+
+export async function putSavedSession(_id, _snapshot) {
+  return { ok: true };
+}
+
+export async function deleteSavedSession(_id) {
+  return false;
 }

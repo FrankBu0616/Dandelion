@@ -1,0 +1,29 @@
+# Keep the Vercel deploy lean. Vercel only needs the static files referenced
+# from prototype.html: the prototype/ module folder, the brand/ assets, and
+# the entry HTML itself. Everything else is dev-time tooling.
+
+# Dev server + harness (not used in the deployed prototype)
+scripts/
+sessions/
+
+# Tests
+tests/
+
+# Heavy demo media — served from GitHub release assets / linked in README
+*.mov
+*.mp4
+*.webm
+dandelion_demo.gif
+
+# Editor / agent state
+.claude/
+.vscode/
+.idea/
+
+# Local env (never deploy)
+.env
+.env.local
+.env.*.local
+
+# OS junk
+.DS_Store

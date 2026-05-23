@@ -32,6 +32,7 @@ import {
   deriveTitle,
 } from "./persistence.mjs";
 import { createSessionsSidebar } from "./sessions-sidebar.mjs";
+import { createSettingsUI, openSettingsIfUnconfigured } from "./settings-ui.mjs";
 
 /* ============================================================
    STATE
@@ -712,6 +713,26 @@ $("#tray-add-btn").addEventListener("click", onOpenPlant);
 $("#tray-close-btn").addEventListener("click", closeSeedPanel);
 
 modelPicker.load();
+
+/* ============================================================
+   SETTINGS UI (see prototype/settings-ui.mjs)
+   ============================================================ */
+const settingsUI = createSettingsUI({
+  openBtn: document.getElementById("settings-open-btn"),
+  modal: document.getElementById("settings-modal"),
+  overlay: document.getElementById("settings-overlay"),
+  closeBtn: document.getElementById("settings-close-btn"),
+  cancelBtn: document.getElementById("settings-cancel-btn"),
+  saveBtn: document.getElementById("settings-save-btn"),
+  anthropicKeyInput: document.getElementById("settings-anthropic-key"),
+  ollamaUrlInput: document.getElementById("settings-ollama-url"),
+  revealBtn: document.getElementById("settings-reveal-btn"),
+  // After saving, re-pull the model list so newly available providers appear.
+  onSave: () => { modelPicker.load(); },
+});
+// First-run: if no key and no Ollama URL configured, open the settings modal
+// so the user knows where to start.
+openSettingsIfUnconfigured(settingsUI);
 
 // Boot: try to restore the most recent session. If anything goes wrong
 // (no saved session, schema mismatch, parse error), fall back to a fresh
