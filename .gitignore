@@ -22,3 +22,12 @@ npm-debug.log*
 # Server-side session snapshots (one JSON per session, see
 # scripts/server/sessions.mjs). Per-developer scratch state, not source.
 sessions/
+
+# Raw demo video sources — too big for git history. Compress into a
+# reasonable .mp4 / .webm / .gif and host on GitHub (drag-drop a release
+# asset or an issue/PR) before linking from README.
+*.mov
+*.mp4
+*.webm
+demo/
+

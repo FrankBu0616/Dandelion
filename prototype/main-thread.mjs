@@ -103,12 +103,28 @@ export function createMainThread({ dom, state, graph, callbacks }) {
     // doesn't rewrite history.
     const muted = item.mutedSnapshot;
     if (Array.isArray(muted) && muted.length > 0) {
+      // Expandable per-turn record of what was muted at send time.
+      // Collapsed: pill shows "↓ N muted ▾" — no truncation, no tooltip
+      // dependency. Click toggles a wrapping list of every muted label.
+      // The summary text on its own is enough for scanning; the list is
+      // for users who actually want to audit what the model didn't see.
       const count = muted.length;
-      const summary = muted.slice(0, 3).join(", ") + (count > 3 ? `, +${count - 3} more` : "");
-      const caption = document.createElement("div");
+      const caption = document.createElement("button");
+      caption.type = "button";
       caption.className = "msg-user-muted-caption";
-      caption.title = muted.join("\n");
-      caption.textContent = `↓ asked with ${count} muted: ${summary}`;
+      caption.setAttribute("aria-expanded", "false");
+      caption.innerHTML =
+        `<span class="muted-caption-summary">` +
+          `↓ asked with ${count} muted` +
+          `<span class="muted-caption-chevron" aria-hidden="true">▾</span>` +
+        `</span>` +
+        `<ul class="muted-caption-list">` +
+          muted.map((m) => `<li>${escapeHtml(m)}</li>`).join("") +
+        `</ul>`;
+      caption.addEventListener("click", () => {
+        const expanded = caption.getAttribute("aria-expanded") === "true";
+        caption.setAttribute("aria-expanded", String(!expanded));
+      });
       el.appendChild(caption);
     }
     parent.appendChild(el);

@@ -13,22 +13,57 @@
   .main-turn .msg { margin: 18px 0; }
   .msg-user { align-items: flex-end; }
   /* Wire-shape caption — stamped on user turns that were sent with one or
-     more muted segments. Linear thread, legible routing. Hover for the full
-     list (set via the `title` attribute). */
+     more muted segments. Collapsed by default; click to expand the full
+     list inline. Linear thread, legible routing, fully discoverable
+     (no hidden tooltip dependency). */
   .msg-user-muted-caption {
     margin-top: 4px;
     margin-right: 4px;
+    padding: 3px 10px;
+    font: inherit;
     font-size: 11px;
     color: var(--graft-text);
     background: var(--accent-soft);
     border: 1px solid rgba(138, 79, 34, 0.18);
-    border-radius: 999px;
-    padding: 2px 9px;
+    border-radius: 14px;
     max-width: 80%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    cursor: help;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.12s, border-color 0.12s;
+  }
+  .msg-user-muted-caption:hover {
+    background: rgba(201, 123, 78, 0.22);
+    border-color: rgba(138, 79, 34, 0.4);
+  }
+  .muted-caption-summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+  }
+  .muted-caption-chevron {
+    display: inline-block;
+    font-size: 10px;
+    transition: transform 0.15s ease;
+  }
+  .msg-user-muted-caption[aria-expanded="true"] .muted-caption-chevron {
+    transform: rotate(-180deg);
+  }
+  .muted-caption-list {
+    margin: 6px 0 2px;
+    padding-left: 18px;
+    list-style: disc;
+    display: none;
+    color: var(--graft-text);
+    font-weight: 400;
+    line-height: 1.5;
+  }
+  .muted-caption-list li {
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+  }
+  .msg-user-muted-caption[aria-expanded="true"] .muted-caption-list {
+    display: block;
   }
   .msg-user .bubble {
     background: var(--user-bg);
