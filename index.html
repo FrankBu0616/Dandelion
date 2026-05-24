@@ -91,10 +91,11 @@
       </div>
 
       <div class="settings-field">
-        <label class="settings-label" for="settings-ollama-url">Ollama base URL</label>
+        <label class="settings-label" for="settings-ollama-url">Ollama URL</label>
         <input type="text" id="settings-ollama-url" class="settings-input"
-               autocomplete="off" spellcheck="false" placeholder="http://localhost:11434/v1" />
+               autocomplete="off" spellcheck="false" placeholder="http://localhost:11434" />
         <div class="settings-help">
+          The <code>/v1</code> suffix is added automatically — just paste the host.<br>
           <strong>Don't see your local models in the picker?</strong> Ollama blocks
           cross-origin requests by default. Restart it allowing this site:<br>
           <code>OLLAMA_ORIGINS='*' ollama serve</code><br>

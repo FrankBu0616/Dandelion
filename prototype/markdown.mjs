@@ -9,9 +9,14 @@
 // Model output is untrusted. Marked intentionally leaves sanitization to the
 // caller, so the rendered HTML is cleaned before it reaches innerHTML.
 
-import { marked } from "https://esm.sh/marked@13.0.3";
-import katex from "https://esm.sh/katex@0.16.11";
-import DOMPurify from "https://esm.sh/dompurify@3.2.6";
+// Pulled from jsdelivr's ESM build (`/+esm`). esm.sh was failing in some
+// regions (ERR_CONNECTION_CLOSED), which broke this module's imports —
+// which in turn cascaded into main-thread.mjs and killed bootstrap.mjs
+// before any UI got wired. jsdelivr is more reliable across geos and
+// serves the same packages.
+import { marked } from "https://cdn.jsdelivr.net/npm/marked@13.0.3/+esm";
+import katex from "https://cdn.jsdelivr.net/npm/katex@0.16.11/+esm";
+import DOMPurify from "https://cdn.jsdelivr.net/npm/dompurify@3.2.6/+esm";
 
 marked.setOptions({ breaks: true, gfm: true });
 

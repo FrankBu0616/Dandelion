@@ -54,8 +54,26 @@ export function getAnthropicKey() {
   return read().anthropicApiKey || '';
 }
 
+/**
+ * Normalize an Ollama URL so callers don't need to remember the `/v1` suffix.
+ * Accepts any of:
+ *   http://localhost:11434
+ *   http://localhost:11434/
+ *   http://localhost:11434/v1
+ *   http://localhost:11434/v1/
+ * and returns the canonical `http://localhost:11434/v1`.
+ */
+function normalizeOllamaUrl(raw) {
+  let url = (raw || DEFAULTS.ollamaBaseUrl).trim();
+  // Strip trailing slashes.
+  url = url.replace(/\/+$/, '');
+  // If it doesn't already end in /v1 (or any /vN), append /v1.
+  if (!/\/v\d+$/.test(url)) url = `${url}/v1`;
+  return url;
+}
+
 export function getOllamaBaseUrl() {
-  return read().ollamaBaseUrl || DEFAULTS.ollamaBaseUrl;
+  return normalizeOllamaUrl(read().ollamaBaseUrl);
 }
 
 export function getDefaultProvider() {
