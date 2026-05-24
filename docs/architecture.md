@@ -4,7 +4,7 @@ Architectural north star: Dandelion is a context editor, not a branching chat ap
 
 Branches can be many. The trunk's active context should be deliberate.
 
-Current prototype (as of v0.1.0):
+Current prototype (as of v0.1.2):
 
 ```text
 prototype.html                     (thin HTML shell; loads bootstrap.mjs)

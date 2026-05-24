@@ -14,7 +14,7 @@ what should.
 [![License: MIT](https://img.shields.io/badge/license-MIT-0F0F12.svg)](./LICENSE)
 [![Node](https://img.shields.io/badge/node-%E2%89%A520-C97B4E.svg)](https://nodejs.org/)
 [![Status](https://img.shields.io/badge/status-pre--alpha-3A7A7A.svg)](#status)
-[![Tests](https://img.shields.io/badge/tests-54%20passing-3A7A7A.svg)](./tests)
+[![Tests](https://img.shields.io/badge/tests-61%20passing-3A7A7A.svg)](./tests)
 [![CI](https://github.com/FrankBu0616/Dandelion/actions/workflows/test.yml/badge.svg)](https://github.com/FrankBu0616/Dandelion/actions/workflows/test.yml)
 
 </div>
@@ -158,22 +158,36 @@ If not, the feature belongs to generic branching chat, not Dandelion.
 - 🔌 **BYO keys**, local-first — Dandelion never phones home. Your
   Anthropic key talks to Anthropic; your Ollama runs locally. No
   telemetry, no account, no hosted backend.
-- 🧪 **54 tests** covering the classifier, mute filters, persistence,
+- 🧪 **61 tests** covering the classifier, mute filters, persistence,
   server session store, and `.env` loader.
 
 ## Quick start
+
+### Try it in your browser (no clone, no install)
+
+The prototype is fully client-side: paste your own Anthropic API key (or
+point it at your local Ollama) and everything runs against api.anthropic.com
+directly from the browser. Keys live only in your `localStorage`.
+
+> Deploy your own copy in two clicks → [deploy to Vercel](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FFrankBu0616%2FDandelion).
+> No build step required; Vercel serves the static prototype as-is.
+
+### Run locally (recommended for development)
 
 ```sh
 git clone https://github.com/FrankBu0616/Dandelion.git
 cd Dandelion
 cp .env.example .env       # then edit .env — fill in keys or leave blank for Ollama-only
 npm start                  # serves http://localhost:4321
-npm test                   # 54 unit tests, no network needed
+npm test                   # 61 unit tests, no network needed
 ```
 
 Requires Node.js 20+. **No `npm install`** — Dandelion has no npm
 dependencies. The prototype pulls its three frontend libraries (marked,
 KaTeX, DOMPurify) directly from CDN on page load.
+
+The local Node server is optional in the browser-direct deploy — it stays
+useful for the merge harness, scripted scenarios, and faster iteration.
 
 The server auto-loads `.env` from the repo root on startup
 (`scripts/load-env.mjs`). Values already in your shell win over the
@@ -358,7 +372,7 @@ scripts/
     prompts.mjs                    continuation-prompt builders
     sessions.mjs                   file-backed session storage (./sessions/*.json)
 sessions/                          server-side session snapshots (gitignored)
-tests/                             node:test suites (54 tests)
+tests/                             node:test suites (61 tests)
 docs/
   README.md                        docs index
   north_star.md                    product doctrine

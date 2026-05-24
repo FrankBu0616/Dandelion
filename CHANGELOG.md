@@ -9,6 +9,32 @@ adheres to [Semantic Versioning][semver] for the snapshot schema (see
 [kc]: https://keepachangelog.com/en/1.1.0/
 [semver]: https://semver.org/
 
+## [0.1.2] - 2026-05-22
+
+Release-polish pass after the first public tag.
+
+### Fixed
+
+- Seed-panel layering now covers old floating graft visuals when the
+  tray is open.
+- Empty keys in `.env` are treated as unset, so copying
+  `.env.example` no longer hides provider setup warnings or model
+  discovery.
+- Node 20 CI now uses default `node --test` discovery instead of a
+  shell glob that was not portable across runners.
+
+### Changed
+
+- Seed history replay and retired legacy context fallback paths are now
+  explicit in the prototype.
+- README hero now includes the demo GIF and muted-context captions can
+  expand for longer routing records.
+
+### Tests
+
+- 54 → 61 tests, including `.env` empty-key behavior and seed-history
+  replay coverage.
+
 ## [0.1.0] - 2026-05-22
 
 First open-source release. Pre-alpha; the design is locked enough to
@@ -107,6 +133,6 @@ test the core context-modulation loop but features will change.
 
 ### Tests
 
-- 13 → 54 (`mute-filters`, `persistence`, `sessions-server`, `.env`
+- 13 → 61 (`mute-filters`, `persistence`, `sessions-server`, `.env`
   loader, and static-file gate coverage added on top of the existing
   classifier and graph tests).

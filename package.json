@@ -1,6 +1,6 @@
 {
   "name": "dandelion",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "private": true,
   "description": "Chat-native, user-arbitrated parallel exploration with merge. Spin up parallel plants off a question, graft the ones you trust back into the trunk, see exactly what context the model receives.",
   "license": "MIT",

@@ -43,13 +43,13 @@
     <text x="440" y="376"
           font-size="34"
           font-weight="400"
-          fill="#2A2A2E">Fork a question. Weave the answers.</text>
+          fill="#2A2A2E">Sculpt what the model is thinking.</text>
 
     <!-- Subtitle -->
     <text x="440" y="430"
           font-size="22"
           font-weight="400"
-          fill="#5C5F66">Local-first parallel side-threads with app-owned merge routing.</text>
+          fill="#5C5F66">Fork questions, mute context, graft what should remain.</text>
 
     <!-- Route chips -->
     <g font-size="16" font-weight="500" font-family="'JetBrains Mono', ui-monospace, monospace">
@@ -58,13 +58,8 @@
         <rect width="186" height="32" rx="6" fill="#3A7A7A"/>
         <text x="93" y="22" text-anchor="middle" fill="#F4EFE6">additional_context</text>
       </g>
-      <!-- soft_disagreement — copper -->
-      <g transform="translate(640 484)">
-        <rect width="186" height="32" rx="6" fill="#C97B4E"/>
-        <text x="93" y="22" text-anchor="middle" fill="#F4EFE6">soft_disagreement</text>
-      </g>
       <!-- material_conflict — dark copper -->
-      <g transform="translate(840 484)">
+      <g transform="translate(656 484)">
         <rect width="178" height="32" rx="6" fill="#8A4F22"/>
         <text x="89" y="22" text-anchor="middle" fill="#F4EFE6">material_conflict</text>
       </g>
