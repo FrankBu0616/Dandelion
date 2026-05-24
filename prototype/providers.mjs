@@ -94,18 +94,13 @@ export async function listModels() {
   }
   const openaiKey = getOpenaiKey();
   if (openaiKey) {
-    const curated = [
-      { model: 'gpt-4o', label: 'GPT-4o' },
-      { model: 'gpt-4o-mini', label: 'GPT-4o mini' },
-      { model: 'o1', label: 'o1' },
-      { model: 'o1-mini', label: 'o1 mini' },
-    ];
-    for (const c of curated) {
+    const openaiModels = await listOpenAIModels();
+    for (const id of openaiModels) {
       items.push({
-        id: `openai:${c.model}`,
-        label: c.label,
+        id: `openai:${id}`,
+        label: id,
         provider: 'openai',
-        model: c.model,
+        model: id,
         secondary: 'OpenAI',
         available: true,
       });
@@ -123,6 +118,48 @@ export async function listModels() {
     });
   }
   return items;
+}
+
+async function listOpenAIModels() {
+  const apiKey = getOpenaiKey();
+  if (!apiKey) return [];
+  const baseUrl = getOpenaiBaseUrl();
+  try {
+    const res = await fetch(`${baseUrl}/models`, {
+      headers: { Authorization: `Bearer ${apiKey}` },
+    });
+    if (!res.ok) {
+      console.warn(`OpenAI /models returned ${res.status}`);
+      return [];
+    }
+    const json = await res.json();
+    const all = (json.data ?? []).map((m) => m.id).filter(Boolean);
+    // Filter to chat-completable models. OpenAI's /v1/models returns
+    // everything the org has access to — embeddings, image, audio, TTS,
+    // realtime, fine-tunes, etc. We keep gpt-* and o-series, and reject the
+    // obvious non-chat ones.
+    const chatish = all.filter((id) => {
+      if (/^(text-embedding|embedding|dall-e|tts|whisper|omni-moderation|gpt-image|gpt-4o-(transcribe|tts|realtime|audio)|gpt-realtime)/i.test(id)) {
+        return false;
+      }
+      return /^gpt-/i.test(id) || /^o\d/i.test(id) || /^chatgpt-/i.test(id);
+    });
+    // Sort: newer model families on top, but keep within-family order stable.
+    // Heuristic: gpt-5* > gpt-4.5* > gpt-4* > chatgpt-* > o3* > o1*.
+    const rank = (id) => {
+      if (/^gpt-5/i.test(id)) return 0;
+      if (/^gpt-4\.5/i.test(id)) return 1;
+      if (/^gpt-4/i.test(id)) return 2;
+      if (/^chatgpt-/i.test(id)) return 3;
+      if (/^o3/i.test(id)) return 4;
+      if (/^o1/i.test(id)) return 5;
+      return 6;
+    };
+    return chatish.sort((a, b) => rank(a) - rank(b) || a.localeCompare(b));
+  } catch (err) {
+    console.warn('OpenAI /models fetch failed:', err);
+    return [];
+  }
 }
 
 async function listOllamaModels() {

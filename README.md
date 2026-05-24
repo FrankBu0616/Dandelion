@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="brand/wordmark_lockup_horizontal.svg" alt="Dandelion" width="420" />
+<img src="brand/wordmark_lockup_horizontal.svg?v=orange-root" alt="Dandelion" width="420" />
 
 **Sculpt what the model is thinking.**
 
