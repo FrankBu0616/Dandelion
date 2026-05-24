@@ -14,13 +14,12 @@ In Dandelion's vocabulary, each side branch the user spins up is a **plant** —
 
 Why the diamond: it visually distinguishes the *merge primitive* from the fork sources. Sources are circles (regular nodes); the merge is a different geometric primitive. That's the visual move that makes the mark mean *what Dandelion is* — fork *and* merge — rather than just "DAG."
 
-Three variants in `brand/logos/`:
+Two variants in `brand/logos/`:
 
 | File | Variant | Use |
 |---|---|---|
 | `dandelion.svg` | Canonical (filled, rotated 35°) | Default — embed in lockups, web headers, anywhere a clean mark is needed |
 | `dandelion_app_icon.svg` | App icon (Ink seed with Copper root on rounded Cream tile, mark rotated 35° inside) | macOS / Windows app icon, favicon, OS launcher |
-| `dandelion_outlined.svg` | Outlined (hollow nodes, lighter weight, rotated 35°) | Ghost contexts: watermarks, low-emphasis backgrounds, faint UI use |
 
 Five reference SVGs from the exploration round remain in `logos/` as record of what was tried: `01_trefoil.svg`, `03_striped_tile.svg`, `04_tributary.svg`, `05_lens.svg`, `06_twist.svg`. Safe to delete if you want a cleaner directory.
 

@@ -9,8 +9,8 @@ the assets under the `brand/` directory.
 This carve-out covers all files under `brand/`:
 
 - `brand_kit.md`, `brand_kit.html`
-- `logos/dandelion.svg`, `logos/dandelion_outlined.svg`,
-  `logos/dandelion_app_icon.svg`, and any other files under `logos/`
+- `logos/dandelion.svg`, `logos/dandelion_app_icon.svg`, and any other
+  files under `logos/`
 - `wordmark_plain.svg`, `wordmark_lockup_horizontal.svg`,
   `wordmark_lockup_stacked.svg`
 - `social_preview.png`, `social_preview.svg`

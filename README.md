@@ -560,8 +560,6 @@ and lockups.
 <p align="center">
   <img src="brand/logos/dandelion.svg" alt="" width="56" />
   &nbsp;&nbsp;&nbsp;
-  <img src="brand/logos/dandelion_outlined.svg" alt="" width="56" />
-  &nbsp;&nbsp;&nbsp;
   <img src="brand/logos/dandelion_app_icon.svg" alt="" width="56" />
 </p>
 
