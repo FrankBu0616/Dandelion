@@ -9,17 +9,17 @@
 
   <!-- ============ MARK (left side, large) ============ -->
   <!-- Canonical dandelion mark, rotated 35° around its centre, scaled up. -->
-  <g transform="translate(180 320) scale(2.6) translate(-60 -60)" color="#0F0F12">
+  <g transform="translate(180 320) scale(2.6) translate(-60 -60)">
     <g transform="rotate(35 60 60)">
-      <g stroke="currentColor" stroke-width="5" stroke-linecap="round">
+      <g stroke="#0F0F12" stroke-width="5" stroke-linecap="round">
         <line x1="32" y1="30" x2="60" y2="90"/>
         <line x1="60" y1="30" x2="60" y2="90"/>
         <line x1="88" y1="30" x2="60" y2="90"/>
       </g>
       <!-- Three fork-source nodes -->
-      <circle cx="32" cy="30" r="9" fill="currentColor"/>
-      <circle cx="60" cy="30" r="9" fill="currentColor"/>
-      <circle cx="88" cy="30" r="9" fill="currentColor"/>
+      <circle cx="32" cy="30" r="9" fill="#0F0F12"/>
+      <circle cx="60" cy="30" r="9" fill="#0F0F12"/>
+      <circle cx="88" cy="30" r="9" fill="#0F0F12"/>
       <!-- Diamond merge node -->
       <g transform="translate(60 90) rotate(45)">
         <rect x="-11" y="-11" width="22" height="22" fill="#C97B4E"/>

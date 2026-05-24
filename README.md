@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="brand/wordmark_lockup_horizontal.svg" alt="Dandelion" width="420" />
+<img src="brand/wordmark_lockup_horizontal.svg?v=orange-root" alt="Dandelion" width="420" />
 
 **Sculpt what the model is thinking.**
 
@@ -559,8 +559,6 @@ and lockups.
 
 <p align="center">
   <img src="brand/logos/dandelion.svg" alt="" width="56" />
-  &nbsp;&nbsp;&nbsp;
-  <img src="brand/logos/dandelion_outlined.svg" alt="" width="56" />
   &nbsp;&nbsp;&nbsp;
   <img src="brand/logos/dandelion_app_icon.svg" alt="" width="56" />
 </p>
