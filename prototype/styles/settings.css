@@ -13,6 +13,12 @@
   .top-bar .settings-btn:hover { background: var(--surface-soft); }
 
   /* ============ SETTINGS MODAL ============ */
+  /* `display: flex` on .settings-modal beats the HTML `hidden` attribute
+     (which only sets `display: none` at UA-stylesheet specificity), so an
+     explicit override is required for the close path to actually hide it. */
+  .settings-overlay[hidden],
+  .settings-modal[hidden] { display: none !important; }
+
   .settings-overlay {
     position: fixed; inset: 0;
     background: rgba(15, 15, 18, 0.32);
