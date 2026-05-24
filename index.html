@@ -91,6 +91,20 @@
       </div>
 
       <div class="settings-field">
+        <label class="settings-label" for="settings-openai-key">OpenAI API key</label>
+        <div class="settings-input-row">
+          <input type="password" id="settings-openai-key" class="settings-input"
+                 autocomplete="off" spellcheck="false" placeholder="sk-…" />
+          <button class="settings-reveal-btn" id="settings-openai-reveal-btn" type="button"
+                  title="Show / hide key">👁</button>
+        </div>
+        <div class="settings-help">
+          Get a key at <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener">platform.openai.com/api-keys</a>. Stored only in your browser; sent only to api.openai.com.
+          File attachments aren't supported on OpenAI yet — uploaded files get dropped to text.
+        </div>
+      </div>
+
+      <div class="settings-field">
         <label class="settings-label" for="settings-ollama-url">Ollama URL</label>
         <input type="text" id="settings-ollama-url" class="settings-input"
                autocomplete="off" spellcheck="false" placeholder="http://localhost:11434" />

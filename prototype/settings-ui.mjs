@@ -18,8 +18,10 @@ import { getSettings, updateSettings } from './settings.mjs';
  *   cancelBtn: HTMLElement,
  *   saveBtn: HTMLElement,
  *   anthropicKeyInput: HTMLInputElement,
+ *   openaiKeyInput: HTMLInputElement,
  *   ollamaUrlInput: HTMLInputElement,
  *   revealBtn: HTMLElement,
+ *   openaiRevealBtn: HTMLElement,
  *   onSave?: (settings: object) => void,
  * }} refs
  */
@@ -32,16 +34,20 @@ export function createSettingsUI(refs) {
     cancelBtn,
     saveBtn,
     anthropicKeyInput,
+    openaiKeyInput,
     ollamaUrlInput,
     revealBtn,
+    openaiRevealBtn,
     onSave,
   } = refs;
 
   function loadIntoForm() {
     const s = getSettings();
     anthropicKeyInput.value = s.anthropicApiKey || '';
+    openaiKeyInput.value = s.openaiApiKey || '';
     ollamaUrlInput.value = s.ollamaBaseUrl || '';
     anthropicKeyInput.type = 'password';
+    openaiKeyInput.type = 'password';
   }
 
   function open() {
@@ -56,11 +62,13 @@ export function createSettingsUI(refs) {
     modal.hidden = true;
     overlay.hidden = true;
     anthropicKeyInput.type = 'password';
+    openaiKeyInput.type = 'password';
   }
 
   function save() {
     const next = updateSettings({
       anthropicApiKey: anthropicKeyInput.value.trim(),
+      openaiApiKey: openaiKeyInput.value.trim(),
       ollamaBaseUrl: ollamaUrlInput.value.trim() || 'http://localhost:11434/v1',
     });
     close();
@@ -69,23 +77,29 @@ export function createSettingsUI(refs) {
     }
   }
 
+  // Toggle helper for password-style fields with an adjacent reveal button.
+  function bindReveal(btn, input) {
+    btn.addEventListener('click', () => {
+      input.type = input.type === 'password' ? 'text' : 'password';
+    });
+  }
+
   openBtn.addEventListener('click', open);
   closeBtn.addEventListener('click', close);
   cancelBtn.addEventListener('click', close);
   overlay.addEventListener('click', close);
   saveBtn.addEventListener('click', save);
 
-  revealBtn.addEventListener('click', () => {
-    anthropicKeyInput.type = anthropicKeyInput.type === 'password' ? 'text' : 'password';
-  });
+  bindReveal(revealBtn, anthropicKeyInput);
+  bindReveal(openaiRevealBtn, openaiKeyInput);
 
   // Esc closes when open.
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && !modal.hidden) close();
   });
 
-  // Submit-on-Enter when focused in either field.
-  for (const input of [anthropicKeyInput, ollamaUrlInput]) {
+  // Submit-on-Enter from any of the input fields.
+  for (const input of [anthropicKeyInput, openaiKeyInput, ollamaUrlInput]) {
     input.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') {
         e.preventDefault();

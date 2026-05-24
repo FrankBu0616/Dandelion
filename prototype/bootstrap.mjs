@@ -725,8 +725,10 @@ const settingsUI = createSettingsUI({
   cancelBtn: document.getElementById("settings-cancel-btn"),
   saveBtn: document.getElementById("settings-save-btn"),
   anthropicKeyInput: document.getElementById("settings-anthropic-key"),
+  openaiKeyInput: document.getElementById("settings-openai-key"),
   ollamaUrlInput: document.getElementById("settings-ollama-url"),
   revealBtn: document.getElementById("settings-reveal-btn"),
+  openaiRevealBtn: document.getElementById("settings-openai-reveal-btn"),
   // After saving, re-pull the model list so newly available providers appear.
   onSave: () => { modelPicker.load(); },
 });

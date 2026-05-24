@@ -11,6 +11,8 @@ const STORAGE_KEY = 'dandelion.settings';
 
 const DEFAULTS = Object.freeze({
   anthropicApiKey: '',
+  openaiApiKey: '',
+  openaiBaseUrl: 'https://api.openai.com/v1',
   ollamaBaseUrl: 'http://localhost:11434/v1',
   defaultProvider: '', // empty = auto (first available)
   defaultModel: '',
@@ -54,6 +56,16 @@ export function getAnthropicKey() {
   return read().anthropicApiKey || '';
 }
 
+export function getOpenaiKey() {
+  return read().openaiApiKey || '';
+}
+
+export function getOpenaiBaseUrl() {
+  // OpenAI-compatible base URL — defaults to OpenAI proper but can be pointed
+  // at compatible gateways (Azure OpenAI, LiteLLM, OpenRouter, etc.).
+  return (read().openaiBaseUrl || DEFAULTS.openaiBaseUrl).replace(/\/+$/, '');
+}
+
 /**
  * Normalize an Ollama URL so callers don't need to remember the `/v1` suffix.
  * Accepts any of:
@@ -84,7 +96,11 @@ export function getDefaultModel() {
   return read().defaultModel || '';
 }
 
-/** True if at least one provider is configured (Anthropic key or Ollama reachable). */
+/** True if at least one provider is configured. */
 export function hasAnyProviderConfigured() {
-  return Boolean(getAnthropicKey()) || Boolean(getOllamaBaseUrl());
+  return (
+    Boolean(getAnthropicKey()) ||
+    Boolean(getOpenaiKey()) ||
+    Boolean(getOllamaBaseUrl())
+  );
 }
