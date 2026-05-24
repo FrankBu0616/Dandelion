@@ -55,6 +55,13 @@
     position: absolute;
     top: calc(100% + 6px); right: 0;
     width: 280px;
+    /* Cap height so the menu never extends past the bottom of the viewport,
+       and let it scroll internally when there are too many models to fit.
+       52px = top-bar height; 6px = the gap above the menu; 16px = breathing
+       room before the bottom of the screen. */
+    max-height: calc(100vh - 52px - 6px - 16px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 10px;

@@ -43,22 +43,39 @@ export function createModelPicker({ chip, menu, name, dot, meta, onChange }) {
   }
 
   function renderMenu(models) {
-    const groups = { anthropic: [], ollama: [] };
-    for (const m of models) (groups[m.provider] || (groups[m.provider] = [])).push(m);
-
-    const sections = [];
-    if (groups.anthropic.length) {
-      sections.push({ label: "Cloud", color: "#16a34a", items: groups.anthropic });
+    // Group by provider, then emit one section per non-empty group.
+    // Cloud providers share the green dot; local providers (Ollama) get amber.
+    // New providers (OpenAI here, future ones) appear automatically.
+    const groups = {};
+    for (const m of models) {
+      (groups[m.provider] || (groups[m.provider] = [])).push(m);
     }
-    if (groups.ollama.length) {
-      sections.push({ label: "Local", color: "#f59e0b", items: groups.ollama });
+
+    const PROVIDER_META = {
+      anthropic: { label: "Anthropic", color: "#16a34a" },
+      openai:    { label: "OpenAI",    color: "#16a34a" },
+      ollama:    { label: "Local",     color: "#f59e0b" },
+    };
+    // Stable section order: cloud providers first, local last.
+    const ORDER = ["anthropic", "openai", "ollama"];
+    const sections = [];
+    for (const key of ORDER) {
+      if (groups[key]?.length) {
+        const meta = PROVIDER_META[key];
+        sections.push({ label: meta.label, color: meta.color, items: groups[key] });
+      }
+    }
+    // Anything not in ORDER (future providers) falls through to a generic group.
+    for (const key of Object.keys(groups)) {
+      if (ORDER.includes(key)) continue;
+      sections.push({ label: key, color: "#6b7280", items: groups[key] });
     }
 
     menu.innerHTML = "";
     if (sections.length === 0) {
       const empty = document.createElement("div");
       empty.className = "model-group";
-      empty.textContent = "No models available — start Ollama or set ANTHROPIC_API_KEY.";
+      empty.textContent = "No models available — open Settings to add a key, or start Ollama.";
       menu.appendChild(empty);
       return;
     }

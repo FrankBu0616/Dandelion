@@ -69,28 +69,24 @@ export async function chat(messages, opts = {}) {
 
 /**
  * List the models the browser can offer.
- * - Anthropic: a curated list (only included if a key is set in settings).
- * - Ollama: queried live from the configured base URL. Empty list if unreachable.
+ * - Anthropic: queried live from /v1/models.
+ * - OpenAI: queried live from /v1/models, filtered to chat-completable.
+ * - Ollama: queried live from the configured base URL.
+ * All return empty if unreachable / no key.
  * Returns [{ id, label, provider, model, secondary, available }, ...].
  */
 export async function listModels() {
   const items = [];
-  const anthropicKey = getAnthropicKey();
-  if (anthropicKey) {
-    const curated = [
-      { model: 'claude-haiku-4-5', label: 'Claude Haiku 4.5' },
-      { model: 'claude-sonnet-4-6', label: 'Claude Sonnet 4.6' },
-    ];
-    for (const c of curated) {
-      items.push({
-        id: `anthropic:${c.model}`,
-        label: c.label,
-        provider: 'anthropic',
-        model: c.model,
-        secondary: 'Anthropic',
-        available: true,
-      });
-    }
+  const anthropicModels = await listAnthropicModels();
+  for (const m of anthropicModels) {
+    items.push({
+      id: `anthropic:${m.id}`,
+      label: m.label,
+      provider: 'anthropic',
+      model: m.id,
+      secondary: 'Anthropic',
+      available: true,
+    });
   }
   const openaiKey = getOpenaiKey();
   if (openaiKey) {
@@ -120,6 +116,47 @@ export async function listModels() {
   return items;
 }
 
+async function listAnthropicModels() {
+  const apiKey = getAnthropicKey();
+  if (!apiKey) return [];
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/models', {
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': ANTHROPIC_VERSION,
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+    });
+    if (!res.ok) {
+      console.warn(`Anthropic /models returned ${res.status}`);
+      return [];
+    }
+    const json = await res.json();
+    const raw = (json.data ?? []).filter((m) => m && m.id);
+    // Filter out models that appear in /v1/models but aren't yet usable via
+    // /v1/messages. Anthropic lists upcoming generations there before chat
+    // completion support is enabled. Add patterns here as needed.
+    const NOT_YET_USABLE = [/^claude-(opus|sonnet|haiku)-4-7(-|$)/i];
+    const usable = raw.filter((m) => !NOT_YET_USABLE.some((re) => re.test(m.id)));
+    return usable
+      .map((m) => ({
+        id: m.id,
+        label: m.display_name || m.id,
+        createdAt: m.created_at || '',
+      }))
+      // Newest first by created_at; falls back to ID compare if equal.
+      .sort((a, b) => {
+        if (a.createdAt && b.createdAt && a.createdAt !== b.createdAt) {
+          return b.createdAt.localeCompare(a.createdAt);
+        }
+        return b.id.localeCompare(a.id);
+      });
+  } catch (err) {
+    console.warn('Anthropic /models fetch failed:', err);
+    return [];
+  }
+}
+
 async function listOpenAIModels() {
   const apiKey = getOpenaiKey();
   if (!apiKey) return [];
@@ -138,10 +175,26 @@ async function listOpenAIModels() {
     // everything the org has access to — embeddings, image, audio, TTS,
     // realtime, fine-tunes, etc. We keep gpt-* and o-series, and reject the
     // obvious non-chat ones.
+    //
+    // We also drop date-stamped snapshot IDs. OpenAI publishes a canonical
+    // alias (`gpt-4o`, `o1`, `chatgpt-4o-latest`, …) AND one or more pinned
+    // snapshots per model. Snapshots clutter the picker; users almost always
+    // want the alias.
+    //
+    // Heuristic: any 4+ digit run preceded by a hyphen is a snapshot marker.
+    // Catches all of:
+    //   gpt-4o-2024-08-06, gpt-4-turbo-2024-04-09 (ISO date)
+    //   gpt-4-0125-preview, gpt-4-1106-preview    (MMDD + word)
+    //   gpt-3.5-turbo-0613, gpt-3.5-turbo-16k     (4-digit suffix)
+    //   o1-preview-2024-09-12                      (preview + date)
+    // Aliases like `gpt-4o`, `gpt-4o-mini`, `o1-preview`, `chatgpt-4o-latest`
+    // contain no `-\d{4}` sequence and are kept.
+    const SNAPSHOT = /-\d{4}/;
     const chatish = all.filter((id) => {
       if (/^(text-embedding|embedding|dall-e|tts|whisper|omni-moderation|gpt-image|gpt-4o-(transcribe|tts|realtime|audio)|gpt-realtime)/i.test(id)) {
         return false;
       }
+      if (SNAPSHOT.test(id)) return false;
       return /^gpt-/i.test(id) || /^o\d/i.test(id) || /^chatgpt-/i.test(id);
     });
     // Sort: newer model families on top, but keep within-family order stable.
