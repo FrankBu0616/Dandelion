@@ -11,6 +11,7 @@ what should.
 <br />
 <img src="dandelion_demo.gif" alt="Dandelion in action: parallel plants, graft, mute" width="720" />
 
+[![Live demo](https://img.shields.io/badge/live%20demo-dandelion--three.vercel.app-C97B4E.svg)](https://dandelion-three.vercel.app/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-0F0F12.svg)](./LICENSE)
 [![Node](https://img.shields.io/badge/node-%E2%89%A520-C97B4E.svg)](https://nodejs.org/)
 [![Status](https://img.shields.io/badge/status-pre--alpha-3A7A7A.svg)](#status)
