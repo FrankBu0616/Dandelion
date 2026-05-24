@@ -373,11 +373,11 @@ const server = createServer(async (request, response) => {
     }
 
     // Static file fallback. Friendly aliases:
-    //   /                  → prototype.html
+    //   /                  → index.html
     //   /router-demo       → prototype/router-demo/index.html
     //   /prototype-router.html (legacy)
     let pathname = url.pathname;
-    if (pathname === '/') pathname = '/prototype.html';
+    if (pathname === '/') pathname = '/index.html';
     else if (pathname === '/router-demo' || pathname === '/router-demo/') {
       pathname = '/prototype/router-demo/index.html';
     } else if (pathname === '/prototype-router.html') {

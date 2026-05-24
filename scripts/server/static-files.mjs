@@ -5,7 +5,7 @@
 
 import { relative, resolve, sep } from 'node:path';
 
-const PUBLIC_ROOT_FILES = new Set(['prototype.html']);
+const PUBLIC_ROOT_FILES = new Set(['index.html']);
 const PUBLIC_FILES = new Set(['scripts/merge-router.mjs']);
 const PUBLIC_DIRS = ['brand', 'prototype'];
 

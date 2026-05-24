@@ -7,7 +7,7 @@ import { publicStaticPath } from "../scripts/server/static-files.mjs";
 const ROOT = "/tmp/dandelion";
 
 test("publicStaticPath admits the prototype shell and public asset roots", () => {
-  assert.equal(publicStaticPath(ROOT, "/prototype.html"), join(ROOT, "prototype.html"));
+  assert.equal(publicStaticPath(ROOT, "/index.html"), join(ROOT, "index.html"));
   assert.equal(
     publicStaticPath(ROOT, "/prototype/styles/main-thread.css"),
     join(ROOT, "prototype/styles/main-thread.css"),
