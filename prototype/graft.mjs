@@ -12,14 +12,14 @@
 // pending state, the model-based classifier runs against the server, and the
 // marker (plus any conflict-choice card) is patched in place when the route
 // resolves. If the network call fails we fall back to the synchronous keyword
-// heuristic in scripts/merge-router.mjs so the UI never gets stuck.
+// heuristic in prototype/merge-router.mjs so the UI never gets stuck.
 //
 // The module mutates `state.mainConv`, `state.plants`, `state.postGraftArmed`,
 // and the conflict-choice item's `resolved` / `selected` fields. Everything
 // else (composer placeholder, focus, re-rendering) goes through the injected
 // `composer` and `render` callbacks so this module stays DOM-agnostic.
 
-import { classifyGraftedPlants } from "../scripts/merge-router.mjs";
+import { classifyGraftedPlants } from "./merge-router.mjs";
 import * as api from "./api.mjs";
 
 const CHOSEN_PATH_REPLY =

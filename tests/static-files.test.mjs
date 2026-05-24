@@ -16,10 +16,6 @@ test("publicStaticPath admits the prototype shell and public asset roots", () =>
     publicStaticPath(ROOT, "/brand/logos/dandelion.svg"),
     join(ROOT, "brand/logos/dandelion.svg"),
   );
-  assert.equal(
-    publicStaticPath(ROOT, "/scripts/merge-router.mjs"),
-    join(ROOT, "scripts/merge-router.mjs"),
-  );
 });
 
 test("publicStaticPath blocks repo-root secrets and server state", () => {

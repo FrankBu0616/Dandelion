@@ -17,7 +17,7 @@ import "./load-env.mjs";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { classifyGraftedPlants } from "./merge-router.mjs";
+import { classifyGraftedPlants } from "../prototype/merge-router.mjs";
 import { classifyRouteWithModel } from "./classify-route.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

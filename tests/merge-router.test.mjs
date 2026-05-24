@@ -4,7 +4,7 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
-import { classifyGraftedPlants, routeLabel } from "../scripts/merge-router.mjs";
+import { classifyGraftedPlants, routeLabel } from "../prototype/merge-router.mjs";
 
 const plant = (text) => ({ title: "t", turns: [{ user: "", asst: text }] });
 

@@ -6,10 +6,6 @@
 scripts/
 sessions/
 
-# Exception: merge-router.mjs is pure-function front-end code that the
-# prototype imports via ../scripts/merge-router.mjs. Whitelist it back in.
-!scripts/merge-router.mjs
-
 # Tests
 tests/
 

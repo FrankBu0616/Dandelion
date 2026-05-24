@@ -24,7 +24,7 @@ import { escapeHtml } from "./escape.mjs";
 import { renderDandelionSVG } from "./dandelion-svg.mjs";
 import { generateReply, generatePostGraftReply } from "./scripted-content.mjs";
 import { renderIdleDandelion } from "./empty-state.mjs";
-import { routeLabel } from "../scripts/merge-router.mjs";
+import { routeLabel } from "./merge-router.mjs";
 import { renderMarkdown } from "./markdown.mjs";
 import { filterGraftPlants, filterParentContext } from "./mute-filters.mjs";
 import { createGraftOverlay } from "./graft-overlay.mjs";
