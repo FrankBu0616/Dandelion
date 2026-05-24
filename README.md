@@ -165,11 +165,14 @@ If not, the feature belongs to generic branching chat, not Dandelion.
 
 ### Try it in your browser (no clone, no install)
 
-The prototype is fully client-side: paste your own Anthropic API key (or
-point it at your local Ollama) and everything runs against api.anthropic.com
-directly from the browser. Keys live only in your `localStorage`.
+**Live demo → https://dandelion-three.vercel.app/**
 
-> Deploy your own copy in two clicks → [deploy to Vercel](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FFrankBu0616%2FDandelion).
+The prototype is fully client-side: open the link, paste your own Anthropic API
+key (or point it at your local Ollama), and everything runs against
+api.anthropic.com directly from the browser. Keys live only in your
+`localStorage` — Dandelion has no backend and never sees your key.
+
+> Want your own deploy? [Clone to Vercel](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FFrankBu0616%2FDandelion).
 > No build step required; Vercel serves the static prototype as-is.
 
 ### Run locally (recommended for development)
