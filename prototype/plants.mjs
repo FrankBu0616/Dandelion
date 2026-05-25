@@ -24,8 +24,19 @@ import * as api from "./api.mjs";
 const PLANT_SYSTEM_PROMPT =
   "You are Dandelion running a plant investigation. Be specific, concise, and useful. Answer the plant's current prompt directly. Parent context is background only; if the plant prompt asks about a different subject, answer the plant prompt rather than recapping the parent.";
 
-const FALLBACK_SUFFIX =
-  "\n\n(Local Ollama was unavailable, so this used the scripted fallback.)";
+const PROVIDER_LABELS = {
+  anthropic: "Anthropic",
+  openai: "OpenAI",
+  ollama: "local Ollama",
+};
+
+function providerLabel(model) {
+  return PROVIDER_LABELS[model?.provider] || "the selected provider";
+}
+
+function fallbackSuffix(model) {
+  return `\n\n(${providerLabel(model)} was unavailable, so this used the scripted fallback.)`;
+}
 
 function durationFor(text) {
   return Math.max(2200, Math.min(6800, (text || "").length * 22));
@@ -152,8 +163,9 @@ export function createPlants({
   }
 
   async function streamFromModel(st, turn, prompt) {
+    const model = st.model || state.currentModel;
     try {
-      turn.asst = "Thinking with local Ollama…";
+      turn.asst = `Thinking with ${providerLabel(model)}…`;
       notify();
       // Build the context the model sees on this seed send. Two parts:
       //   1. Trunk history up to the seed's branch point — same context the
@@ -170,16 +182,17 @@ export function createPlants({
         prompt,
         contextMessages,
         system: PLANT_SYSTEM_PROMPT,
-        model: st.model || state.currentModel,
+        model,
         // Session-scoped files (set in prototype.html). Seeds inherit any
         // file the user has uploaded so they can see the same attachments
         // the main thread does — minus any the user has muted.
         attachments: state.getAttachments?.() ?? [],
       });
       streamIn(st, turn, data.answer || "", durationFor(data.answer));
-    } catch {
+    } catch (err) {
+      console.warn("Dandelion plant: model request failed, using scripted fallback", err);
       const reply = generateReply(prompt);
-      streamIn(st, turn, reply.text + FALLBACK_SUFFIX, reply.duration);
+      streamIn(st, turn, reply.text + fallbackSuffix(model), reply.duration);
     }
   }
 

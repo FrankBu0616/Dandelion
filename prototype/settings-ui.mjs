@@ -117,7 +117,10 @@ export function createSettingsUI(refs) {
  */
 export function openSettingsIfUnconfigured(api) {
   const s = getSettings();
-  if (!s.anthropicApiKey && !s.ollamaBaseUrl) {
+  // ollamaBaseUrl always has a default value, so we can't use it as a signal
+  // for "configured". Treat the user as configured if they've set either
+  // cloud provider key; Ollama users can just close the modal.
+  if (!s.anthropicApiKey && !s.openaiApiKey) {
     api.open();
     return true;
   }
