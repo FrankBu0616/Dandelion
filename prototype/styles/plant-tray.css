@@ -308,7 +308,10 @@
   .plant-messages {
     padding: 14px 0 12px 34px;
     min-height: 160px;
-    max-height: 360px;
+    /* Cap by viewport so the bloom's "Ask in this seed" composer below
+       always stays reachable — previously a long answer could push the
+       composer below the visible area of the column. */
+    max-height: min(360px, 40vh);
     overflow-y: auto;
   }
   .plant-message {

@@ -287,6 +287,10 @@ export function createPlantTray({ dom, state, callbacks }) {
       if (!ta) return;
       ta.focus();
       ta.setSelectionRange(ta.value.length, ta.value.length);
+      // Make sure the composer is actually visible inside the scrollable
+      // plant column — when a plant lives below the fold (common after
+      // multi-seed spawns N plants), focusing alone is not enough.
+      ta.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }, 80);
   }
 

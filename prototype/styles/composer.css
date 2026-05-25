@@ -134,8 +134,9 @@
   }
   .plant-btn-count[hidden] { display: none; }
 
-  /* Composer hint — small caption under the composer box. Only shown in
-     multi-seed mode so single-line users never see the noise. */
+  /* Composer hint — small caption under the composer box. Always visible
+     so the multi-seed mechanic is discoverable; content updates to reflect
+     the current line count. */
   .composer-hint {
     margin-top: 6px;
     padding: 0 6px;
@@ -143,7 +144,10 @@
     color: var(--muted);
     letter-spacing: 0.01em;
   }
-  .composer-hint[hidden] { display: none; }
+  .composer-hint strong {
+    color: var(--text-soft);
+    font-weight: 600;
+  }
   .send-btn {
     width: 32px; height: 32px;
     background: var(--accent);
