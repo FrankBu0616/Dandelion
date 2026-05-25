@@ -284,20 +284,28 @@ export function createPlantTray({ dom, state, callbacks }) {
   function focusComposer(plantId) {
     // Wait two animation frames: the first for the in-flight render to
     // commit, the second so layout has measured before we ask to scroll.
-    // 80ms setTimeout was racing renders on multi-seed spawns of 3–4 plants.
     requestAnimationFrame(() => requestAnimationFrame(() => {
       const ta = document.querySelector(`textarea[data-plant-draft="${plantId}"]`);
       if (!ta) return;
       ta.focus();
       ta.setSelectionRange(ta.value.length, ta.value.length);
 
-      // Scroll the whole focus-bloom (header + messages + composer) into view
-      // with its bottom aligned to the bottom of the scroll container. This
-      // is much more reliable than scrolling the textarea with block:'nearest',
-      // which often decides "already partly visible" and stops short — leaving
-      // the composer cropped off the bottom edge.
-      const bloom = ta.closest('.focus-bloom') || ta;
-      bloom.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      // Explicit scroll: set the scroll container's scrollTop so the
+      // textarea's bottom edge lands a few pixels above the visible
+      // bottom. scrollIntoView's algorithm sometimes decides "good enough"
+      // and stops short; computing the target directly is bulletproof.
+      const scroller = ta.closest('.plant-column-body') || ta.closest('[data-plant-scroll]');
+      if (!scroller) return;
+      const taRect = ta.getBoundingClientRect();
+      const scRect = scroller.getBoundingClientRect();
+      // Where the textarea's bottom currently sits, in the scroller's
+      // own scrollable coordinate system.
+      const taBottomInScroller = (taRect.bottom - scRect.top) + scroller.scrollTop;
+      // Target: textarea bottom = scroller's visible bottom minus an 8px gap.
+      const target = taBottomInScroller - scroller.clientHeight + 8;
+      if (target > scroller.scrollTop) {
+        scroller.scrollTo({ top: target, behavior: 'smooth' });
+      }
     }));
   }
 
