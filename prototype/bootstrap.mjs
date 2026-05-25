@@ -746,13 +746,13 @@ function updatePlantButtonLabel() {
     plantBtnCount.hidden = false;
     plantBtn.title = `Plant ${n} parallel seeds — one per line`;
     composerHint.innerHTML =
-      `<strong>Send</strong> → one message to main · <strong>Plant</strong> → ${n} parallel seeds`;
+      `<strong>Send</strong> → main · <strong>Plant</strong> → ${n} parallel seeds (<kbd>Shift</kbd>+<kbd>Enter</kbd> adds a line)`;
   } else {
     plantBtnLabel.textContent = "Plant";
     plantBtnCount.hidden = true;
-    plantBtn.title = "Plant a side seed (type multiple lines to spawn several in parallel)";
+    plantBtn.title = "Plant a side seed (Shift+Enter for new line — one seed per line)";
     composerHint.innerHTML =
-      `<strong>Send</strong> → one message to main · <strong>Plant</strong> → one seed (or many — one per line)`;
+      `<strong>Send</strong> → main · <strong>Plant</strong> → one seed per line (<kbd>Shift</kbd>+<kbd>Enter</kbd> adds a line)`;
   }
 }
 composerInput.addEventListener("input", () => {
