@@ -138,6 +138,9 @@ const composerAttach = $("#composer-attach");
 const composerFileInput = $("#composer-file-input");
 const composerAttachments = $("#composer-attachments");
 const plantBtn = $("#plant-btn");
+const plantBtnLabel = $("#plant-btn-label");
+const plantBtnCount = $("#plant-btn-count");
+const composerHint = $("#composer-hint");
 const plantCountEl = $("#plant-count");
 const contextOpenBtn = $("#context-open-btn");
 const contextOpenBtnCount = $("#context-open-btn-count");
@@ -515,14 +518,48 @@ const plants = createPlants({
   clearComposer: (plantId) => plantTray.clearComposer(plantId),
 });
 
+// Parse the composer text into one prompt per non-empty line. Trims each
+// line, drops blanks and exact duplicates (in original order). Used by the
+// multi-seed Plant flow — type N questions, hit Plant, fire N parallel seeds.
+function composerPrompts() {
+  const text = composerInput.value;
+  const seen = new Set();
+  const lines = [];
+  for (const raw of text.split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line || seen.has(line)) continue;
+    seen.add(line);
+    lines.push(line);
+  }
+  return lines;
+}
+
 function onOpenPlant() {
   // Belt to the visual-disable suspenders: keyboard shortcuts, accessibility
   // tools, or stale event handlers could still fire this — refuse here too.
   if (isMainStreaming()) return;
-  const draft = composerInput.value.trim();
+  const prompts = composerPrompts();
   composerInput.value = "";
   autoSizeTextarea(composerInput, 160);
-  plants.open(draft);
+  updatePlantButtonLabel();
+
+  // No text → open one blank seed for the user to type into (the escape hatch
+  // when you want a plant without committing to a prompt yet).
+  if (prompts.length === 0) {
+    plants.open("");
+    return;
+  }
+
+  // One or more prompts → spawn-and-fire one plant per prompt. Each plant is
+  // independent; auto-fire makes "type N angles, hit Plant" the headline flow
+  // for parallel exploration.
+  for (const prompt of prompts) {
+    const st = plants.open(prompt);
+    // plants.send reads composerDraft, which open() just populated with
+    // `prompt`. Fire it asynchronously so all N requests go out in parallel
+    // rather than chaining.
+    sendInPlant(st.id);
+  }
 }
 
 const sendInPlant = (stId) => plants.send(stId);
@@ -698,7 +735,30 @@ const modelPicker = createModelPicker({
 /* ============================================================
    WIRING
    ============================================================ */
-composerInput.addEventListener("input", () => autoSizeTextarea(composerInput, 160));
+// Update the Plant button's count badge + composer hint whenever the
+// textarea changes. Two non-empty lines = multi-seed mode is meaningful, so
+// surface it visually. One line stays in the default "Plant" state.
+function updatePlantButtonLabel() {
+  const n = composerPrompts().length;
+  if (n >= 2) {
+    plantBtnLabel.textContent = "Plant";
+    plantBtnCount.textContent = String(n);
+    plantBtnCount.hidden = false;
+    plantBtn.title = `Plant ${n} parallel seeds — one per line`;
+    composerHint.innerHTML =
+      `<strong>Send</strong> → main · <strong>Plant</strong> → ${n} parallel seeds (<kbd>Shift</kbd>+<kbd>Enter</kbd> adds a line)`;
+  } else {
+    plantBtnLabel.textContent = "Plant";
+    plantBtnCount.hidden = true;
+    plantBtn.title = "Plant a side seed (Shift+Enter for new line — one seed per line)";
+    composerHint.innerHTML =
+      `<strong>Send</strong> → main · <strong>Plant</strong> → one seed per line (<kbd>Shift</kbd>+<kbd>Enter</kbd> adds a line)`;
+  }
+}
+composerInput.addEventListener("input", () => {
+  autoSizeTextarea(composerInput, 160);
+  updatePlantButtonLabel();
+});
 composerInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault();

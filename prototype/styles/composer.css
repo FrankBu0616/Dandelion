@@ -118,6 +118,48 @@
   .plant-btn[aria-disabled="true"] svg { color: var(--muted); }
   .plant-btn:disabled:hover,
   .plant-btn[aria-disabled="true"]:hover { background: var(--surface); }
+  /* Count badge — appears next to "Plant" when the composer has 2+ lines.
+     Signals that clicking the button will spawn N parallel seeds. */
+  .plant-btn-count {
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    min-width: 18px; height: 18px;
+    padding: 0 5px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 9px;
+    line-height: 1;
+  }
+  .plant-btn-count[hidden] { display: none; }
+
+  /* Composer hint — small caption under the composer box. Always visible
+     so the multi-seed mechanic is discoverable; content updates to reflect
+     the current line count. */
+  .composer-hint {
+    margin-top: 6px;
+    padding: 0 6px;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.01em;
+  }
+  .composer-hint strong {
+    color: var(--text-soft);
+    font-weight: 600;
+  }
+  .composer-hint kbd {
+    display: inline-block;
+    padding: 0 4px;
+    margin: 0 1px;
+    font: 10px/1.5 "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: var(--text-soft);
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    vertical-align: baseline;
+  }
   .send-btn {
     width: 32px; height: 32px;
     background: var(--accent);
