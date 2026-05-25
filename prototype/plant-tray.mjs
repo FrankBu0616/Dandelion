@@ -282,16 +282,23 @@ export function createPlantTray({ dom, state, callbacks }) {
 
   // Focus the composer textarea for a given plant.
   function focusComposer(plantId) {
-    setTimeout(() => {
+    // Wait two animation frames: the first for the in-flight render to
+    // commit, the second so layout has measured before we ask to scroll.
+    // 80ms setTimeout was racing renders on multi-seed spawns of 3–4 plants.
+    requestAnimationFrame(() => requestAnimationFrame(() => {
       const ta = document.querySelector(`textarea[data-plant-draft="${plantId}"]`);
       if (!ta) return;
       ta.focus();
       ta.setSelectionRange(ta.value.length, ta.value.length);
-      // Make sure the composer is actually visible inside the scrollable
-      // plant column — when a plant lives below the fold (common after
-      // multi-seed spawns N plants), focusing alone is not enough.
-      ta.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 80);
+
+      // Scroll the whole focus-bloom (header + messages + composer) into view
+      // with its bottom aligned to the bottom of the scroll container. This
+      // is much more reliable than scrolling the textarea with block:'nearest',
+      // which often decides "already partly visible" and stops short — leaving
+      // the composer cropped off the bottom edge.
+      const bloom = ta.closest('.focus-bloom') || ta;
+      bloom.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }));
   }
 
   // Clear the composer textarea after a send.
