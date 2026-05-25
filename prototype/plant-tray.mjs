@@ -115,6 +115,16 @@ export function createPlantTray({ dom, state, callbacks }) {
       if (activePlant) activePlant.composerDraft = activeSelection.value;
     }
 
+    // Before we wipe innerHTML, decide whether the user is currently "stuck
+    // to the active composer" or has manually scrolled up. If their current
+    // scroll position is within STICK_THRESHOLD of the bottom, we want to
+    // pin to the focused composer after re-render. Otherwise respect where
+    // they scrolled to.
+    const STICK_THRESHOLD = 80;
+    const distanceToBottom = body.scrollHeight - body.clientHeight - body.scrollTop;
+    const wasStuckToBottom = distanceToBottom <= STICK_THRESHOLD;
+    const savedScrollTop = body.scrollTop;
+
     if (state.plants.length > 0) {
       document.body.classList.add("has-plants");
       column.setAttribute("aria-hidden", "false");
@@ -268,6 +278,29 @@ export function createPlantTray({ dom, state, callbacks }) {
     else subtitle.textContent = `${total} planted`;
     if (countLabel) countLabel.textContent = total > 0 ? `${total} plant${total === 1 ? "" : "s"}` : "";
     updateGraftButton();
+
+    // Restore scroll. Two cases:
+    // (a) User was stuck to the bottom (typical: just spawned plants, just
+    //     fired a question, or chose to follow the streaming response) —
+    //     pin to the focused composer so it stays visible across renders.
+    //     Use instant scroll, not smooth, so subsequent renders don't fight
+    //     mid-animation.
+    // (b) User had scrolled up to look at seeds — respect their position.
+    const maxScroll = Math.max(0, body.scrollHeight - body.clientHeight);
+    if (wasStuckToBottom) {
+      const focusedTa = document.querySelector('textarea[data-plant-draft]');
+      if (focusedTa) {
+        const taRect = focusedTa.getBoundingClientRect();
+        const scRect = body.getBoundingClientRect();
+        const taBottomInScroller = (taRect.bottom - scRect.top) + body.scrollTop;
+        const target = Math.max(0, taBottomInScroller - body.clientHeight + 8);
+        body.scrollTop = Math.min(target, maxScroll);
+      } else {
+        body.scrollTop = maxScroll;
+      }
+    } else {
+      body.scrollTop = Math.min(savedScrollTop, maxScroll);
+    }
   }
 
   // ── DOM hooks the plants module calls into ────────────────────────────
